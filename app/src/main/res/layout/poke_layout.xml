@@ -31,7 +31,6 @@
             android:layout_marginBottom="18dp"
             android:background="@android:color/transparent"
             android:scaleType="fitCenter"
-            android:src="@drawable/pika1"
             app:layout_constraintBottom_toBottomOf="@id/pokeBg"
             app:layout_constraintEnd_toEndOf="@id/pokeBg"
             app:layout_constraintStart_toStartOf="@id/pokeBg" />
