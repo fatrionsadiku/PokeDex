@@ -1,17 +1,24 @@
 package com.example.pokedex.data.server
 
 import com.example.pokedex.data.models.Pokemon
+import com.example.pokedex.data.models.PokemonApiResult
+import com.example.pokedex.data.models.PokemonsApiResult
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface PokeApiService {
 
 
-    @GET("https://pokeapi.co/api/v2/pokemon/")
-    fun getPokemons() : Call<Pokemon>
+//    https://pokeapi.co/api/v2/pokemon/?limit=30&offset=30
 
-//    @GET("https://pokeapi.co/api/v2/pokemon/{name}/")
-//    fun getPokemons(@Path("name") pokeName : String) : Call<Pokemon>
+    @GET("pokemon/{id}")
+     fun getPokemons(@Path("id") pokeId : Int) : Call<Pokemon>
+
+
+    @GET("pokemon")
+     fun getPaginatedPokemons(@Query("limit") limit : Int) : Call<PokemonsApiResult>
+
 
 }
