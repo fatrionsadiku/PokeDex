@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -31,9 +32,17 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getPaginatedPokemons(20)
-        val adapter = PokeAdapter()
+        viewModel.getPaginatedPokemons(30)
+        setUpPokeRecyclerView()
+
+    }
+
+    private fun setUpPokeRecyclerView(){
+        val adapter = PokeAdapter() {
+            Toast.makeText(requireContext(), "The pokemon clicked's name is $it", Toast.LENGTH_SHORT).show()
+        }
         recyclerView.adapter = adapter
+        val padding = (resources.displayMetrics.density * 22).toInt()
         recyclerView.layoutManager = GridLayoutManager(requireContext(),2)
         viewModel.pokemon.observe(viewLifecycleOwner) {
             adapter.pokemons = it

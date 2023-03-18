@@ -10,7 +10,7 @@ import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.models.PokemonApiResult
 import com.example.pokedex.databinding.PokeLayoutBinding
 
-class PokeAdapter() : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
+class PokeAdapter(val itemClicker : (pokemonName : String) -> Unit) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     var pokemons : List<Pokemon?>
     get() = differ.currentList
     set(value) {
@@ -20,7 +20,18 @@ class PokeAdapter() : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
 
 
 
-    class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.apply {
+                root.setOnClickListener {
+                    val currentPosition = adapterPosition
+                    if (currentPosition != RecyclerView.NO_POSITION){
+                        val pokeName = pokemons[currentPosition]?.name
+                        itemClicker.invoke(pokeName!!)
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
