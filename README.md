@@ -1,1 +1,2 @@
-This application is currently on hold for now, but i'll come back and finish it later on
+Pokedex app which fetches data from a remote API and shows a list of pokemons
+TODOS: Implement dependency injection, implement pagination, implement caching, implement pokemon details screen
