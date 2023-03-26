@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pokedex.adapters.PokeAdapter
@@ -14,19 +15,14 @@ import com.example.pokedex.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
     lateinit var binding: FragmentHomeBinding
-    private val viewModel by lazy {
-        ViewModelProvider(this)[HomeViewModel::class.java]
-    }
-    private val recyclerView by lazy {
-        binding.recyclerView
-    }
-
+    private lateinit var viewModel : HomeViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         return binding.root
     }
 
@@ -37,15 +33,22 @@ class HomeFragment : Fragment() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getPaginatedPokemons(30)
+        setUpPokeRecyclerView()
+    }
+
     private fun setUpPokeRecyclerView(){
-        val adapter = PokeAdapter() {
-            Toast.makeText(requireContext(), "The pokemon clicked's name is $it", Toast.LENGTH_SHORT).show()
+        val recyclerView = binding.recyclerView
+        val adapter = PokeAdapter {
+            val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(it)
+            findNavController().navigate(action)
         }
         recyclerView.adapter = adapter
-        val padding = (resources.displayMetrics.density * 22).toInt()
         recyclerView.layoutManager = GridLayoutManager(requireContext(),2)
-        viewModel.pokemon.observe(viewLifecycleOwner) {
-            adapter.pokemons = it
+        viewModel.pokemons.observe(viewLifecycleOwner) {
+            adapter.pokemons = it.toList()
         }
     }
 }

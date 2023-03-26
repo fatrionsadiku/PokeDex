@@ -13,8 +13,8 @@ interface PokeApiService {
 
 //    https://pokeapi.co/api/v2/pokemon/?limit=30&offset=30
 
-    @GET("pokemon/{id}")
-     fun getPokemons(@Path("id") pokeId : Int) : Call<Pokemon>
+    @GET("pokemon/{name}")
+    fun getPokemonByName(@Path("name") pokeId : String) : Call<Pokemon>
 
 
     @GET("pokemon")

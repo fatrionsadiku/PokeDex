@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.data.models.Pokemon
+import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.data.server.Retrofit
 import kotlinx.coroutines.Dispatchers
@@ -18,9 +19,10 @@ import retrofit2.awaitResponse
 
 class HomeViewModel : ViewModel() {
     val pokemon: MutableLiveData<MutableList<Pokemon?>> = MutableLiveData()
+    val pokemons : MutableLiveData<MutableList<PokemonResult>> = MutableLiveData()
 
 
-    fun getPaginatedPokemons(limit: Int)  {
+    fun getPaginatedPokemons(limit: Int) {
         val pokeList = mutableListOf<Pokemon?>()
         val call = Retrofit.pokeApi.getPaginatedPokemons(limit)
         call.enqueue(object : Callback<PokemonsApiResult?> {
@@ -29,24 +31,26 @@ class HomeViewModel : ViewModel() {
                 response: Response<PokemonsApiResult?>
             ) {
                 if (response.isSuccessful) {
-                    viewModelScope.launch {
-                        response.body()?.let { paginatedPokeResponse ->
-                            paginatedPokeResponse.results.forEach { Poke ->
-                                val pokeId = Poke.url.replace(
-                                    "https://pokeapi.co/api/v2/pokemon/",
-                                    ""
-                                ).replace("/", "").toInt()
-                                val currentPoke = async(Dispatchers.IO){
-                                    getPokemon(pokeId)
-                                }
-                                currentPoke.await()?.let {
-                                    pokeList.add(it)
-                                }
-                            }
-                            pokemon.postValue(pokeList)
-                        }
-                        Log.d("PokeList", pokeList.toString())
-                    }
+                    pokemons.postValue(response.body()?.results)
+//                    viewModelScope.launch {
+//                        response.body()?.let { paginatedPokeResponse ->
+//                            paginatedPokeResponse.results.forEach { Poke ->
+//                                Log.d("Current paginated poke", Poke.toString())
+//                                val pokeId = Poke.url.replace(
+//                                    "https://pokeapi.co/api/v2/pokemon/",
+//                                    ""
+//                                ).replace("/", "").toInt()
+//                                val currentPoke = async(Dispatchers.IO) {
+//                                    getPokemon(pokeId)
+//                                }
+//                                currentPoke.await()?.let {
+//                                    pokeList.add(it)
+//                                }
+//                            }
+//                            pokemon.postValue(pokeList)
+//                        }
+//                        Log.d("PokeList", pokeList.toString())
+//                    }
 
                 }
 
@@ -58,9 +62,9 @@ class HomeViewModel : ViewModel() {
         })
     }
 
-    suspend fun getPokemon(number: Int): Pokemon? {
+    suspend fun getPokemon(name : String): Pokemon? {
         return try {
-            val call = Retrofit.pokeApi.getPokemons(number)
+            val call = Retrofit.pokeApi.getPokemonByName(name)
             val response = call.awaitResponse()
             if (response.isSuccessful) {
                 Log.d("Current Pokemon :", response.body().toString())
