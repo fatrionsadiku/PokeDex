@@ -12,17 +12,15 @@ import retrofit2.awaitResponse
 class PokemonDetailsViewModel : ViewModel() {
 
 
-    suspend fun getSinglePokemonByName(pokemonName : String) : Pokemon? {
+    suspend fun getSinglePokemonByName(pokemonName: String): Pokemon? {
         return try {
-                val pokemon = Retrofit.pokeApi.getPokemonByName(pokemonName)
-                val pokeResponse = pokemon.awaitResponse()
-                if (pokeResponse.isSuccessful){
-                    pokeResponse.body()
-                }
-            else
+            val pokemon = Retrofit.pokeApi.getPokemonByName(pokemonName)
+            val pokeResponse = pokemon.awaitResponse()
+            if (pokeResponse.isSuccessful) {
+                pokeResponse.body()
+            } else
                 throw Exception("Failed to fetch pokemon data")
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             Log.e("PokeAPI", "Error fetching pokemon data", e)
             null
         }

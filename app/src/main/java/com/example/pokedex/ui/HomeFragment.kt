@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -30,19 +31,12 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel.getPaginatedPokemons(30)
         setUpPokeRecyclerView()
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getPaginatedPokemons(30)
-        setUpPokeRecyclerView()
     }
 
     private fun setUpPokeRecyclerView(){
         val recyclerView = binding.recyclerView
-        val adapter = PokeAdapter {
-            val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(it)
+        val adapter = PokeAdapter { pokeName, pokeURL ->
+            val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(pokeName,pokeURL)
             findNavController().navigate(action)
         }
         recyclerView.adapter = adapter

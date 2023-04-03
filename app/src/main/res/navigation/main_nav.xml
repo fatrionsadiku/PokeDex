@@ -22,6 +22,10 @@
             android:name="pokemon_name"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="pokemonUrl"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 
 </navigation>

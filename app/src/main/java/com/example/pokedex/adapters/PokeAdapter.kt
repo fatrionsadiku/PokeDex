@@ -12,7 +12,7 @@ import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.databinding.PokeLayoutBinding
 
-class PokeAdapter(val itemClicker : (pokemonName : String) -> Unit) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
+class PokeAdapter(val itemClicker : (pokeName : String, pokeUrl : String) -> Unit) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     var pokemons : List<PokemonResult>
     get() = differ.currentList
     set(value) {
@@ -36,8 +36,8 @@ class PokeAdapter(val itemClicker : (pokemonName : String) -> Unit) : RecyclerVi
                 root.setOnClickListener {
                     val currentPosition = adapterPosition
                     if (currentPosition != RecyclerView.NO_POSITION){
-                        val pokeName = pokemons[currentPosition]!!.name
-                        itemClicker.invoke(pokeName)
+                        val currentPoke = pokemons[currentPosition]
+                        itemClicker.invoke(currentPoke.name,currentPoke.getPokemonPicture())
                     }
                 }
             }
