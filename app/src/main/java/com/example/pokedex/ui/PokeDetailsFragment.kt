@@ -1,6 +1,7 @@
 package com.example.pokedex.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,19 +15,21 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PokeDetailsFragment : Fragment() {
-    lateinit var binding : PokeDetailsLayoutBinding
-    val pokemonArgs : PokeDetailsFragmentArgs by navArgs()
-    lateinit var pokeViewModel : PokemonDetailsViewModel
+    lateinit var binding: PokeDetailsLayoutBinding
+    val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
+    lateinit var pokeViewModel: PokemonDetailsViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = PokeDetailsLayoutBinding.inflate(inflater,container,false)
+        binding = PokeDetailsLayoutBinding.inflate(inflater, container, false)
         pokeViewModel = ViewModelProvider(requireActivity())[PokemonDetailsViewModel::class.java]
         return binding.root
     }
@@ -34,24 +37,31 @@ class PokeDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fillPokemonDataOnScreen()
+        getPokemonDetails(pokemonArgs)
 
     }
 
-//    private fun getPokemonDetails(pokeName : PokeDetailsFragmentArgs){
-//        val pokemonName = pokeName.pokemonName
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            val fetchedPokemon = pokeViewModel.getSinglePokemonByName(pokemonName!!)
-//            if (fetchedPokemon != null) {
-//                fillPokemonDataOnScreen(fetchedPokemon)
-//            }
-//        }
-//    }
+    private fun getPokemonDetails(pokeName: PokeDetailsFragmentArgs) {
+        val pokemonName = pokeName.pokemonName
+        viewLifecycleOwner.lifecycleScope.launch {
+            var fetchedPokemon : Pokemon?
+            withContext(Dispatchers.IO) {
+                 fetchedPokemon = pokeViewModel.getSinglePokemonByName(pokemonName!!)
+            }
+            if (fetchedPokemon != null) {
+                Log.d("Pokemon Debug", fetchedPokemon.toString())
+                fillPokemonDataOnScreen(fetchedPokemon!!)
+            }
+        }
+    }
 
-    private fun fillPokemonDataOnScreen() {
+    private fun fillPokemonDataOnScreen(pokemon: Pokemon) {
         binding.apply {
             Glide.with(requireActivity()).load(pokemonArgs.pokemonUrl).into(binding.pokemonPhoto)
-            pokemonName.text = pokemonArgs.pokemonName
+            pokemonName.text = "${pokemonArgs.pokemonName?.capitalize()}"
+            pokeWeight.text = "${pokemon.weight}kg"
+            pokeHeight.text = "${pokemon.height}m"
+            pokeBaseXP.text = pokemon.baseEXP.toString()
         }
     }
 }
