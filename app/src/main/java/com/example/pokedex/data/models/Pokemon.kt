@@ -10,9 +10,9 @@ data class Pokemon(
     val baseEXP : Int,
     val height : Int,
     val weight : Int,
-    val types : List<Types>
+    val types : Types
 ) {
-    fun getImageUrl() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$id.png"
+    fun getImageUrl() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
 }
 
 data class Sprites(
@@ -22,15 +22,25 @@ data class Sprites(
 
 data class Types(
     @SerializedName("0")
-    val typesHolder : TypeHolder
+    val typesHolder : TypeHolder,
+    @SerializedName("1")
+    val typesHolderX : TypeHolderX
 )
 
 data class TypeHolder(
     val slot : Int,
     val type : ActualType
 )
+data class TypeHolderX(
+    val slot : Int,
+    val type : ActualTypeX
+)
 
 data class ActualType(
+    val name : String,
+    val url : String
+)
+data class ActualTypeX(
     val name : String,
     val url : String
 )

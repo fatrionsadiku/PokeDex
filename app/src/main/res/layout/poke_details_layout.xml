@@ -40,11 +40,12 @@
                 android:fontFamily="@font/ryogothic"
                 android:textColor="#3F7C80"
                 android:textSize="20sp" />
+
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#B3B3B3"
-                android:layout_marginEnd="30dp"/>
+                android:layout_marginEnd="30dp"
+                android:background="#B3B3B3" />
 
 
             <TextView
@@ -55,11 +56,12 @@
                 android:fontFamily="@font/ryogothic"
                 android:textColor="#3F7C80"
                 android:textSize="20sp" />
+
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#B3B3B3"
-                android:layout_marginEnd="30dp"/>
+                android:layout_marginEnd="30dp"
+                android:background="#B3B3B3" />
 
             <TextView
                 android:id="@+id/pokeHeight"
@@ -116,10 +118,20 @@
 
     <ImageView
         android:id="@+id/pokemon_photo"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:layout_marginTop="80dp"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="60dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -128,7 +140,7 @@
         android:id="@+id/pokemon_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-12dp"
+        android:layout_marginTop="28dp"
         android:fontFamily="@font/ryogothic"
         android:textColor="#3F7C80"
         android:textSize="24sp"

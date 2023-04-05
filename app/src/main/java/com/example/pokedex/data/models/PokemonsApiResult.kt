@@ -20,7 +20,7 @@ data class PokemonResult(
             ""
         ).replace("/", "").toInt()
 
-        return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokeId.png"
+        return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$pokeId.svg"
     }
 }
 

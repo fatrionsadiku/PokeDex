@@ -5,8 +5,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pixplicity.sharp.Sharp
 
 class PokeDetailsFragment : Fragment() {
     lateinit var binding: PokeDetailsLayoutBinding
@@ -57,11 +60,18 @@ class PokeDetailsFragment : Fragment() {
 
     private fun fillPokemonDataOnScreen(pokemon: Pokemon) {
         binding.apply {
-            Glide.with(requireActivity()).load(pokemonArgs.pokemonUrl).into(binding.pokemonPhoto)
+            binding.progressBar.isVisible = true
+            binding.pokemonPhoto.isVisible = false
+            Log.d("SVG Url", "${pokemon.getImageUrl()}")
+            Sharp.loadFromNetwork(pokemon.getImageUrl()).getSharpPicture(Sharp.PictureCallback {
+                pokemonPhoto.setImageDrawable(it.drawable)
+            })
             pokemonName.text = "${pokemonArgs.pokemonName?.capitalize()}"
             pokeWeight.text = "${pokemon.weight}kg"
             pokeHeight.text = "${pokemon.height}m"
             pokeBaseXP.text = pokemon.baseEXP.toString()
+            binding.progressBar.isVisible = false
+            binding.pokemonPhoto.isVisible = true
         }
     }
 }
