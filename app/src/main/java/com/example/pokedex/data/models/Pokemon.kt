@@ -10,7 +10,6 @@ data class Pokemon(
     val baseEXP : Int,
     val height : Int,
     val weight : Int,
-    val types : Types
 ) {
     fun getImageUrl() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
 }

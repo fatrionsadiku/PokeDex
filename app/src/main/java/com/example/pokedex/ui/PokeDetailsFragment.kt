@@ -1,5 +1,7 @@
 package com.example.pokedex.ui
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,9 +16,12 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.bumptech.glide.Glide
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.launch
@@ -41,6 +46,7 @@ class PokeDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         getPokemonDetails(pokemonArgs)
+        setUpPokeDetailsViewPager()
 
     }
 
@@ -67,11 +73,23 @@ class PokeDetailsFragment : Fragment() {
                 pokemonPhoto.setImageDrawable(it.drawable)
             })
             pokemonName.text = "${pokemonArgs.pokemonName?.capitalize()}"
-            pokeWeight.text = "${pokemon.weight}kg"
-            pokeHeight.text = "${pokemon.height}m"
-            pokeBaseXP.text = pokemon.baseEXP.toString()
             binding.progressBar.isVisible = false
             binding.pokemonPhoto.isVisible = true
+        }
+    }
+
+    private fun setUpPokeDetailsViewPager() {
+        binding.apply {
+            val adapter = FragmentAdapter(requireActivity())
+            pokeInfosViewPager.adapter = adapter
+            TabLayoutMediator(tabLayout,pokeInfosViewPager) {
+                    tab, position ->
+                when(position) {
+                    0 -> tab.text = "Pokemon Details"
+                    1 -> tab.text = "Pokemon Evolution"
+                }
+            }.attach()
+            tabLayout.background = ColorDrawable(Color.WHITE)
         }
     }
 }
