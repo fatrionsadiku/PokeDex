@@ -39,13 +39,21 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
+            app:tabTextColor="@color/black"
+            app:tabMode="fixed"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorGravity="stretch"
+            app:tabSelectedTextColor="@color/white"
+            app:tabIndicator="@drawable/tab_indicator"
             android:layout_height="wrap_content"
             android:layout_gravity="center|top"/>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/pokeInfosViewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            />
 
 
     </LinearLayout>
