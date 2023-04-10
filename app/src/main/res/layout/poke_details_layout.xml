@@ -10,121 +10,55 @@
 
 
     <!-- Pokemon name -->
-
+    <ImageView
+        android:id="@+id/pokemon_photo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="30dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@id/topPartPokeDetails"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/topPartPokeDetails"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_marginStart="18dp"
-        android:layout_marginTop="230dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="18dp"
         android:background="@drawable/top_poke_details"
         android:orientation="vertical"
-        android:paddingTop="180dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_photo">
 
-        <LinearLayout
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
             android:layout_width="match_parent"
+            app:tabTextColor="@color/black"
+            app:tabMode="fixed"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorGravity="stretch"
+            app:tabSelectedTextColor="@color/white"
+            app:tabIndicator="@drawable/tab_indicator"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_gravity="center|top"/>
 
-            <TextView
-                android:id="@+id/pokeWeight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="48dp"
-                android:layout_weight="0.7"
-                android:fontFamily="@font/ryogothic"
-                android:textColor="#3F7C80"
-                android:textSize="20sp" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="30dp"
-                android:background="#B3B3B3" />
-
-
-            <TextView
-                android:id="@+id/pokeBaseXP"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/ryogothic"
-                android:textColor="#3F7C80"
-                android:textSize="20sp" />
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="30dp"
-                android:background="#B3B3B3" />
-
-            <TextView
-                android:id="@+id/pokeHeight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/ryogothic"
-                android:textColor="#3F7C80"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-        <LinearLayout
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pokeInfosViewPager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
+            android:layout_height="match_parent"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/pokeWeightTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="43dp"
-                android:layout_weight="0.9"
-                android:fontFamily="@font/ryogothic"
-                android:text="WEIGHT"
-                android:textColor="#759EA1"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/pokeBaseXPTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/ryogothic"
-                android:text="EXP"
-                android:textColor="#759EA1"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/pokeHeightTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:fontFamily="@font/ryogothic"
-                android:text="HEIGHT"
-                android:textColor="#759EA1"
-                android:textSize="12sp" />
-        </LinearLayout>
+            />
 
 
     </LinearLayout>
 
 
-    <ImageView
-        android:id="@+id/pokemon_photo"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="80dp"
-        android:scaleType="fitCenter"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -140,9 +74,8 @@
         android:id="@+id/pokemon_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
         android:fontFamily="@font/ryogothic"
-        android:textColor="#3F7C80"
+        android:textColor="#FFFFFF"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

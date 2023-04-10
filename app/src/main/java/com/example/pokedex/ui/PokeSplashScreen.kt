@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pokedex.databinding.PokeSplashScreenBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PokeSplashScreen : AppCompatActivity() {
     lateinit var binding : PokeSplashScreenBinding
     override fun onCreate(savedInstanceState: Bundle?) {
