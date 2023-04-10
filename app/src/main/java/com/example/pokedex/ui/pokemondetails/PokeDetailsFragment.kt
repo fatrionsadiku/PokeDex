@@ -1,4 +1,4 @@
-package com.example.pokedex.ui
+package com.example.pokedex.ui.pokemondetails
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -14,22 +14,25 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
+import com.example.pokedex.ui.FragmentAdapter
+import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pixplicity.sharp.Sharp
-
+@AndroidEntryPoint
 class PokeDetailsFragment : Fragment() {
     lateinit var binding: PokeDetailsLayoutBinding
     val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
-    lateinit var pokeViewModel: PokemonDetailsViewModel
+    lateinit var pokeViewModel: PokeDetailsSharedViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = PokeDetailsLayoutBinding.inflate(inflater, container, false)
-        pokeViewModel = ViewModelProvider(requireActivity())[PokemonDetailsViewModel::class.java]
+        pokeViewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
         return binding.root
     }
 

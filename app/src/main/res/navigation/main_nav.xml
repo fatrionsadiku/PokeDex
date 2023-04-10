@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/pokeDetailsFragment2"
         tools:layout="@layout/poke_details_layout"
-        android:name="com.example.pokedex.ui.PokeDetailsFragment"
+        android:name="com.example.pokedex.ui.pokemondetails.PokeDetailsFragment"
         android:label="PokeDetailsFragment" >
         <argument
             android:name="pokemon_name"

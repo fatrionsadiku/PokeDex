@@ -1,4 +1,4 @@
-package com.example.pokedex.ui
+package com.example.pokedex.ui.pokemondetails
 
 import android.graphics.Color
 import android.os.Build
@@ -14,18 +14,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokemonBasicInfoBinding
-import kotlin.random.Random
+import com.example.pokedex.utils.customviews.CustomCardView
+import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PokeBasicInfo : Fragment() {
-    lateinit var binding: PokemonBasicInfoBinding
-    lateinit var viewModel: PokemonDetailsViewModel
+    private lateinit var binding: PokemonBasicInfoBinding
+    private lateinit var viewModel: PokeDetailsSharedViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = PokemonBasicInfoBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(requireActivity())[PokemonDetailsViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
         return binding.root
     }
 
@@ -39,26 +42,43 @@ class PokeBasicInfo : Fragment() {
                 pokeBaseXP.text = it.baseEXP.toString()
                 pokeWeight.text = "${it.weight}kg"
                 pokeHeight.text = "${it.height}m"
-                pokeStatsDummyData()
                 showPokemonTypes(it)
+                showPokemonStats(it)
             }
         }
 
     }
 
-    private fun pokeStatsDummyData() {
-        val currentHp = Random.nextDouble() * (300 - 100) + 100
-        val currentAttack = Random.nextDouble() * (300 - 100) + 100
-        val currentDef = Random.nextDouble() * (300 - 100) + 100
-        binding.apply {
-            progressHp.progress = currentHp.toFloat()
-            progressHp.labelText = "${currentHp.toInt()}/${progressHp.max.toInt()}"
-            progressAttack.progress = currentAttack.toFloat()
-            progressAttack.labelText = "${currentAttack.toInt()}/${progressAttack.max.toInt()}"
-            progressDef.progress = currentDef.toFloat()
-            progressDef.labelText = "${currentDef.toInt()}/${progressDef.max.toInt()}"
+    private fun showPokemonStats(pokemon: Pokemon) {
+        pokemon.stats.forEach {
+            val pokeStatName = it.stat.name
+            binding.apply {
+                when (pokeStatName) {
+                    "hp" -> {
+                        val currentHp = it.baseStat
+                        progressHp.progress = currentHp.toFloat()
+                        progressHp.labelText = "${currentHp}/${progressHp.max.toInt()}"
+                    }
+                    "attack" -> {
+                        val currentAttack = it.baseStat
+                        progressAttack.progress = currentAttack.toFloat()
+                        progressAttack.labelText = "${currentAttack}/${progressAttack.max.toInt()}"
+                    }
+                    "defense" -> {
+                        val currentDefense = it.baseStat
+                        progressDef.progress = currentDefense.toFloat()
+                        progressDef.labelText = "${currentDefense}/${progressAttack.max.toInt()}"
+                    }
+                    "speed" -> {
+                        val currentSpeed = it.baseStat
+                        progressSpeed.progress = currentSpeed.toFloat()
+                        progressSpeed.labelText = "${currentSpeed}/${progressAttack.max.toInt()}"
+                    }
+                }
+            }
         }
     }
+
 
     private fun showPokemonTypes(pokemon: Pokemon) {
         binding.linearLayout.removeAllViews()
@@ -103,21 +123,4 @@ class PokeBasicInfo : Fragment() {
             else -> Color.WHITE // default color
         }
     }
-
-//    fun showPokemonTypes(pokemon : Pokemon) {
-//        binding.apply {
-//            firstStat.apply {
-//                firstStatName.text = pokemon.types.first().type.name
-//            }
-//            if (pokemon.types[1] != null){
-//                secondStatName.text = pokemon.types[1].type.name
-//            } else
-//                secondStat.isVisible = false
-//
-//            if (pokemon.types[2] != null){
-//                thirdStatName.text = pokemon.types[2].type.name
-//            }else
-//                thirdStat.isVisible = false
-//        }
-//    }
 }

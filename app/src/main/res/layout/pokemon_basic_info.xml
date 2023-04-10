@@ -168,6 +168,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/progress_def" />
 
+    <TextView
+        android:id="@+id/currentSpeed"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:gravity="center"
+        android:text="SPD"
+        android:textColor="#759EA1"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/progress_speed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/progress_speed" />
+
     <com.skydoves.progressview.ProgressView
         android:id="@+id/progress_hp"
         android:layout_width="0dp"
@@ -180,12 +193,12 @@
         app:layout_constraintTop_toBottomOf="@id/pokeWeightTitle"
         app:progressView_autoAnimate="true"
         app:progressView_colorBackground="#2b292c"
-        app:progressView_colorProgress="#FF0000"
+        app:progressView_colorProgress="#78C850"
         app:progressView_labelColorInner="@color/white"
         app:progressView_labelColorOuter="@color/black"
         app:progressView_labelSize="12sp"
         app:progressView_labelText="HP"
-        app:progressView_max="300"
+        app:progressView_max="150"
         app:progressView_progress="50"
         app:progressView_radius="12dp" />
 
@@ -206,7 +219,7 @@
         app:progressView_labelColorOuter="@color/black"
         app:progressView_labelSize="12sp"
         app:progressView_labelText="ATK"
-        app:progressView_max="300"
+        app:progressView_max="150"
         app:progressView_progress="50"
         app:progressView_radius="12dp" />
 
@@ -222,14 +235,36 @@
         app:layout_constraintTop_toBottomOf="@id/progress_attack"
         app:progressView_autoAnimate="true"
         app:progressView_colorBackground="#2b292c"
-        app:progressView_colorProgress="#FF0000"
+        app:progressView_colorProgress="#B8A038"
         app:progressView_labelColorInner="@color/white"
         app:progressView_labelColorOuter="@color/black"
         app:progressView_labelSize="12sp"
         app:progressView_labelText="DEF"
-        app:progressView_max="300"
+        app:progressView_max="150"
         app:progressView_progress="50"
         app:progressView_radius="12dp" />
+
+    <com.skydoves.progressview.ProgressView
+        android:id="@+id/progress_speed"
+        android:layout_width="0dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/currentSpeed"
+        app:layout_constraintTop_toBottomOf="@id/progress_def"
+        app:progressView_autoAnimate="true"
+        app:progressView_colorBackground="#2b292c"
+        app:progressView_colorProgress="#6890F0"
+        app:progressView_labelColorInner="@color/white"
+        app:progressView_labelColorOuter="@color/black"
+        app:progressView_labelSize="12sp"
+        app:progressView_labelText="ATK"
+        app:progressView_max="150"
+        app:progressView_progress="50"
+        app:progressView_radius="12dp" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

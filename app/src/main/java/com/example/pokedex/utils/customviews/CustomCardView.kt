@@ -1,4 +1,4 @@
-package com.example.pokedex.ui
+package com.example.pokedex.utils.customviews
 
 import android.content.Context
 import android.graphics.Color

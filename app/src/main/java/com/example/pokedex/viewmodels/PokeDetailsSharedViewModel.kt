@@ -1,13 +1,18 @@
-package com.example.pokedex.ui
+package com.example.pokedex.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.pokedex.data.models.Pokemon
-import com.example.pokedex.data.server.Retrofit
+import com.example.pokedex.data.server.PokeApiService
+import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.awaitResponse
+import javax.inject.Inject
 
-class PokemonDetailsViewModel : ViewModel() {
+@HiltViewModel
+class PokeDetailsSharedViewModel @Inject constructor(
+    private val pokeApi : PokeApiService
+) : ViewModel() {
 
     val pokemonResponse = MutableLiveData<Pokemon>()
     private val cache = mutableMapOf<String, Pokemon>()
@@ -19,7 +24,7 @@ class PokemonDetailsViewModel : ViewModel() {
             return it
         }
         return try {
-            val pokemon = Retrofit.pokeApi.getPokemonByName(pokemonName)
+            val pokemon = pokeApi.getPokemonByName(pokemonName)
             val pokeResponse = pokemon.awaitResponse()
             if (pokeResponse.isSuccessful) {
                 pokemonResponse.postValue(pokeResponse.body())
