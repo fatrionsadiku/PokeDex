@@ -1,8 +1,10 @@
 package com.example.pokedex.data.server
 
+import com.example.pokedex.data.models.PokeAbilities
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.models.PokemonsApiResult
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
@@ -23,6 +25,11 @@ interface PokeApiService {
         @Query("limit") limit: Int,
         @Header("Cache-Control") cacheControl: String = "public, max-age=3600"
     ): Call<PokemonsApiResult>
+
+    @GET("ability/{name}")
+    fun getPokemonAbilities(
+        @Path("name") pokemonName : String?
+    ) : Call<PokeAbilities>
 
 
 }

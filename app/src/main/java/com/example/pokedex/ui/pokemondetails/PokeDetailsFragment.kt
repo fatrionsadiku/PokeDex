@@ -1,6 +1,8 @@
 package com.example.pokedex.ui.pokemondetails
 
 import android.graphics.Color
+import android.graphics.Paint.Style
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
@@ -17,10 +19,12 @@ import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.ui.FragmentAdapter
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import com.skydoves.progressview.textForm
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pixplicity.sharp.Sharp
+
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment() {
     lateinit var binding: PokeDetailsLayoutBinding
@@ -47,9 +51,9 @@ class PokeDetailsFragment : Fragment() {
     private fun getPokemonDetails(pokeName: PokeDetailsFragmentArgs) {
         val pokemonName = pokeName.pokemonName
         viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            var fetchedPokemon : Pokemon?
+            var fetchedPokemon: Pokemon?
             withContext(Dispatchers.IO) {
-                 fetchedPokemon = pokeViewModel.getSinglePokemonByName(pokemonName!!)
+                fetchedPokemon = pokeViewModel.getSinglePokemonByName(pokemonName!!)
             }
             if (fetchedPokemon != null) {
                 Log.d("Pokemon Debug", fetchedPokemon.toString())
@@ -76,14 +80,19 @@ class PokeDetailsFragment : Fragment() {
         binding.apply {
             val adapter = FragmentAdapter(requireActivity())
             pokeInfosViewPager.adapter = adapter
-            TabLayoutMediator(tabLayout,pokeInfosViewPager) {
-                    tab, position ->
-                when(position) {
-                    0 -> {
-                        tab.text = "Pokemon Details"
+            TabLayoutMediator(tabLayout, pokeInfosViewPager) { tab, position ->
+                tab.apply {
+                    when (position) {
+                        0 -> {
+                            text = "Poke Details"
+                        }
+
+                        1 -> {
+                            text = "Poke Abilities"
+                        }
                     }
-                    1 -> tab.text = "Pokemon Evolution"
                 }
+
             }.attach()
             tabLayout.background = ColorDrawable(Color.WHITE)
         }

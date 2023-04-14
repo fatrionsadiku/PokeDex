@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -21,14 +22,17 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-
     @Provides
     fun provideOkHTTPClient(application: Application): OkHttpClient = OkHttpClient.Builder()
         .apply {
+            val interceptor = HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
             val cacheDirectory = File(application.cacheDir, "http-cache")
             val cacheSize = 10 * 1024 * 1024 // 10 MB
             val cache = Cache(cacheDirectory, cacheSize.toLong())
             cache(cache)
+            addInterceptor(interceptor)
         }.build()
 
     @Provides

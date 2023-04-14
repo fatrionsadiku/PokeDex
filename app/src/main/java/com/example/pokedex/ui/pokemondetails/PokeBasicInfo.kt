@@ -41,7 +41,7 @@ class PokeBasicInfo : Fragment() {
                 Log.d("POKE DEBUG YAY", "onViewCreated: ${it.toString()}")
                 pokeBaseXP.text = it.baseEXP.toString()
                 pokeWeight.text = "${it.weight}kg"
-                pokeHeight.text = "${it.height}m"
+                pokeHeight.text = "${it.height}cm"
                 showPokemonTypes(it)
                 showPokemonStats(it)
             }

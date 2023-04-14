@@ -23,13 +23,20 @@ class PokeAdapter(val itemClicker : (pokeName : String, pokeUrl : String) -> Uni
 
 
     inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun getPokemonPicture(pokemon : PokemonResult) : String {
+        fun getPokemonPicture(pokemon : PokemonResult, type : String) : String {
             val pokeId = pokemon.url.replace(
                 "https://pokeapi.co/api/v2/pokemon/",
                 ""
             ).replace("/", "").toInt()
 
-            return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokeId.png"
+            return when(type){
+                "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+                "home" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+                "official" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
+                "gif" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
+                "xyani" -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.name}.gif"
+                else -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+            }
         }
         init {
             binding.apply {
@@ -52,8 +59,8 @@ class PokeAdapter(val itemClicker : (pokeName : String, pokeUrl : String) -> Uni
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val pokemon = pokemons[position]
         with(holder) {
-            binding.pokeName.text = pokemon!!.name
-            Glide.with(binding.root.context).load(getPokemonPicture(pokemon)).into(binding.pokemonPlaceHolder)
+            binding.pokeName.text = pokemon.name
+            Glide.with(binding.root.context).load(getPokemonPicture(pokemon,"xyani")).into(binding.pokemonPlaceHolder)
         }
     }
 
