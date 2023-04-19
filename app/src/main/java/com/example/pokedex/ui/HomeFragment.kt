@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.databinding.FragmentHomeBinding
+import com.example.pokedex.utils.Resource
 import com.example.pokedex.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,35 +34,41 @@ class HomeFragment : Fragment() {
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         return binding.root
     }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getPaginatedPokemons(151)
         setUpPokeRecyclerView()
         setUpPokeFiltering()
     }
 
     private fun setUpPokeRecyclerView() = viewLifecycleOwner.lifecycleScope.launch {
         try {
-            binding.progressBar.isVisible = true
-            binding.recyclerView.isVisible = false
             val recyclerView = binding.recyclerView
-            adapter = PokeAdapter { pokeName, pokeURL ->
-                val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
-                    pokeName,
-                    pokeURL
-                )
-                findNavController().navigate(action)
-            }
+            adapter = PokeAdapter(::adapterOnItemClickedListener)
+            fetchApiData()
             recyclerView.adapter = adapter
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-            viewModel.pokemons.observe(viewLifecycleOwner) {
-                adapter.pokemons = it.toList()
-            }
-            binding.progressBar.isVisible = false
-            binding.recyclerView.isVisible = true
+
         } catch (e: Exception) {
             Log.e("Error fetching poke", "setUpPokeRecyclerView: ${e.toString()}")
+        }
+    }
+
+    private fun fetchApiData(){
+        viewModel.pokemonResponse.observe(viewLifecycleOwner) { response ->
+            when(response){
+                is Resource.Error -> Log.e("HomeFragment", "Error fetching paginated pokemons")
+                is Resource.Loading -> {
+                    binding.apply {
+                        binding.progressBar.isVisible = true
+                        binding.recyclerView.isVisible = false
+                    }
+                }
+                is Resource.Success -> {
+                    adapter.pokemons = response.data!!
+                    binding.progressBar.isVisible = false
+                    binding.recyclerView.isVisible = true
+                }
+            }
         }
     }
 
@@ -77,5 +84,11 @@ class HomeFragment : Fragment() {
                 false
             }
         }
+    }
+    private fun adapterOnItemClickedListener(pokeName: String){
+        val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
+            pokeName
+        )
+        findNavController().navigate(action)
     }
 }

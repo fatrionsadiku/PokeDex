@@ -27,10 +27,6 @@
             android:name="pokemon_name"
             app:argType="string"
             app:nullable="true" />
-        <argument
-            android:name="pokemonUrl"
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_pokeDetailsFragment2_to_homeFragment"
             app:destination="@id/homeFragment"

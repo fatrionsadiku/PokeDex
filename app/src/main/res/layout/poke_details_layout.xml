@@ -42,6 +42,7 @@
             app:tabTextColor="@color/black"
             app:tabMode="fixed"
             app:tabIndicatorAnimationMode="elastic"
+            style="@style/MyCustomTabLayout"
             app:tabIndicatorGravity="stretch"
             app:tabSelectedTextColor="@color/white"
             app:tabIndicator="@drawable/tab_indicator"
