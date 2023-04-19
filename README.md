@@ -22,6 +22,7 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 - MVVM Architecture (View - DataBinding - ViewModel - Model)
 - [Retrofit2 & OkHttp3](https://github.com/square/retrofit): Construct the REST APIs and paging network data.
 - [Glide](https://github.com/bumptech/glide), [GlidePalette](https://github.com/florent37/GlidePalette): Loading images from network.
+- [Coil](https://coil-kt.github.io/coil), [CoilSVG](https://coil-kt.github.io/coil/svgs/): Loading SVG's from network.
 - Custom Views
   - [ProgressView](https://github.com/skydoves/progressview): A polished and flexible ProgressView, fully customizable with animations.
 ## Architecture
