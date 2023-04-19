@@ -9,24 +9,10 @@ data class PokemonsApiResult(
     val previous: String?,
     val results: MutableList<PokemonResult>
 )
-@Parcelize
+
 data class PokemonResult(
     val name: String,
     val url: String,
-) : Parcelable {
-    fun getPokemonPicture() : String {
-        val pokeId = url.replace(
-            "https://pokeapi.co/api/v2/pokemon/",
-            ""
-        ).replace("/", "").toInt()
-
-        return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$pokeId.svg"
-    }
+)  {
 }
-
-data class PokemonApiResult(
-    val id: Int,
-    val name: String,
-    val sprites: Sprites
-)
 

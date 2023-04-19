@@ -1,8 +1,9 @@
 package com.example.pokedex.di
 
 import android.app.Application
+import com.example.pokedex.data.Repository
 import com.example.pokedex.data.server.PokeApiService
-import com.example.pokedex.utils.Constants
+import com.example.pokedex.utils.Utility
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,19 +39,24 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRetrofitInstance(client: OkHttpClient): Retrofit = Retrofit.Builder()
-        .baseUrl(Constants.BASE_URL)
+        .baseUrl(Utility.BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build()
 
     @Provides
     @Singleton
-    fun providePokeAPIInstance(retrofit: Retrofit): PokeApiService = retrofit.create(PokeApiService::class.java)
+    fun providePokeAPIInstance(retrofit: Retrofit): PokeApiService =
+        retrofit.create(PokeApiService::class.java)
 
     @ApplicationScope
     @Singleton
     @Provides
     fun provideApplicationScope() = CoroutineScope(SupervisorJob())
+
+    @Singleton
+    @Provides
+    fun providePokemonRepository(pokeApiService: PokeApiService) = Repository(pokeApiService)
 }
 
 @Retention(AnnotationRetention.RUNTIME)

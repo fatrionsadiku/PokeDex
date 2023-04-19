@@ -8,7 +8,7 @@ import com.example.pokedex.ui.pokemondetails.PokeAbilities
 
 class FragmentAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
-    val pokemonInfos = listOf(PokeBasicInfo(), PokeAbilities())
+    private val pokemonInfos = listOf(PokeBasicInfo(), PokeAbilities())
     override fun getItemCount(): Int = pokemonInfos.size
 
     override fun createFragment(position: Int): Fragment = pokemonInfos[position]

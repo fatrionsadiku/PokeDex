@@ -1,53 +1,35 @@
 package com.example.pokedex.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokedex.data.Repository
 import com.example.pokedex.data.models.PokeAbilities
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.server.PokeApiService
+import com.example.pokedex.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.HttpException
 import retrofit2.Response
 import retrofit2.awaitResponse
 import javax.inject.Inject
 
 @HiltViewModel
 class PokeDetailsSharedViewModel @Inject constructor(
-    private val pokeApi : PokeApiService
+    private val pokeApi : PokeApiService,
+    private val repository: Repository
 ) : ViewModel() {
 
-    val pokemonResponse = MutableLiveData<Pokemon>()
+    val apiCallResponse = MutableLiveData<Resource<Pokemon>>()
+    val pokemonResponse = MutableLiveData<Pokemon?>()
     val abilitiesResponse = MutableLiveData<List<PokeAbilities?>>()
-    private val cache = mutableMapOf<String, Pokemon>()
 
-    suspend fun getSinglePokemonByName(pokemonName: String): Pokemon? {
-        val cachedPokemon = cache[pokemonName]
-        cachedPokemon?.let {
-            pokemonResponse.postValue(it)
-            return it
-        }
-        return try {
-            val pokemon = pokeApi.getPokemonByName(pokemonName)
-            val pokeResponse = pokemon.awaitResponse()
-            if (pokeResponse.isSuccessful) {
-                pokemonResponse.postValue(pokeResponse.body())
-                val abilities = getPokemonAbilitiesByName(pokeResponse.body())
-                abilitiesResponse.postValue(abilities)
-                cache[pokemonName] = pokeResponse.body()!!
-                pokeResponse.body()
-            } else
-                throw Exception("Failed to fetch pokemon data")
-        } catch (e: Exception) {
-            Log.e("PokeAPI", "Error fetching pokemon data", e)
-            null
-        }
+    fun getSinglePokemonByName(pokemonName: String) = viewModelScope.launch {
+        apiCallResponse.postValue(Resource.Loading())
+        val response = repository.getSinglePokemonByName(pokemonName)
+        apiCallResponse.postValue(handlePokemonApiCallResponse(response))
+        val abilities = getPokemonAbilitiesByName(response.body())
+        abilitiesResponse.postValue(abilities)
     }
 
     private suspend fun getPokemonAbilitiesByName(pokemon : Pokemon?) : MutableList<PokeAbilities?> {
@@ -60,5 +42,14 @@ class PokeDetailsSharedViewModel @Inject constructor(
             }
         }
         return pokeAbilities
+    }
+
+    private fun handlePokemonApiCallResponse(response : Response<Pokemon>) : Resource<Pokemon> {
+        if(response.isSuccessful){
+            response.body()?.let {
+                return Resource.Success(it)
+            }
+        }
+        return Resource.Error(message = response.message())
     }
 }

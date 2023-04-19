@@ -1,5 +1,6 @@
 package com.example.pokedex.ui.pokemondetails
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -32,18 +33,24 @@ class PokeBasicInfo : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            viewModel.pokemonResponse.observe(viewLifecycleOwner) {
-                Log.d("POKE DEBUG YAY", "onViewCreated: ${it.toString()}")
-                pokeBaseXP.text = it.baseEXP.toString()
-                pokeWeight.text = "${it.weight}kg"
-                pokeHeight.text = "${it.height}cm"
-                showPokemonTypes(it)
-                showPokemonStats(it)
+            viewModel.pokemonResponse.apply {
+                observe(viewLifecycleOwner) { pokemon ->
+                    pokemon?.let {
+                        Log.d("POKE DEBUG YAY", "onViewCreated: $it")
+                        pokeBaseXP.text = it.baseEXP.toString()
+                        pokeWeight.text = "${it.weight}kg"
+                        pokeHeight.text = "${it.height}m"
+                        showPokemonTypes(pokemon)
+                        showPokemonStats(pokemon)
+                    }
+                }
+                this.value = null
             }
         }
 

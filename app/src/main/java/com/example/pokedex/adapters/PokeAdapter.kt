@@ -6,13 +6,10 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.pokedex.data.models.Pokemon
-import com.example.pokedex.data.models.PokemonApiResult
 import com.example.pokedex.data.models.PokemonResult
-import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.databinding.PokeLayoutBinding
 
-class PokeAdapter(val itemClicker : (pokeName : String, pokeUrl : String) -> Unit) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
+class PokeAdapter(val itemClicker : (pokeName : String) -> Unit) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     var pokemons : List<PokemonResult>
     get() = differ.currentList
     set(value) {
@@ -44,7 +41,7 @@ class PokeAdapter(val itemClicker : (pokeName : String, pokeUrl : String) -> Uni
                     val currentPosition = adapterPosition
                     if (currentPosition != RecyclerView.NO_POSITION){
                         val currentPoke = pokemons[currentPosition]
-                        itemClicker.invoke(currentPoke.name,currentPoke.getPokemonPicture())
+                        itemClicker.invoke(currentPoke.name)
                     }
                 }
             }

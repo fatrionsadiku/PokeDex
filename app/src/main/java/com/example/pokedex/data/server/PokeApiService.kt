@@ -14,17 +14,17 @@ interface PokeApiService {
 
 
     @GET("pokemon/{name}")
-    fun getPokemonByName(
+    suspend fun getPokemonByName(
         @Path("name") pokeId: String,
         @Header("Cache-Control") cacheControl: String = "public, max-age=3600"
-    ): Call<Pokemon>
+    ): Response<Pokemon>
 
 
     @GET("pokemon")
-    fun getPaginatedPokemons(
+    suspend fun getPaginatedPokemons(
         @Query("limit") limit: Int,
         @Header("Cache-Control") cacheControl: String = "public, max-age=3600"
-    ): Call<PokemonsApiResult>
+    ): Response<PokemonsApiResult>
 
     @GET("ability/{name}")
     fun getPokemonAbilities(
