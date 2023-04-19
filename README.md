@@ -9,7 +9,7 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 <img src="/Previews/pokedex.jpg"/>
 </p>
 
-<img src="/previews/pokepreview.gif" align="right" width="320"/>
+<img src="/Previews/pokepreview.gif" align="right" width="320"/>
 
 ## Tech stack & Open-source libraries
 - Minimum SDK level 21
