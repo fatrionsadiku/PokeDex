@@ -19,10 +19,6 @@ class HomeViewModel @Inject constructor(
 ): ViewModel() {
     val pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
 
-    init {
-        getPaginatedPokemons(Utility.PAGE_SIZE)
-    }
-
     fun getPaginatedPokemons(limit: Int) = viewModelScope.launch {
         pokemonResponse.postValue(Resource.Loading())
         val response = repository.getPaginatedPokemons(limit)

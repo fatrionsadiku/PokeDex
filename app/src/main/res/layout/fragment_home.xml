@@ -5,32 +5,42 @@
     android:layout_height="match_parent"
     android:background="@drawable/pokedetailsbg">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/searchInput"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        app:endIconDrawable="@drawable/baseline_clear_24"
-        app:endIconMode="clear_text"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="@color/white"
-        app:boxBackgroundColor="#10FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/searchEditText"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/searchInput"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            app:endIconDrawable="@drawable/baseline_clear_24"
+            app:endIconMode="clear_text"
+            android:layout_marginBottom="12dp"
             android:backgroundTint="@color/white"
-            android:drawableStart="@drawable/baseline_search_24"
-            android:drawablePadding="10dp"
-            android:imeOptions="actionDone"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:boxBackgroundColor="#10FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/white"
+                android:drawableStart="@drawable/baseline_search_24"
+                android:drawablePadding="10dp"
+                android:imeOptions="actionDone"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+<!--    <ImageView-->
+<!--        android:id="@+id/pokeLogo"-->
+<!--        android:layout_width="300dp"-->
+<!--        android:layout_height="100dp"-->
+<!--        android:layout_marginTop="18dp"-->
+<!--        android:src="@drawable/pokemonsplogo"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
