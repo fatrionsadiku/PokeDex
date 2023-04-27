@@ -12,7 +12,7 @@ data class Pokemon(
     val weight : Int,
     val types : List<PokemonType>,
     val stats : List<Stats>,
-    val abilities : List<Abilities>
+    val abilities : List<Abilities?>
 ) {
     fun getImageUrl() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
 }
@@ -43,12 +43,12 @@ data class Statx(
 
 data class Abilities(
     @SerializedName("is_hidden")
-    val isHidden : Boolean,
-    val slot : Int,
-    val ability : Ability
+    val isHidden : Boolean?,
+    val slot : Int?,
+    val ability : Ability?
 )
 
 data class Ability(
-    val name : String,
-    val url : String
+    val name : String?,
+    val url : String?
 )

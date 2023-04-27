@@ -7,12 +7,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import coil.decode.SvgDecoder
 import coil.load
+import com.example.pokedex.R
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.ui.FragmentAdapter
@@ -20,12 +24,13 @@ import com.example.pokedex.utils.Resource
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment() {
-    lateinit var binding: PokeDetailsLayoutBinding
-    val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
-    lateinit var pokeViewModel: PokeDetailsSharedViewModel
+    private lateinit var binding: PokeDetailsLayoutBinding
+    private val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
+    private lateinit var pokeViewModel: PokeDetailsSharedViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,12 +43,11 @@ class PokeDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        binding.pokemonPhoto.setImageResource(0)
         getPokemonDetails(pokemonArgs)
         setUpPokeDetailsViewPager()
 
     }
-
     private fun getPokemonDetails(pokeName: PokeDetailsFragmentArgs) {
         val pokemonName = pokeName.pokemonName
         pokeViewModel.getSinglePokemonByName(pokemonName!!)
@@ -56,8 +60,10 @@ class PokeDetailsFragment : Fragment() {
                     }
                 }
                 is Resource.Success -> {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        fillPokemonDataOnScreen(response.data)
+                    }
                     pokeViewModel.pokemonResponse.postValue(response.data)
-                    fillPokemonDataOnScreen(response.data)
                 }
             }
         }
@@ -65,11 +71,11 @@ class PokeDetailsFragment : Fragment() {
 
     private fun fillPokemonDataOnScreen(pokemon: Pokemon?) {
         binding.apply {
-            binding.pokemonPhoto.load(pokemon?.getImageUrl()) {
+            pokemonPhoto.load(pokemon?.getImageUrl()) {
                 crossfade(500)
                 decoderFactory { result, options, _ ->
                     SvgDecoder(result.source, options)
-                }
+                }.lifecycle(viewLifecycleOwner)
             }
             progressBar.isVisible = false
             pokemonName.text = "${pokemonArgs.pokemonName?.capitalize()}"

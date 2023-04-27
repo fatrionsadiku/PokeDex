@@ -8,7 +8,7 @@ import com.example.pokedex.data.Repository
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.utils.Resource
-import com.example.pokedex.utils.Utility
+import com.example.pokedex.utils.Utility.PAGE_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -18,24 +18,39 @@ class HomeViewModel @Inject constructor(
     private val repository: Repository
 ): ViewModel() {
     val pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
+    private var currentPokemonList : MutableList<PokemonResult>? = null
+    private var currentPokemonPage = 1
 
-    fun getPaginatedPokemons(limit: Int) = viewModelScope.launch {
-        pokemonResponse.postValue(Resource.Loading())
-        val response = repository.getPaginatedPokemons(limit)
-        pokemonResponse.postValue(handlePaginatedPokemonsResponse(response))
+    init {
+        getPaginatedPokemon()
     }
 
-    private fun handlePaginatedPokemonsResponse(response : Response<PokemonsApiResult>) : Resource<List<PokemonResult>> {
+    fun getPaginatedPokemon() = viewModelScope.launch {
+        pokemonResponse.postValue(Resource.Loading())
+        val response = repository.getPaginatedPokemons(PAGE_SIZE, currentPokemonPage * PAGE_SIZE)
+        pokemonResponse.postValue(handlePaginatedPokemonResponse(response))
+    }
+
+    private fun handlePaginatedPokemonResponse(response : Response<PokemonsApiResult>) : Resource<List<PokemonResult>> {
         if(response.isSuccessful){
+            currentPokemonPage++
             response.body()?.let {
-                return Resource.Success(it.results)
+                if (currentPokemonList == null){
+                    currentPokemonList = it.results
+                }
+                else{
+                    val currentPokeList = currentPokemonList
+                    val newPokemonList = it.results
+                    currentPokeList?.addAll(newPokemonList)
+                }
+                return Resource.Success(currentPokemonList)
             }
         }
         return Resource.Error(message = response.message())
     }
 
 
-    fun filterPokemonsByName(query : CharSequence?,adapter : PokeAdapter){
+    fun filterPokemonByName(query : CharSequence?, adapter : PokeAdapter){
         this@HomeViewModel.pokemonResponse.value?.let {pokemons ->
             adapter.pokemons = (pokemons.data?.filter {
                 val charSequence: CharSequence = query?.toString() ?: ""

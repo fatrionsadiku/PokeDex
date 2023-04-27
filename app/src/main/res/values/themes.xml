@@ -10,11 +10,26 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowTranslucentStatus">
+            false
+        </item>
+        <item name="android:statusBarColor">
+            @android:color/transparent
+        </item>
     </style>
     <style name="MyCardView" parent="@style/Widget.MaterialComponents.CardView">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.MaterialCardView.Cut</item>
+    </style>
+
+
+    <style name="TransparentStatusBar" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowTranslucentStatus">
+            false
+        </item>
+        <item name="android:statusBarColor">
+            @android:color/transparent
+        </item>
     </style>
 
 

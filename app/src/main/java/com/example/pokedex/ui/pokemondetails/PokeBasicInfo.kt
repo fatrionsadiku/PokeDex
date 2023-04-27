@@ -13,8 +13,13 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import coil.clear
+import coil.dispose
+import com.example.pokedex.R
 import com.example.pokedex.data.models.Pokemon
+import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.databinding.PokemonBasicInfoBinding
+import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.customviews.CustomCardView
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,16 +44,24 @@ class PokeBasicInfo : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            viewModel.pokemonResponse.apply {
-                observe(viewLifecycleOwner) { pokemon ->
-                    pokemon?.let {
-                        Log.d("POKE DEBUG YAY", "onViewCreated: $it")
-                        pokeBaseXP.text = it.baseEXP.toString()
-                        pokeWeight.text = "${it.weight}kg"
-                        pokeHeight.text = "${it.height}m"
-                        showPokemonTypes(pokemon)
-                        showPokemonStats(pokemon)
-                    }
+            viewModel.apiCallResponse.apply {
+                observe(viewLifecycleOwner) { apiResponse ->
+                  when(apiResponse){
+                      is Resource.Error -> Log.e("Error fetching data", apiResponse.message.toString())
+                      is Resource.Loading -> Log.d("Loading...","Loading...")
+                      is Resource.Success -> {
+                          val pokemon = apiResponse.data
+                          pokemon?.let {
+                              Log.d("POKE DEBUG YAY", "onViewCreated: $it")
+                              pokeBaseXP.text = it.baseEXP.toString()
+                              pokeWeight.text = "${it.weight}kg"
+                              pokeHeight.text = "${it.height}m"
+                              showPokemonTypes(pokemon)
+                              showPokemonStats(pokemon)
+                          }
+
+                      }
+                  }
                 }
                 this.value = null
             }
@@ -98,11 +111,13 @@ class PokeBasicInfo : Fragment() {
         }
         binding.apply {
             pokemon.types.forEach { pokemonType ->
-                val pokeType = pokemonType.type.name.capitalize()
-                val currentPokeColor = getColorForType(pokeType)
-                val currentPokeType = CustomCardView(requireContext(),pokeType)
-                currentPokeType.setBackgroundColor(currentPokeColor)
-                linearLayout.addView(currentPokeType,layoutParams)
+                pokemonType.let {
+                    val pokeType = pokemonType.type.name.capitalize()
+                    val currentPokeColor = getColorForType(pokeType)
+                    val currentPokeType = CustomCardView(requireContext(),pokeType)
+                    currentPokeType.setBackgroundColor(currentPokeColor)
+                    linearLayout.addView(currentPokeType,layoutParams)
+                }
             }
         }
 

@@ -1,5 +1,6 @@
 package com.example.pokedex.ui.pokemondetails
 
+import android.media.session.PlaybackState.CustomAction
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.pokedex.databinding.PokemonEvoTreeBinding
+import com.example.pokedex.utils.customviews.PokeAbilitiesLayout
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,12 +31,14 @@ class PokeAbilities : Fragment() {
 
 
         binding.apply {
-            viewModel.abilitiesResponse.observe(viewLifecycleOwner) { pokeAbility ->
-                if (pokeAbility != null){
-                    firstAbility.text = pokeAbility.first()?.name?.capitalize()
-                    firstAbilityDescription.text = pokeAbility.first()?.effectEntries?.get(1)?.effect
-                    secondAbility.text = pokeAbility[1]?.name?.capitalize() ?: ""
-                    secondAbilityDescription.text = pokeAbility[1]?.effectEntries?.get(1)?.effect ?: ""
+            viewModel.abilitiesResponse.apply {
+                observe(viewLifecycleOwner) { pokeAbility ->
+                    pokeAbility?.forEach {
+                        val pokeAbilityTitle = it?.name?.capitalize()
+                        val pokeAbilityDescription = it?.effectEntries?.get(1)?.effect
+                        val pokemonAbility = PokeAbilitiesLayout(requireContext(),pokeAbilityTitle,pokeAbilityDescription)
+                        pokeDetailsHolder.addView(pokemonAbility)
+                    }
                 }
             }
         }

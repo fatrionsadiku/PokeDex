@@ -1,69 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pokeAbilitiesLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="15dp"
-    >
+    android:padding="15dp">
 
+    <LinearLayout
+        android:id="@+id/pokeDetailsHolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/firstAbility"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:fontFamily="@font/ryogothic"
-            android:gravity="center"
-            android:text="1000kg"
-            android:textColor="#3F7C80"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/firstAbilityDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:fontFamily="@font/ryogothic"
-            android:gravity="center"
-            android:text="WEIGHT"
-            android:textColor="#759EA1"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/firstAbility" />
-
-        <TextView
-            android:id="@+id/secondAbility"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:fontFamily="@font/ryogothic"
-            android:gravity="center"
-            android:textColor="#3F7C80"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/firstAbilityDescription"/>
-
-        <TextView
-            android:id="@+id/secondAbilityDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:fontFamily="@font/ryogothic"
-            android:gravity="center"
-            android:textColor="#759EA1"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/secondAbility" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 
 </ScrollView>

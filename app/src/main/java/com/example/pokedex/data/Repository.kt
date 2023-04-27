@@ -21,9 +21,9 @@ class Repository @Inject constructor(
         return response
     }
 
-    suspend fun getPaginatedPokemons(limit : Int) : Response<PokemonsApiResult> {
+    suspend fun getPaginatedPokemons(limit : Int, offset : Int) : Response<PokemonsApiResult> {
         val response = try {
-            pokeApi.getPaginatedPokemons(limit)
+            pokeApi.getPaginatedPokemons(limit,offset)
         }catch (e : Exception){
             throw Exception(e.toString())
         }

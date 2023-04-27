@@ -35,7 +35,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
     private suspend fun getPokemonAbilitiesByName(pokemon : Pokemon?) : MutableList<PokeAbilities?> {
         val pokeAbilities = mutableListOf<PokeAbilities?>()
         pokemon?.abilities?.forEach {
-            val call = pokeApi.getPokemonAbilities(it.ability.name)
+            val call = pokeApi.getPokemonAbilities(it?.ability?.name)
             val pokeAbility = call.awaitResponse()
             if (pokeAbility.isSuccessful){
                 pokeAbilities.add(pokeAbility.body())

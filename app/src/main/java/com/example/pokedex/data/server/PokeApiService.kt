@@ -23,7 +23,7 @@ interface PokeApiService {
     @GET("pokemon")
     suspend fun getPaginatedPokemons(
         @Query("limit") limit: Int,
-        @Header("Cache-Control") cacheControl: String = "public, max-age=3600"
+        @Query("offset") offset : Int,
     ): Response<PokemonsApiResult>
 
     @GET("ability/{name}")

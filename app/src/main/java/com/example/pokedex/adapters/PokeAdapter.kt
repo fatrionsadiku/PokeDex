@@ -9,24 +9,23 @@ import com.bumptech.glide.Glide
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.databinding.PokeLayoutBinding
 
-class PokeAdapter(val itemClicker : (pokeName : String) -> Unit) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
-    var pokemons : List<PokemonResult>
-    get() = differ.currentList
-    set(value) {
-        differ.submitList(value)
-    }
+class PokeAdapter(val itemClicker: (pokeName: String) -> Unit) :
+    RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
+    var pokemons: List<PokemonResult>
+        get() = differ.currentList
+        set(value) {
+            differ.submitList(value)
+        }
     private val differ = AsyncListDiffer(this, diffCallback)
-
-
-
+    
     inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun getPokemonPicture(pokemon : PokemonResult, type : String) : String {
+        fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
             val pokeId = pokemon.url.replace(
                 "https://pokeapi.co/api/v2/pokemon/",
                 ""
             ).replace("/", "").toInt()
 
-            return when(type){
+            return when (type) {
                 "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
                 "home" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
                 "official" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
@@ -35,11 +34,12 @@ class PokeAdapter(val itemClicker : (pokeName : String) -> Unit) : RecyclerView.
                 else -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
             }
         }
+
         init {
             binding.apply {
                 root.setOnClickListener {
                     val currentPosition = adapterPosition
-                    if (currentPosition != RecyclerView.NO_POSITION){
+                    if (currentPosition != RecyclerView.NO_POSITION) {
                         val currentPoke = pokemons[currentPosition]
                         itemClicker.invoke(currentPoke.name)
                     }
@@ -57,7 +57,8 @@ class PokeAdapter(val itemClicker : (pokeName : String) -> Unit) : RecyclerView.
         val pokemon = pokemons[position]
         with(holder) {
             binding.pokeName.text = pokemon.name
-            Glide.with(binding.root.context).load(getPokemonPicture(pokemon,"xyani")).into(binding.pokemonPlaceHolder)
+            Glide.with(binding.root.context).load(getPokemonPicture(pokemon, "xyani"))
+                .into(binding.pokemonPlaceHolder)
         }
     }
 

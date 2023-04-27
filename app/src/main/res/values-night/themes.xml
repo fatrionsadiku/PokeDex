@@ -10,7 +10,12 @@
         <item name="colorSecondaryVariant">@color/teal_200</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowTranslucentStatus">
+            false
+        </item>
+        <item name="android:statusBarColor">
+            @android:color/transparent
+        </item>
     </style>
 </resources>
