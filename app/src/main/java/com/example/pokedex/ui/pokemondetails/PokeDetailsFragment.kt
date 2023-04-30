@@ -7,24 +7,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import coil.decode.SvgDecoder
 import coil.load
-import com.example.pokedex.R
-import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.ui.FragmentAdapter
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment() {
@@ -48,30 +42,31 @@ class PokeDetailsFragment : Fragment() {
         setUpPokeDetailsViewPager()
 
     }
+
     private fun getPokemonDetails(pokeName: PokeDetailsFragmentArgs) {
         val pokemonName = pokeName.pokemonName
         pokeViewModel.getSinglePokemonByName(pokemonName!!)
-        pokeViewModel.apiCallResponse.observe(viewLifecycleOwner){response ->
-            when(response){
+        pokeViewModel.apiCallResponse.observe(viewLifecycleOwner) { response ->
+            when (response) {
                 is Resource.Error -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
                 is Resource.Loading -> {
                     binding.apply {
                         progressBar.isVisible = true
                     }
                 }
+
                 is Resource.Success -> {
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        fillPokemonDataOnScreen(response.data)
-                    }
+                    fillPokemonDataOnScreen()
                     pokeViewModel.pokemonResponse.postValue(response.data)
                 }
             }
         }
     }
 
-    private fun fillPokemonDataOnScreen(pokemon: Pokemon?) {
+    private fun fillPokemonDataOnScreen() {
+        val currentPokemonId = pokemonArgs.pokemonId
         binding.apply {
-            pokemonPhoto.load(pokemon?.getImageUrl()) {
+            pokemonPhoto.load(getImageUrl(currentPokemonId)) {
                 crossfade(500)
                 decoderFactory { result, options, _ ->
                     SvgDecoder(result.source, options)
@@ -82,6 +77,9 @@ class PokeDetailsFragment : Fragment() {
             progressBar.isVisible = false
         }
     }
+
+    private fun getImageUrl(id: Int) =
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
 
     private fun setUpPokeDetailsViewPager() {
         binding.apply {

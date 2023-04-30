@@ -1,12 +1,14 @@
 package com.example.pokedex.ui
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.AbsListView
+import androidx.activity.addCallback
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +22,7 @@ import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import com.example.pokedex.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -27,6 +30,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: PokeAdapter
+    private lateinit var recyclerView : RecyclerView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,12 +45,16 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setUpPokeRecyclerView()
         setUpPokeFiltering()
+        onBackPressed()
+
     }
 
     private fun setUpPokeRecyclerView() = viewLifecycleOwner.lifecycleScope.launch {
         try {
-            val recyclerView = binding.recyclerView
-            adapter = PokeAdapter(::adapterOnItemClickedListener)
+            recyclerView = binding.recyclerView
+            adapter = PokeAdapter() { pokeName, pokeId ->
+                adapterOnItemClickedListener(pokeName, pokeId)
+            }
             fetchApiData()
             recyclerView.adapter = adapter
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -87,9 +95,11 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun adapterOnItemClickedListener(pokeName: String) {
+    private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int?) {
+
         val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
-            pokeName
+            pokeName,
+            pokeId ?: 0
         )
         findNavController().navigate(action)
     }
@@ -115,11 +125,13 @@ class HomeFragment : Fragment() {
                 RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING -> {
                     isScrolling = true
                 }
+
                 RecyclerView.SCROLL_STATE_IDLE -> {
                     isScrolling = false
                 }
             }
         }
+
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
@@ -140,4 +152,35 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun onBackPressed() {
+        var doubleBackToExitOnce = false
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            when(doubleBackToExitOnce){
+                false -> {
+                    binding.recyclerView.smoothScrollToPosition(0)
+                        doubleBackToExitOnce = true
+                }
+                true -> {
+                    AlertDialog.Builder(requireContext()).apply {
+                        setTitle("Do you want to exit out of the app?")
+                            .setNegativeButton(
+                                "Yes",
+                                DialogInterface.OnClickListener { dialogInterface, i ->
+                                    requireActivity().finish()
+                                })
+                            .setPositiveButton(
+                                "No",
+                                DialogInterface.OnClickListener { dialogInterface, i ->
+                                    dialogInterface.dismiss()
+                                    doubleBackToExitOnce = false
+                                }).setOnCancelListener {
+                                    doubleBackToExitOnce = false
+                            }
+                            .create().show()
+                    }
+                }
+        }
+        }
+    }
 }
+

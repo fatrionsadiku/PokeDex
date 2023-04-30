@@ -196,7 +196,6 @@
         app:progressView_labelSize="12sp"
         app:progressView_labelText="HP"
         app:progressView_max="200"
-        app:progressView_progress="50"
         app:progressView_radius="12dp" />
 
     <com.skydoves.progressview.ProgressView
@@ -217,7 +216,6 @@
         app:progressView_labelSize="12sp"
         app:progressView_labelText="ATK"
         app:progressView_max="200"
-        app:progressView_progress="50"
         app:progressView_radius="12dp" />
 
     <com.skydoves.progressview.ProgressView
@@ -238,7 +236,6 @@
         app:progressView_labelSize="12sp"
         app:progressView_labelText="DEF"
         app:progressView_max="200"
-        app:progressView_progress="50"
         app:progressView_radius="12dp" />
 
     <com.skydoves.progressview.ProgressView
@@ -259,7 +256,6 @@
         app:progressView_labelSize="12sp"
         app:progressView_labelText="ATK"
         app:progressView_max="200"
-        app:progressView_progress="50"
         app:progressView_radius="12dp" />
 
 

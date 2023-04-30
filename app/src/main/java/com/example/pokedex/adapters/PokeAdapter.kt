@@ -5,11 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import coil.decode.GifDecoder
+import coil.decode.SvgDecoder
+import coil.load
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.databinding.PokeLayoutBinding
 
-class PokeAdapter(val itemClicker: (pokeName: String) -> Unit) :
+class PokeAdapter(val itemClicker: (pokeName: String, pokeId: Int?) -> Unit) :
     RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     var pokemons: List<PokemonResult>
         get() = differ.currentList
@@ -17,14 +19,15 @@ class PokeAdapter(val itemClicker: (pokeName: String) -> Unit) :
             differ.submitList(value)
         }
     private val differ = AsyncListDiffer(this, diffCallback)
-    
-    inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
-            val pokeId = pokemon.url.replace(
-                "https://pokeapi.co/api/v2/pokemon/",
-                ""
-            ).replace("/", "").toInt()
 
+    inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+        private fun getPokemonID(pokemon: PokemonResult) = pokemon.url.replace(
+            "https://pokeapi.co/api/v2/pokemon/",
+            ""
+        ).replace("/", "").toInt()
+
+        fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
+            val pokeId = getPokemonID(pokemon)
             return when (type) {
                 "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
                 "home" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
@@ -41,7 +44,8 @@ class PokeAdapter(val itemClicker: (pokeName: String) -> Unit) :
                     val currentPosition = adapterPosition
                     if (currentPosition != RecyclerView.NO_POSITION) {
                         val currentPoke = pokemons[currentPosition]
-                        itemClicker.invoke(currentPoke.name)
+                        val currentPokeId = getPokemonID(currentPoke)
+                        itemClicker.invoke(currentPoke.name, currentPokeId)
                     }
                 }
             }
@@ -56,9 +60,16 @@ class PokeAdapter(val itemClicker: (pokeName: String) -> Unit) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val pokemon = pokemons[position]
         with(holder) {
-            binding.pokeName.text = pokemon.name
-            Glide.with(binding.root.context).load(getPokemonPicture(pokemon, "xyani"))
-                .into(binding.pokemonPlaceHolder)
+            binding.pokeName.apply {
+                text = pokemon.name
+                alpha = 0f
+            }.animate().setDuration(500).alpha(1f)
+            binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "xyani")) {
+                crossfade(500)
+                decoderFactory { result, options, _ ->
+                    GifDecoder(result.source,options)
+                }
+            }
         }
     }
 
@@ -73,4 +84,5 @@ private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
     override fun areContentsTheSame(oldItem: PokemonResult, newItem: PokemonResult): Boolean {
         return oldItem.name == newItem.name
     }
+
 }

@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/pokedetailsbg"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingTop="30dp">
 
     <!-- Pokemon photo -->
 
@@ -22,6 +23,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/pokemon_photo"
+        app:layout_constraintEnd_toEndOf="@id/pokemon_photo"
+        app:layout_constraintStart_toStartOf="@id/pokemon_photo"
+        app:layout_constraintTop_toTopOf="@id/pokemon_photo" />
+
     <LinearLayout
         android:id="@+id/topPartPokeDetails"
         android:layout_width="match_parent"
@@ -31,45 +42,32 @@
         android:layout_marginEnd="18dp"
         android:background="@drawable/top_poke_details"
         android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pokemon_photo">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
-            app:tabTextColor="@color/black"
-            app:tabMode="fixed"
-            app:tabIndicatorAnimationMode="elastic"
             style="@style/MyCustomTabLayout"
-            app:tabIndicatorGravity="stretch"
-            app:tabSelectedTextColor="@color/white"
-            app:tabIndicator="@drawable/tab_indicator"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center|top"/>
+            android:layout_gravity="center|top"
+            app:tabIndicator="@drawable/tab_indicator"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorGravity="stretch"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/black" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/pokeInfosViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="8dp"
-            />
+            android:layout_marginTop="8dp" />
 
 
     </LinearLayout>
-
-
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="60dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/pokemon_name"
