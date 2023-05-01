@@ -31,6 +31,7 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: PokeAdapter
     private lateinit var recyclerView : RecyclerView
+    private var doubleBackToExitOnce = false
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,7 +47,6 @@ class HomeFragment : Fragment() {
         setUpPokeRecyclerView()
         setUpPokeFiltering()
         onBackPressed()
-
     }
 
     private fun setUpPokeRecyclerView() = viewLifecycleOwner.lifecycleScope.launch {
@@ -122,7 +122,11 @@ class HomeFragment : Fragment() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             when (newState) {
-                RecyclerView.SCROLL_STATE_DRAGGING, RecyclerView.SCROLL_STATE_SETTLING -> {
+                RecyclerView.SCROLL_STATE_DRAGGING-> {
+                    doubleBackToExitOnce = false
+                    isScrolling = true
+                }
+                RecyclerView.SCROLL_STATE_SETTLING -> {
                     isScrolling = true
                 }
 
@@ -140,7 +144,7 @@ class HomeFragment : Fragment() {
             val totalItemCount = layoutManager.itemCount
 
             val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
-            val isAtLastItem = lastVisibleItemPosition == totalItemCount - 1
+            val isAtLastItem = lastVisibleItemPosition == totalItemCount - 3
             val isNotAtBeginning = lastVisibleItemPosition >= 0
             val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
@@ -153,7 +157,6 @@ class HomeFragment : Fragment() {
     }
 
     private fun onBackPressed() {
-        var doubleBackToExitOnce = false
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             when(doubleBackToExitOnce){
                 false -> {
@@ -182,5 +185,6 @@ class HomeFragment : Fragment() {
         }
         }
     }
+
 }
 
