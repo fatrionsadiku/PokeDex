@@ -8,7 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PokeSplashScreen : AppCompatActivity() {
-    lateinit var binding : PokeSplashScreenBinding
+    private lateinit var binding : PokeSplashScreenBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = PokeSplashScreenBinding.inflate(layoutInflater)

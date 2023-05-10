@@ -16,7 +16,6 @@ interface PokeApiService {
     @GET("pokemon/{name}")
     suspend fun getPokemonByName(
         @Path("name") pokeId: String,
-        @Header("Cache-Control") cacheControl: String = "public, max-age=3600"
     ): Response<Pokemon>
 
 

@@ -50,12 +50,11 @@ class PokeDetailsFragment : Fragment() {
             when (response) {
                 is Resource.Error -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
                 is Resource.Loading -> {
-                    binding.apply {
-                        progressBar.isVisible = true
-                    }
+                    showProgressBar()
                 }
 
                 is Resource.Success -> {
+                    hideProgressBar()
                     fillPokemonDataOnScreen()
                     pokeViewModel.pokemonResponse.postValue(response.data)
                 }
@@ -101,5 +100,13 @@ class PokeDetailsFragment : Fragment() {
             }.attach()
             tabLayout.background = ColorDrawable(Color.WHITE)
         }
+    }
+
+    private fun showProgressBar() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        binding.progressBar.visibility = View.INVISIBLE
     }
 }

@@ -29,10 +29,10 @@ object AppModule {
             val interceptor = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             }
-            val cacheDirectory = File(application.cacheDir, "http-cache")
-            val cacheSize = 10 * 1024 * 1024 // 10 MB
-            val cache = Cache(cacheDirectory, cacheSize.toLong())
-            cache(cache)
+//            val cacheDirectory = File(application.cacheDir, "http-cache")
+//            val cacheSize = 10 * 1024 * 1024 // 10 MB
+//            val cache = Cache(cacheDirectory, cacheSize.toLong())
+//            cache(cache)
             addInterceptor(interceptor)
         }.build()
 

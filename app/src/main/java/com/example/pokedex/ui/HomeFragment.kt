@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.utils.Resource
+import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import com.example.pokedex.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +31,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var viewModel: HomeViewModel
     private lateinit var adapter: PokeAdapter
-    private lateinit var recyclerView : RecyclerView
+    private lateinit var recyclerView: RecyclerView
     private var doubleBackToExitOnce = false
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +43,11 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.pokemonResponse.value = null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpPokeRecyclerView()
@@ -49,7 +55,7 @@ class HomeFragment : Fragment() {
         onBackPressed()
     }
 
-    private fun setUpPokeRecyclerView() = viewLifecycleOwner.lifecycleScope.launch {
+    private fun setUpPokeRecyclerView() =
         try {
             recyclerView = binding.recyclerView
             adapter = PokeAdapter() { pokeName, pokeId ->
@@ -58,12 +64,13 @@ class HomeFragment : Fragment() {
             fetchApiData()
             recyclerView.adapter = adapter
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+            recyclerView.addItemDecoration(SpacesItemDecoration())
             recyclerView.addOnScrollListener(this@HomeFragment.scrollListener)
 
         } catch (e: Exception) {
             Log.e("Error fetching poke", "setUpPokeRecyclerView: ${e.toString()}")
         }
-    }
+
 
     private fun fetchApiData() {
         viewModel.pokemonResponse.observe(viewLifecycleOwner) { response ->
@@ -105,12 +112,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun hideProgressBar() {
-        binding.paginationProgressBar.visibility = View.INVISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(500)
+            binding.paginationProgressBar.visibility = View.INVISIBLE
+            binding.paginationProgressBar.cancelAnimation()
+            recyclerView.setPadding(0, 0, 0, 0)
+        }
         isLoading = false
     }
 
     private fun showProgressBar() {
         binding.paginationProgressBar.visibility = View.VISIBLE
+        binding.paginationProgressBar.playAnimation()
+        recyclerView.setPadding(0, 0, 0, 130)
         isLoading = true
     }
 
@@ -122,10 +136,11 @@ class HomeFragment : Fragment() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
             when (newState) {
-                RecyclerView.SCROLL_STATE_DRAGGING-> {
+                RecyclerView.SCROLL_STATE_DRAGGING -> {
                     doubleBackToExitOnce = false
                     isScrolling = true
                 }
+
                 RecyclerView.SCROLL_STATE_SETTLING -> {
                     isScrolling = true
                 }
@@ -144,7 +159,7 @@ class HomeFragment : Fragment() {
             val totalItemCount = layoutManager.itemCount
 
             val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
-            val isAtLastItem = lastVisibleItemPosition == totalItemCount - 3
+            val isAtLastItem = lastVisibleItemPosition == totalItemCount - 1
             val isNotAtBeginning = lastVisibleItemPosition >= 0
             val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
@@ -158,11 +173,12 @@ class HomeFragment : Fragment() {
 
     private fun onBackPressed() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            when(doubleBackToExitOnce){
+            when (doubleBackToExitOnce) {
                 false -> {
                     binding.recyclerView.smoothScrollToPosition(0)
-                        doubleBackToExitOnce = true
+                    doubleBackToExitOnce = true
                 }
+
                 true -> {
                     AlertDialog.Builder(requireContext()).apply {
                         setTitle("Do you want to exit out of the app?")
@@ -177,12 +193,12 @@ class HomeFragment : Fragment() {
                                     dialogInterface.dismiss()
                                     doubleBackToExitOnce = false
                                 }).setOnCancelListener {
-                                    doubleBackToExitOnce = false
+                                doubleBackToExitOnce = false
                             }
                             .create().show()
                     }
                 }
-        }
+            }
         }
     }
 

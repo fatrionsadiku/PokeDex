@@ -19,7 +19,7 @@ class HomeViewModel @Inject constructor(
 ): ViewModel() {
     val pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
     private var currentPokemonList : MutableList<PokemonResult>? = null
-    private var currentPokemonPage = 1
+    private var currentPokemonPage = 0
 
     init {
         getPaginatedPokemon()
