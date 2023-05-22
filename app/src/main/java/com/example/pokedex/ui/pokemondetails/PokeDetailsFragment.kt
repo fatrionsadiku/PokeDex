@@ -16,14 +16,16 @@ import coil.load
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.ui.FragmentAdapter
 import com.example.pokedex.utils.Resource
+import com.example.pokedex.utils.capitalize
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment() {
-    private lateinit var binding: PokeDetailsLayoutBinding
-    private val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
+    lateinit var binding: PokeDetailsLayoutBinding
+    val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
+    var currentPokemonId : Int = 0
     private lateinit var pokeViewModel: PokeDetailsSharedViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,18 +36,21 @@ class PokeDetailsFragment : Fragment() {
         pokeViewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
         return binding.root
     }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        requireActivity().viewModelStore.clear()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.pokemonPhoto.setImageResource(0)
-        getPokemonDetails(pokemonArgs)
+        getPokemonDetails(pokemonArgs.pokemonName!!, pokemonArgs.pokemonId)
         setUpPokeDetailsViewPager()
 
     }
 
-    private fun getPokemonDetails(pokeName: PokeDetailsFragmentArgs) {
-        val pokemonName = pokeName.pokemonName
-        pokeViewModel.getSinglePokemonByName(pokemonName!!)
+    fun getPokemonDetails(pokemonName : String,pokeId : Int) {
+        pokeViewModel.getSinglePokemonByName(pokemonName)
         pokeViewModel.apiCallResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is Resource.Error -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
@@ -54,25 +59,26 @@ class PokeDetailsFragment : Fragment() {
                 }
 
                 is Resource.Success -> {
+                    currentPokemonId = pokeId
                     hideProgressBar()
-                    fillPokemonDataOnScreen()
+                    fillPokemonDataOnScreen(pokemonName,pokeId)
+                    pokeViewModel.getPokemonSpeciesId(pokemonArgs.pokemonId)
                     pokeViewModel.pokemonResponse.postValue(response.data)
                 }
             }
         }
     }
 
-    private fun fillPokemonDataOnScreen() {
-        val currentPokemonId = pokemonArgs.pokemonId
+    private fun fillPokemonDataOnScreen(pokeName: String, pokeId : Int) {
         binding.apply {
-            pokemonPhoto.load(getImageUrl(currentPokemonId)) {
+            pokemonPhoto.load(getImageUrl(pokeId)) {
                 crossfade(500)
                 decoderFactory { result, options, _ ->
                     SvgDecoder(result.source, options)
                 }.lifecycle(viewLifecycleOwner)
             }
             progressBar.isVisible = false
-            pokemonName.text = "${pokemonArgs.pokemonName?.capitalize()}"
+            pokemonName.text = "${pokeName.capitalize()}"
             progressBar.isVisible = false
         }
     }
@@ -82,7 +88,7 @@ class PokeDetailsFragment : Fragment() {
 
     private fun setUpPokeDetailsViewPager() {
         binding.apply {
-            val adapter = FragmentAdapter(requireActivity())
+            val adapter = FragmentAdapter(childFragmentManager,viewLifecycleOwner.lifecycle)
             pokeInfosViewPager.adapter = adapter
             TabLayoutMediator(tabLayout, pokeInfosViewPager) { tab, position ->
                 tab.apply {
@@ -93,6 +99,10 @@ class PokeDetailsFragment : Fragment() {
 
                         1 -> {
                             text = "Poke Abilities"
+                        }
+
+                        2 -> {
+                            text = "Evo Tree"
                         }
                     }
                 }
@@ -108,5 +118,7 @@ class PokeDetailsFragment : Fragment() {
 
     private fun hideProgressBar() {
         binding.progressBar.visibility = View.INVISIBLE
+    }
+    private fun setUpChildFragments(){
     }
 }

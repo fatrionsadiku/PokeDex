@@ -12,7 +12,8 @@ data class Pokemon(
     val weight : Int,
     val types : List<PokemonType>,
     val stats : List<Stats>,
-    val abilities : List<Abilities?>
+    val abilities : List<Abilities?>,
+    val species : Species
 ) {
     fun getImageUrl() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
 }
@@ -20,6 +21,10 @@ data class Pokemon(
 data class Sprites(
     @SerializedName("front_default")
     val pokeImageUrl : String
+)
+data class Species(
+    val name : String,
+    val url : String
 )
 
 data class PokemonType(

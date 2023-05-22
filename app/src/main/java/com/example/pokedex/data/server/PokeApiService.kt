@@ -2,6 +2,8 @@ package com.example.pokedex.data.server
 
 import com.example.pokedex.data.models.PokeAbilities
 import com.example.pokedex.data.models.Pokemon
+import com.example.pokedex.data.models.PokemonEvolutionChain
+import com.example.pokedex.data.models.PokemonSpecies
 import com.example.pokedex.data.models.PokemonsApiResult
 import retrofit2.Call
 import retrofit2.Response
@@ -24,6 +26,15 @@ interface PokeApiService {
         @Query("limit") limit: Int,
         @Query("offset") offset : Int,
     ): Response<PokemonsApiResult>
+    @GET("evolution-chain/{id}")
+    suspend fun getPokemonSpecies(
+        @Path("id") id : Int,
+    ): Response<PokemonEvolutionChain>
+
+    @GET("pokemon-species/{id}")
+    suspend fun getPokemonSpeciesId(
+        @Path("id") id : Int,
+    ): Response<PokemonSpecies>
 
     @GET("ability/{name}")
     fun getPokemonAbilities(

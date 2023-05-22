@@ -66,7 +66,6 @@ class PokeAdapter(val itemClicker: (pokeName: String, pokeId: Int?) -> Unit) :
             }.animate().setDuration(500).alpha(1f)
             binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "xyani")) {
                 crossfade(500)
-
                 decoderFactory { result, options, _ ->
                     GifDecoder(result.source,options)
                 }
