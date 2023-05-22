@@ -9,7 +9,7 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 <img src="/mockups/pokedex.jpg"/>
 </p>
 
-<img src="/mockups/pokedex_mockup_demo.gif" align="right" width="320"/>
+<img src="/mockups/pokedex_demo.gif" align="right" width="320"/>
 
 ## Tech stack & Open-source libraries
 - Minimum SDK level 21
@@ -23,6 +23,7 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 - [Retrofit2 & OkHttp3](https://github.com/square/retrofit): Construct the REST APIs and paging network data.
 - [Glide](https://github.com/bumptech/glide), [GlidePalette](https://github.com/florent37/GlidePalette): Loading images from network.
 - [Coil](https://coil-kt.github.io/coil), [CoilSVG](https://coil-kt.github.io/coil/svgs/): Loading SVG's from network.
+- [Lottie](https://github.com/airbnb/lottie-android): JSON-based animation file format that allows you to ship animations on any platform as easily as shipping static assets.
 - Custom Views
   - [ProgressView](https://github.com/skydoves/progressview): A polished and flexible ProgressView, fully customizable with animations.
 ## Architecture
