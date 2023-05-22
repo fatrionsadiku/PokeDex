@@ -12,28 +12,36 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import coil.decode.GifDecoder
 import coil.load
+import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
 import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.models.PokemonEvolutionChain
+import com.example.pokedex.databinding.EvoTreeSettingsBinding
 import com.example.pokedex.databinding.PokeEvoTreeLayoutBinding
 import com.example.pokedex.utils.Utility.getPokemonID
 import com.example.pokedex.utils.Utility.linearLayoutParams
 import com.example.pokedex.utils.Utility.pokeNameParams
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
+import com.skydoves.balloon.ArrowOrientation
+import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PokeEvoTree : Fragment() {
-    lateinit var binding: PokeEvoTreeLayoutBinding
+    private lateinit var binding: PokeEvoTreeLayoutBinding
     private lateinit var viewModel: PokeDetailsSharedViewModel
+    private lateinit var toggleButton: LottieAnimationView
     private var isSwitchOn = false
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,22 +51,6 @@ class PokeEvoTree : Fragment() {
         binding = PokeEvoTreeLayoutBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-       viewLifecycleOwner.lifecycleScope.launch {
-           when (viewModel.preferencesFlow.first().redirectState) {
-               RedirectState.REDIRECT_TO_DETAILS -> {
-                   binding.toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
-                   isSwitchOn = true
-               }
-               RedirectState.REDIRECT_TO_EVOTREE -> {
-                   binding.toggleButton.setMinAndMaxProgress(0f, 0.5f)
-                   isSwitchOn = false
-               }
-           }
-       }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -73,6 +65,11 @@ class PokeEvoTree : Fragment() {
                         getPokemonEvoTree(it)
                     }
                 }
+            }
+            toggleButton.setOnClickListener {
+                it as LottieAnimationView
+                it.playAnimation()
+                setUpSettingsBalloon(it)
             }
         }
     }
@@ -250,55 +247,57 @@ class PokeEvoTree : Fragment() {
                 }
             }
         }
-
-//    private fun setUpSettingsBalloon(view: View) {
-//        val sharedPreferences = requireContext().getSharedPreferences("ToggleState", Context.MODE_PRIVATE)
-//        var isSwitchOn = sharedPreferences.getBoolean("isSwitchOn", false)
-//
-//        val dialogBinding = EvoTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-//        val balloon = Balloon.Builder(requireContext())
-//            .setLayout(dialogBinding.root)
-//            .setArrowSize(10)
-//            .setArrowOrientation(ArrowOrientation.TOP)
-//            .setArrowPosition(0.5f)
-//            .setWidthRatio(0.55f)
-//            .setWidth(BalloonSizeSpec.WRAP)
-//            .setHeight(BalloonSizeSpec.WRAP)
-//            .setCornerRadius(4f)
-//            .setMarginTop(10)
-//            .setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
-//            .setBalloonAnimation(BalloonAnimation.FADE)
-//            .build()
-//        val toggleButton = balloon.getContentView().findViewById<LottieAnimationView>(R.id.toggleButton)
-//
-//        toggleButton.progress = if (isSwitchOn) 0f else 1f
-//
-//        toggleButton.setOnClickListener {
-//            isSwitchOn = !isSwitchOn
-//
-//            if (isSwitchOn) {
-//                toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
-//                toggleButton.playAnimation()
-//                Toast.makeText(toggleButton.context, "Redirect to details toggled off", Toast.LENGTH_SHORT).show()
-//                redirectToDetails = false
-//                sharedPreferences.edit().putBoolean("isSwitchOn", true).apply()
-//            } else {
-//                toggleButton.setMinAndMaxProgress(0.0f, 0.5f)
-//                toggleButton.playAnimation()
-//                Toast.makeText(toggleButton.context, "Redirect to details toggled on", Toast.LENGTH_SHORT).show()
-//                // Perform actions when the toggle is OFF
-//                redirectToDetails = true
-//                // Example: Save the toggle state to SharedPreferences
-//                sharedPreferences.edit().putBoolean("isSwitchOn", false).apply()
-//            }
-//        }
-//        balloon.setOnBalloonDismissListener {
-//            // Save the state of the toggle button when the balloon is dismissed
-//            sharedPreferences.edit().putBoolean("isSwitchOn", isSwitchOn).apply()
-//        }
-//
-//        balloon.showAlignBottom(view)
-//    }
-
     }
+
+    private fun setUpSettingsBalloon(view: View) {
+        val dialogBinding = EvoTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
+        val balloon = Balloon.Builder(requireContext())
+            .setLayout(dialogBinding.root)
+            .setArrowSize(10)
+            .setArrowOrientation(ArrowOrientation.TOP)
+            .setArrowPosition(0.5f)
+            .setWidthRatio(0.55f)
+            .setWidth(BalloonSizeSpec.WRAP)
+            .setHeight(BalloonSizeSpec.WRAP)
+            .setCornerRadius(4f)
+            .setMarginRight(20)
+            .setOnBalloonDismissListener {
+                view as LottieAnimationView
+                view.playAnimation()
+            }
+            .setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
+            .setBalloonAnimation(BalloonAnimation.FADE)
+            .build()
+        toggleButton =
+            balloon.getContentView().findViewById(R.id.toggleButton)
+        viewLifecycleOwner.lifecycleScope.launch {
+            isSwitchOn = when (viewModel.preferencesFlow.first().redirectState) {
+                RedirectState.REDIRECT_TO_DETAILS -> {
+                    toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
+                    true
+                }
+                RedirectState.REDIRECT_TO_EVOTREE -> {
+                    toggleButton.setMinAndMaxProgress(0f, 0.5f)
+                    false
+                }
+            }
+        }
+        toggleButton.setOnClickListener {
+            toggleButton.setOnClickListener {
+                if (isSwitchOn) {
+                    toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
+                    toggleButton.playAnimation()
+                    isSwitchOn = false
+                    viewModel.onRedirectStateSelecetd(RedirectState.REDIRECT_TO_EVOTREE)
+                } else {
+                    toggleButton.setMinAndMaxProgress(0.0f, 0.5f)
+                    toggleButton.playAnimation()
+                    isSwitchOn = true
+                    viewModel.onRedirectStateSelecetd(RedirectState.REDIRECT_TO_DETAILS)
+                }
+            }
+        }
+        balloon.showAlignBottom(view)
+    }
+
 }

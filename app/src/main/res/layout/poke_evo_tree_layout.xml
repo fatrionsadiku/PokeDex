@@ -5,30 +5,15 @@
     android:layout_marginTop="40dp">
 
 
-    <LinearLayout
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/toggleButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:orientation="vertical">
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/titleText"
-            android:layout_width="wrap_content"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/ryogothic"
-            android:text="Redirect to details?"
-            android:textColor="@color/main_color"
-            />
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/toggleButton"
-            android:layout_width="80dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            app:lottie_rawRes="@raw/toggle_button" />
-    </LinearLayout>
-
+        app:lottie_rawRes="@raw/settings"
+        app:lottie_speed="3" />
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
