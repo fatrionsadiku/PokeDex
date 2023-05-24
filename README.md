@@ -24,6 +24,9 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 - [Glide](https://github.com/bumptech/glide), [GlidePalette](https://github.com/florent37/GlidePalette): Loading images from network.
 - [Coil](https://coil-kt.github.io/coil), [CoilSVG](https://coil-kt.github.io/coil/svgs/): Loading SVG's from network.
 - [Lottie](https://github.com/airbnb/lottie-android): JSON-based animation file format that allows you to ship animations on any platform as easily as shipping static assets.
+- [DataStore](https://developer.android.com/topic/libraries/architecture/datastore): Data storage solution that allows you to store key-value pairs or typed objects with protocol buffers
+- [Palette](https://developer.android.com/develop/ui/views/graphics/palette-colors): A support library that extracts prominent colors from images
+- [Rainbow](https://github.com/skydoves/rainbow): Fluent syntactic sugar of Android for applying gradations, shading, and tinting.
 - Custom Views
   - [ProgressView](https://github.com/skydoves/progressview): A polished and flexible ProgressView, fully customizable with animations.
 ## Architecture
