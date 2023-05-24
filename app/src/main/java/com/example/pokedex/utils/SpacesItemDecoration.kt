@@ -12,7 +12,7 @@ class SpacesItemDecoration : RecyclerView.ItemDecoration() {
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        outRect.left = 50
+        outRect.left = 25
 
     }
 }

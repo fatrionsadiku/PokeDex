@@ -74,6 +74,8 @@ class PokeEvoTree : Fragment() {
         }
     }
 
+
+    // Will soon implement custom views to reduce boiler plate code as it's pretty unreadable as is
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPokemonEvoTree(pokeSpecies: PokemonEvolutionChain) {
         binding.linearLayout.removeAllViews()

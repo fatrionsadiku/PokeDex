@@ -32,7 +32,6 @@ class PokeDetailsSharedViewModel @Inject constructor(
     val pokemonResponse = MutableLiveData<Pokemon?>()
     val abilitiesResponse = MutableLiveData<List<PokeAbilities?>>()
     val pokemonSpeciesResponse = MutableLiveData<PokemonEvolutionChain?>()
-    val isBackToDetailsToggled = MutableLiveData(false)
     val preferencesFlow = userPreferences.preferencesFlow
 
     fun getSinglePokemonByName(pokemonName: String) = viewModelScope.launch {

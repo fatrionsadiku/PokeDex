@@ -7,6 +7,17 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xuse-experimental=kotlin.Experimental",
+                "-Xskip-prerelease-check",
+        ]
+        languageVersion = "1.5"
+        apiVersion = "1.5"
+    }
+}
+
 android {
     namespace 'com.example.pokedex'
     compileSdk 33
@@ -68,6 +79,10 @@ dependencies {
     implementation "com.airbnb.android:lottie:6.0.0"
     implementation "com.github.skydoves:balloon:1.5.3"
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.github.skydoves:transformationlayout:1.1.2")
+    implementation "androidx.palette:palette-ktx:1.0.0"
+    implementation "com.github.skydoves:rainbow:1.0.4"
+
 
 
 }

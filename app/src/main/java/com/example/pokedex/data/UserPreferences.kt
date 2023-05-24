@@ -15,7 +15,6 @@ enum class RedirectState {
     REDIRECT_TO_DETAILS,
     REDIRECT_TO_EVOTREE
 }
-
 data class RedirectToDetails(val redirectState: RedirectState)
 
 private val PREFERENCES_KEY = stringPreferencesKey("redirect_to_details")
