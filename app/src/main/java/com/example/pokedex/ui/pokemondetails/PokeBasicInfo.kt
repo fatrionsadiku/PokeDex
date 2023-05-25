@@ -20,8 +20,14 @@ import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.databinding.PokemonBasicInfoBinding
 import com.example.pokedex.utils.Resource
+import com.example.pokedex.utils.capitalize
 import com.example.pokedex.utils.customviews.CustomCardView
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
+import com.skydoves.rainbow.Rainbow
+import com.skydoves.rainbow.RainbowOrientation
+import com.skydoves.rainbow.color
+import com.skydoves.rainbow.contextColor
+import com.skydoves.rainbow.rainbow
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -114,8 +120,14 @@ class PokeBasicInfo : Fragment() {
                 pokemonType.let {
                     val pokeType = pokemonType.type.name.capitalize()
                     val currentPokeColor = getColorForType(pokeType)
+                    val currentPokeColorWithOpacity = Color.argb(160, Color.red(currentPokeColor), Color.green(currentPokeColor), Color.blue(currentPokeColor))
                     val currentPokeType = CustomCardView(requireContext(),pokeType)
-                    currentPokeType.setBackgroundColor(currentPokeColor)
+                    Rainbow(currentPokeType).palette {
+                        +color(currentPokeColor)
+                        +color(currentPokeColorWithOpacity)
+                    }.apply {
+                        background(RainbowOrientation.BOTTOM_TOP, 14)
+                    }
                     linearLayout.addView(currentPokeType,layoutParams)
                 }
             }
