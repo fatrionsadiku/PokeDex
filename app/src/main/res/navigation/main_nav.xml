@@ -41,7 +41,7 @@
     </fragment>
     <fragment
         android:id="@+id/pokeEvoTree"
-        android:name="com.example.pokedex.ui.pokemondetails.PokeEvoTree"
+        android:name="com.example.pokedex.ui.pokemondetails.pokeevotree.PokeEvoTree"
         android:label="PokeEvoTree"
         tools:layout="@layout/poke_evo_tree_layout"
         >

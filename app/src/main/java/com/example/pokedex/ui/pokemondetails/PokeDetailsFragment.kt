@@ -14,7 +14,7 @@ import androidx.navigation.fragment.navArgs
 import coil.decode.SvgDecoder
 import coil.load
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
-import com.example.pokedex.ui.FragmentAdapter
+import com.example.pokedex.adapters.FragmentAdapter
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
@@ -94,15 +94,15 @@ class PokeDetailsFragment : Fragment() {
                 tab.apply {
                     when (position) {
                         0 -> {
-                            text = "Poke Details"
+                            text = "Details"
                         }
 
                         1 -> {
-                            text = "Poke Abilities"
+                            text = "Abilities/Items"
                         }
 
                         2 -> {
-                            text = "Evo Tree"
+                            text = "Evolution Tree"
                         }
                     }
                 }
@@ -118,7 +118,5 @@ class PokeDetailsFragment : Fragment() {
 
     private fun hideProgressBar() {
         binding.progressBar.visibility = View.INVISIBLE
-    }
-    private fun setUpChildFragments(){
     }
 }

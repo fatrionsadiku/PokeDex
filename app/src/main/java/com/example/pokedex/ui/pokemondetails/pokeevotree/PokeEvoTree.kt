@@ -1,4 +1,4 @@
-package com.example.pokedex.ui.pokemondetails
+package com.example.pokedex.ui.pokemondetails.pokeevotree
 
 import android.graphics.Color
 import android.os.Build
@@ -24,6 +24,8 @@ import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.models.PokemonEvolutionChain
 import com.example.pokedex.databinding.EvoTreeSettingsBinding
 import com.example.pokedex.databinding.PokeEvoTreeLayoutBinding
+import com.example.pokedex.ui.pokemondetails.PokeDetailsFragment
+import com.example.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.example.pokedex.utils.Utility.getPokemonID
 import com.example.pokedex.utils.Utility.linearLayoutParams
 import com.example.pokedex.utils.Utility.pokeNameParams

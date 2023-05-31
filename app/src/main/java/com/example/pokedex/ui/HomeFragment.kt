@@ -79,7 +79,6 @@ class HomeFragment : Fragment() {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
                     hideProgressBar()
                     adapter.pokemons = response.data!!.toList()
@@ -175,7 +174,8 @@ class HomeFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             when (doubleBackToExitOnce) {
                 false -> {
-                    binding.recyclerView.smoothScrollToPosition(0)
+                    if(adapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
+                    else binding.recyclerView.smoothScrollToPosition(0)
                     doubleBackToExitOnce = true
                 }
 
@@ -183,10 +183,10 @@ class HomeFragment : Fragment() {
                     AlertDialog.Builder(requireContext()).apply {
                         setTitle("Do you want to exit out of the app?")
                             .setNegativeButton(
-                                "Yes",
-                                DialogInterface.OnClickListener { dialogInterface, i ->
-                                    requireActivity().finish()
-                                })
+                                "Yes"
+                            ) { _, _ ->
+                                requireActivity().finish()
+                            }
                             .setPositiveButton(
                                 "No",
                                 DialogInterface.OnClickListener { dialogInterface, i ->

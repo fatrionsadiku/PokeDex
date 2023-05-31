@@ -8,14 +8,13 @@ import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.Repository
 import com.example.pokedex.data.UserPreferences
 import com.example.pokedex.data.models.PokeAbilities
+import com.example.pokedex.data.models.PokeHeldItems
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.models.PokemonEvolutionChain
 import com.example.pokedex.data.server.PokeApiService
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.Utility
-import com.example.pokedex.utils.Utility.getPokemonID
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import retrofit2.awaitResponse
@@ -32,14 +31,18 @@ class PokeDetailsSharedViewModel @Inject constructor(
     val pokemonResponse = MutableLiveData<Pokemon?>()
     val abilitiesResponse = MutableLiveData<List<PokeAbilities?>>()
     val pokemonSpeciesResponse = MutableLiveData<PokemonEvolutionChain?>()
+    val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
     val preferencesFlow = userPreferences.preferencesFlow
 
     fun getSinglePokemonByName(pokemonName: String) = viewModelScope.launch {
         apiCallResponse.postValue(Resource.Loading())
         val response = repository.getSinglePokemonByName(pokemonName)
-        apiCallResponse.postValue(handlePokemonApiCallResponse(response))
+        apiCallResponse.postValue(handleApiResponse(response))
         val abilities = getPokemonAbilitiesByName(response.body())
         abilitiesResponse.postValue(abilities)
+        pokemonHeldItems.postValue(Resource.Loading())
+        val heldItems = getPokemonHeldItems(response.body())
+        pokemonHeldItems.postValue(Resource.Success(heldItems))
     }
 
     fun getPokemonSpeciesId(id: Int) = viewModelScope.launch {
@@ -59,6 +62,19 @@ class PokeDetailsSharedViewModel @Inject constructor(
         }
     }
 
+    private suspend fun getPokemonHeldItems(pokemon: Pokemon?): List<PokeHeldItems?> {
+        val pokeHeldItems = mutableListOf<PokeHeldItems?>()
+        pokemon?.heldItems?.forEach { heldItems ->
+            val pokeHeldItemsApiCall = repository.getPokemonHeldItems(heldItems.item.name)
+            val heldItemsResponse = pokeHeldItemsApiCall.awaitResponse()
+            if (heldItemsResponse.isSuccessful) {
+                Log.d("ViewModelDebug", "getPokemonSpecies: ${heldItemsResponse.body()}")
+                pokeHeldItems.add(heldItemsResponse.body())
+            }
+        }
+        return pokeHeldItems.toList()
+    }
+
 
     private suspend fun getPokemonAbilitiesByName(pokemon: Pokemon?): MutableList<PokeAbilities?> {
         val pokeAbilities = mutableListOf<PokeAbilities?>()
@@ -72,14 +88,16 @@ class PokeDetailsSharedViewModel @Inject constructor(
         return pokeAbilities
     }
 
-    private fun handlePokemonApiCallResponse(response: Response<Pokemon>): Resource<Pokemon> {
-        if (response.isSuccessful) {
+    private fun <T> handleApiResponse(response: Response<T>): Resource<T> {
+        return if (response.isSuccessful) {
             response.body()?.let {
-                return Resource.Success(it)
-            }
+                Resource.Success(it)
+            } ?: Resource.Error(message = "Empty response body")
+        } else {
+            Resource.Error(message = response.message())
         }
-        return Resource.Error(message = response.message())
     }
+
 
     fun onRedirectStateSelecetd(redirectState: RedirectState) = viewModelScope.launch {
         userPreferences.updateRedirectState(redirectState)

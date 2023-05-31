@@ -13,7 +13,9 @@ data class Pokemon(
     val types : List<PokemonType>,
     val stats : List<Stats>,
     val abilities : List<Abilities?>,
-    val species : Species
+    val species : Species,
+    @SerializedName("held_items")
+    val heldItems : List<HeldItems>
 ) {
     fun getImageUrl() = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
 }
@@ -56,4 +58,12 @@ data class Abilities(
 data class Ability(
     val name : String?,
     val url : String?
+)
+
+data class HeldItems(
+    val item : HeldItem,
+)
+data class HeldItem(
+    val name : String,
+    val url : String
 )

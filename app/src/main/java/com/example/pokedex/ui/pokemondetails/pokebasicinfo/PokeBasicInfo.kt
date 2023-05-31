@@ -1,4 +1,4 @@
-package com.example.pokedex.ui.pokemondetails
+package com.example.pokedex.ui.pokemondetails.pokebasicinfo
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -13,11 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import coil.clear
-import coil.dispose
-import com.example.pokedex.R
 import com.example.pokedex.data.models.Pokemon
-import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.databinding.PokemonBasicInfoBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
@@ -26,8 +22,6 @@ import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
-import com.skydoves.rainbow.contextColor
-import com.skydoves.rainbow.rainbow
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

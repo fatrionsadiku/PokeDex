@@ -1,6 +1,7 @@
 package com.example.pokedex.data.server
 
 import com.example.pokedex.data.models.PokeAbilities
+import com.example.pokedex.data.models.PokeHeldItems
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.models.PokemonEvolutionChain
 import com.example.pokedex.data.models.PokemonSpecies
@@ -26,10 +27,16 @@ interface PokeApiService {
         @Query("limit") limit: Int,
         @Query("offset") offset : Int,
     ): Response<PokemonsApiResult>
+
     @GET("evolution-chain/{id}")
     suspend fun getPokemonSpecies(
         @Path("id") id : Int,
     ): Response<PokemonEvolutionChain>
+
+    @GET("item/{name}")
+    fun getPokemonHeldItems(
+        @Path("name") name : String,
+    ): Call<PokeHeldItems>
 
     @GET("pokemon-species/{id}")
     suspend fun getPokemonSpeciesId(
