@@ -3,6 +3,7 @@ package com.example.pokedex.ui.pokemondetails.pokeevotree
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.LayoutDirection
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -91,7 +92,7 @@ class PokeEvoTree : Fragment() {
         ).also {
             it.gravity = Gravity.CENTER_HORIZONTAL
         }
-        val pointingUpGif = ImageView(requireContext()).apply {
+        val neonPointingGif = LottieAnimationView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
                 resources.getDimensionPixelSize(R.dimen.pointing_up_width),
                 resources.getDimensionPixelSize(R.dimen.pointing_up_height),
@@ -99,12 +100,12 @@ class PokeEvoTree : Fragment() {
             ).also {
                 it.gravity = Gravity.CENTER_HORIZONTAL
             }
-            load(R.drawable.pointing_up) {
-                crossfade(500)
-                decoderFactory { result, options, _ ->
-                    GifDecoder(result.source, options)
-                }
-            }
+            alpha = 0f
+            animate().setDuration(500).alpha(1f).start()
+            rotation = 90f
+            setAnimation(R.raw.pixel_neon_arrow)
+            repeatCount = 999
+            playAnimation()
         }
         val firstPokemonId = getPokemonID(pokeSpecies.chain.species.url)
         val firstPokeForm = ImageView(requireContext()).apply {
@@ -141,7 +142,7 @@ class PokeEvoTree : Fragment() {
             addView(firstPokeForm)
             addView(firstPokeName)
             if (pokeDetailsFragment.currentPokemonId == firstPokemonId) {
-                addView(pointingUpGif)
+                addView(neonPointingGif)
             }
 
         }
@@ -182,7 +183,7 @@ class PokeEvoTree : Fragment() {
                 addView(secondPokemonForm)
                 addView(secondPokeName)
                 if (pokeDetailsFragment.currentPokemonId == secondPokemonId) {
-                    addView(pointingUpGif)
+                    addView(neonPointingGif)
                 }
 
             }
@@ -227,7 +228,7 @@ class PokeEvoTree : Fragment() {
                     addView(thirdPokeForm)
                     addView(thirdPokeName)
                     if (pokeDetailsFragment.currentPokemonId == thirdPokemonId) {
-                        addView(pointingUpGif)
+                        addView(neonPointingGif)
                     }
                 }
                 binding.linearLayout.addView(thirdPokeFormLayout)
@@ -280,6 +281,7 @@ class PokeEvoTree : Fragment() {
                     toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
                     true
                 }
+
                 RedirectState.REDIRECT_TO_EVOTREE -> {
                     toggleButton.setMinAndMaxProgress(0f, 0.5f)
                     false

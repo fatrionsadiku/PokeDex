@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -68,8 +69,9 @@ class PokeAbilities : Fragment() {
                     is Resource.Error -> Toast.makeText(requireContext(),"Something happened idk", Toast.LENGTH_LONG).show()
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
+                        binding.hasNoHeldItems.isVisible = response.data!!.isEmpty()
                         hideProgressBar()
-                        response.data?.forEach { heldItem ->
+                        response.data.forEach { heldItem ->
                             val currentHeldItem = ImageView(requireContext()).apply {
                                 this.layoutParams = LayoutParams(
                                     resources.getDimensionPixelSize(R.dimen.image_width),
@@ -116,7 +118,7 @@ class PokeAbilities : Fragment() {
             findViewById<MaterialTextView>(R.id.itemTitle).text =
                 heldItem?.name?.replace("-", " ")?.capitalize()
             findViewById<MaterialTextView>(R.id.itemEffect).text =
-                heldItem?.effectEntries?.first()?.effect?.replace(":", "")
+                heldItem?.effectEntries?.first()?.effect
         }
         balloon.showAlignTop(view)
     }
