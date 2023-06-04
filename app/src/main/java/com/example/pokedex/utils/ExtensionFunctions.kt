@@ -15,3 +15,15 @@ fun String.capitalize(): String {
     val firstChar = Character.toUpperCase(this[0])
     return firstChar + substring(1)
 }
+
+fun <T> List<T>.second() : T {
+    if (isEmpty())
+        throw NoSuchElementException("List is empty.")
+    return this[1]
+}
+fun <T> List<T>.third() : T {
+    if (isEmpty())
+        throw NoSuchElementException("List is empty.")
+    return this[2]
+}
+

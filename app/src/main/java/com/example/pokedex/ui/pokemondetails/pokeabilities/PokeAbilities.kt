@@ -20,6 +20,7 @@ import com.example.pokedex.databinding.PokeAbilitiesBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.utils.customviews.PokeAbilitiesLayout
+import com.example.pokedex.utils.second
 import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
 import com.google.android.material.textview.MaterialTextView
 import com.skydoves.balloon.ArrowPositionRules
