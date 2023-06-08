@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.MainActivity"
-    >
+    tools:context=".ui.MainActivity">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
@@ -13,10 +12,28 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:defaultNavHost="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/main_nav" />
+
+    <com.skydoves.androidbottombar.AndroidBottomBarView
+        android:id="@+id/bottomNavView"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/main_color"
+        app:bottomBar_duration="300"
+        app:bottomBar_flavor="icon"
+        app:bottomBar_indicator_color="@color/white"
+        app:bottomBar_indicator_height="4dp"
+        app:bottomBar_indicator_padding="6dp"
+        app:bottomBar_indicator_radius="12dp"
+        app:bottomBar_indicator_visible="true"
+        app:bottomBar_menuAnimation="overshoot"
+        app:bottomBar_selectedIndex="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,6 +2,7 @@ package com.example.pokedex.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.data.Repository
@@ -21,6 +22,7 @@ class HomeViewModel @Inject constructor(
     val pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
     private var currentPokemonList : MutableList<PokemonResult>? = null
     private var currentPokemonPage = 0
+    val totalNumberOfFavs = repository.getTotalNumberOfFavs().asLiveData()
 
     init {
         getPaginatedPokemon()
