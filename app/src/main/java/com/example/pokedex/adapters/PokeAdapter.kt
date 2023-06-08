@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import coil.decode.GifDecoder
 import coil.load
+import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.databinding.PokeLayoutBinding
@@ -25,7 +26,7 @@ import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
 import com.skydoves.rainbow.contextColor
 
-class PokeAdapter(val itemClicker: (pokeName: String, pokeId: Int?) -> Unit) :
+class PokeAdapter(val itemClicker: (pokeName: String, pokeId: Int?) -> Unit, val favoritePokemon : (position : Int) -> Unit) :
     RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     var pokemons: List<PokemonResult>
         get() = differ.currentList
@@ -97,6 +98,14 @@ class PokeAdapter(val itemClicker: (pokeName: String, pokeId: Int?) -> Unit) :
                         val currentPoke = pokemons[currentPosition]
                         val currentPokeId = getPokemonID(currentPoke)
                         itemClicker.invoke(currentPoke.name, currentPokeId)
+                    }
+                }
+                favoriteButton.setOnClickListener {lottieView ->
+                    val currentPosition = adapterPosition
+                    if (currentPosition != RecyclerView.NO_POSITION) {
+                        val lottieAnimationView = lottieView as LottieAnimationView
+                        favoritePokemon.invoke(currentPosition)
+                        lottieAnimationView.playAnimation()
                     }
                 }
             }

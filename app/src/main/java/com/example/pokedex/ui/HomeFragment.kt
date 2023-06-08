@@ -17,12 +17,14 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.adapters.PokeAdapter
+import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import com.example.pokedex.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -58,9 +60,7 @@ class HomeFragment : Fragment() {
     private fun setUpPokeRecyclerView() =
         try {
             recyclerView = binding.recyclerView
-            adapter = PokeAdapter() { pokeName, pokeId ->
-                adapterOnItemClickedListener(pokeName, pokeId)
-            }
+            adapter = PokeAdapter(::adapterOnItemClickedListener,::favoritePokemon)
             fetchApiData()
             recyclerView.adapter = adapter
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
@@ -108,6 +108,14 @@ class HomeFragment : Fragment() {
             pokeId ?: 0
         )
         findNavController().navigate(action)
+    }
+
+    private fun favoritePokemon(position : Int) = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        val currentPokemon = adapter.pokemons[position]
+        when(viewModel.doesPokemonExist(currentPokemon.name)){
+            true -> viewModel.unFavoritePokemon(FavoritePokemon(pokeName = currentPokemon.name, url = currentPokemon.url))
+            false -> viewModel.favoritePokemon(FavoritePokemon(pokeName = currentPokemon.name, url = currentPokemon.url))
+        }
     }
 
     private fun hideProgressBar() {

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.data.Repository
+import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.utils.Resource
@@ -47,6 +48,15 @@ class HomeViewModel @Inject constructor(
             }
         }
         return Resource.Error(message = response.message())
+    }
+
+    fun favoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
+        repository.favoritePokemon(pokemon)
+    }
+
+    fun doesPokemonExist(pokeName : String) = repository.doesPokemonExist(pokeName)
+    fun unFavoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
+        repository.unFavoritePokemon(pokemon)
     }
 
 

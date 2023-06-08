@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.Repository
 import com.example.pokedex.data.UserPreferences
+import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokeAbilities
 import com.example.pokedex.data.models.PokeHeldItems
 import com.example.pokedex.data.models.Pokemon
@@ -33,6 +34,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
     val pokemonSpeciesResponse = MutableLiveData<PokemonEvolutionChain?>()
     val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
     val preferencesFlow = userPreferences.preferencesFlow
+    val favoritePokemonsFlow = repository.getFavoritePokemons()
 
     fun getSinglePokemonByName(pokemonName: String) = viewModelScope.launch {
         apiCallResponse.postValue(Resource.Loading())
@@ -97,6 +99,8 @@ class PokeDetailsSharedViewModel @Inject constructor(
             Resource.Error(message = response.message())
         }
     }
+
+
 
 
     fun onRedirectStateSelecetd(redirectState: RedirectState) = viewModelScope.launch {
