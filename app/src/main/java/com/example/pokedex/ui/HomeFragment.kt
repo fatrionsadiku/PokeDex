@@ -11,17 +11,19 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pokedex.adapters.CheckedItemState
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
+import com.example.pokedex.utils.requireMainActivity
 import com.example.pokedex.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -29,9 +31,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), CheckedItemState {
     private lateinit var binding: FragmentHomeBinding
-    private lateinit var viewModel: HomeViewModel
+    private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: PokeAdapter
     private lateinit var recyclerView: RecyclerView
     private var doubleBackToExitOnce = false
@@ -41,13 +43,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         return binding.root
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.pokemonResponse.value = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,17 +51,51 @@ class HomeFragment : Fragment() {
         setUpPokeRecyclerView()
         setUpPokeFiltering()
         onBackPressed()
+        viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
+            requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("RecyclerView Activity", "onPause: ")
+        val state = recyclerView.layoutManager?.onSaveInstanceState()
+        viewModel.recyclerViewState = state
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("RecyclerView Activity", "onResume: ")
+        val currentSavedState = viewModel.recyclerViewState
+        if (currentSavedState != null) {
+            recyclerView.layoutManager?.onRestoreInstanceState(currentSavedState)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("RecyclerView Activity", "onDestroy: ")
+        val state = recyclerView.layoutManager?.onSaveInstanceState()
+        viewModel.recyclerViewState = state
+    }
+
+    override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            doesItemExist(viewModel.doesPokemonExist(itemName))
+        }
     }
 
     private fun setUpPokeRecyclerView() =
         try {
             recyclerView = binding.recyclerView
-            adapter = PokeAdapter(::adapterOnItemClickedListener,::favoritePokemon)
+            adapter = PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
             fetchApiData()
-            recyclerView.adapter = adapter
-            recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-            recyclerView.addItemDecoration(SpacesItemDecoration())
-            recyclerView.addOnScrollListener(this@HomeFragment.scrollListener)
+            recyclerView.apply {
+                adapter = this@HomeFragment.adapter
+                layoutManager = GridLayoutManager(requireContext(), 2)
+                addItemDecoration(SpacesItemDecoration())
+                addOnScrollListener(this@HomeFragment.scrollListener)
+            }
 
         } catch (e: Exception) {
             Log.e("Error fetching poke", "setUpPokeRecyclerView: ${e.toString()}")
@@ -79,6 +109,7 @@ class HomeFragment : Fragment() {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
+
                 is Resource.Success -> {
                     hideProgressBar()
                     adapter.pokemons = response.data!!.toList()
@@ -110,13 +141,25 @@ class HomeFragment : Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun favoritePokemon(position : Int) = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-        val currentPokemon = adapter.pokemons[position]
-        when(viewModel.doesPokemonExist(currentPokemon.name)){
-            true -> viewModel.unFavoritePokemon(FavoritePokemon(pokeName = currentPokemon.name, url = currentPokemon.url))
-            false -> viewModel.favoritePokemon(FavoritePokemon(pokeName = currentPokemon.name, url = currentPokemon.url))
+    private fun favoritePokemon(position: Int) =
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val currentPokemon = adapter.pokemons[position]
+            when (viewModel.doesPokemonExist(currentPokemon.name)) {
+                true -> viewModel.unFavoritePokemon(
+                    FavoritePokemon(
+                        pokeName = currentPokemon.name,
+                        url = currentPokemon.url
+                    )
+                )
+
+                false -> viewModel.favoritePokemon(
+                    FavoritePokemon(
+                        pokeName = currentPokemon.name,
+                        url = currentPokemon.url
+                    )
+                )
+            }
         }
-    }
 
     private fun hideProgressBar() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -182,7 +225,7 @@ class HomeFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             when (doubleBackToExitOnce) {
                 false -> {
-                    if(adapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
+                    if (adapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
                     else binding.recyclerView.smoothScrollToPosition(0)
                     doubleBackToExitOnce = true
                 }

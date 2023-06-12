@@ -22,7 +22,7 @@ class Repository @Inject constructor(
 
     fun getFavoritePokemons() = favPokeDao.getFavoritePokemons()
 
-    fun doesPokemonExist(pokemonName: String) = favPokeDao.doesPokemonExist(pokemonName)
+    suspend fun doesPokemonExist(pokemonName: String) = favPokeDao.doesPokemonExist(pokemonName)
 
     fun getTotalNumberOfFavs() = favPokeDao.getTotalNumberOfFavorites()
     suspend fun favoritePokemon(pokemon : FavoritePokemon) = favPokeDao.favoritePokemon(pokemon)

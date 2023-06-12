@@ -22,18 +22,19 @@
         android:id="@+id/bottomNavView"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="@color/main_color"
+        android:background="#fbbf2b"
         app:bottomBar_duration="300"
         app:bottomBar_flavor="icon"
-        app:bottomBar_indicator_color="@color/white"
+        app:bottomBar_indicator_color="#2098d6"
         app:bottomBar_indicator_height="4dp"
         app:bottomBar_indicator_padding="6dp"
         app:bottomBar_indicator_radius="12dp"
         app:bottomBar_indicator_visible="true"
         app:bottomBar_menuAnimation="overshoot"
-        app:bottomBar_selectedIndex="1"
+        app:bottomBar_selectedIndex="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

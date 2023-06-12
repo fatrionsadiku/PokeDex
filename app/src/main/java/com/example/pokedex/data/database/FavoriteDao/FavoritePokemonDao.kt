@@ -15,7 +15,7 @@ interface FavoritePokemonDao {
     fun getFavoritePokemons(): Flow<List<FavoritePokemon>>
 
     @Query("SELECT EXISTS (SELECT 1 FROM favorite_pokemons WHERE pokemon_name = :pokeName)")
-    fun doesPokemonExist(pokeName : String) : Boolean
+    suspend fun doesPokemonExist(pokeName : String) : Boolean
 
     @Query("SELECT COUNT(*) FROM favorite_pokemons")
     fun getTotalNumberOfFavorites() : Flow<Int>

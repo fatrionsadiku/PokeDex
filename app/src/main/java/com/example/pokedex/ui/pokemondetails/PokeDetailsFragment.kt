@@ -36,11 +36,6 @@ class PokeDetailsFragment : Fragment() {
         pokeViewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
         return binding.root
     }
-    override fun onDestroyView() {
-        super.onDestroyView()
-        requireActivity().viewModelStore.clear()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.pokemonPhoto.setImageResource(0)

@@ -1,5 +1,7 @@
 package com.example.pokedex.viewmodels
 
+import android.os.Parcelable
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -12,7 +14,9 @@ import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Response
 import javax.inject.Inject
 @HiltViewModel
@@ -23,9 +27,18 @@ class HomeViewModel @Inject constructor(
     private var currentPokemonList : MutableList<PokemonResult>? = null
     private var currentPokemonPage = 0
     val totalNumberOfFavs = repository.getTotalNumberOfFavs().asLiveData()
+    val favoritePokemons = repository.getFavoritePokemons().asLiveData()
+    var recyclerViewState : Parcelable? = null
+
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("ViewModelD", "DED RIP!")
+    }
 
     init {
         getPaginatedPokemon()
+        Log.d("ViewModelD", "REBORN HAHAH")
     }
 
     fun getPaginatedPokemon() = viewModelScope.launch {
@@ -56,7 +69,9 @@ class HomeViewModel @Inject constructor(
         repository.favoritePokemon(pokemon)
     }
 
-    fun doesPokemonExist(pokeName : String) = repository.doesPokemonExist(pokeName)
+    suspend fun doesPokemonExist(pokeName : String) : Boolean = withContext(Dispatchers.IO) {
+        repository.doesPokemonExist(pokeName)
+    }
     fun unFavoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
         repository.unFavoritePokemon(pokemon)
     }

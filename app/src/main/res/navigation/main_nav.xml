@@ -17,6 +17,14 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
             />
+        <action
+            android:id="@+id/action_homeFragment_to_favoritePokemons"
+            app:destination="@id/favoritePokemons"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            />
     </fragment>
     <fragment
         android:id="@+id/pokeDetailsFragment2"
@@ -38,6 +46,14 @@
         <argument
             android:name="pokemon_id"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_pokeDetailsFragment2_to_favoritePokemons"
+            app:destination="@id/favoritePokemons"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            />
     </fragment>
     <fragment
         android:id="@+id/pokeEvoTree"
@@ -48,6 +64,29 @@
         <action
             android:id="@+id/action_pokeEvoTree_to_pokeDetailsFragment2"
             app:destination="@id/pokeDetailsFragment2"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/favoritePokemons"
+        android:name="com.example.pokedex.ui.FavoritePokemons"
+        android:label="FavoritePokemons"
+        tools:layout="@layout/favorite_pokemons"
+        >
+        <action
+            android:id="@+id/action_favoritePokemons_to_pokeDetailsFragment2"
+            app:destination="@id/pokeDetailsFragment2"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            />
+        <action
+            android:id="@+id/action_favoritePokemons_to_homeFragment"
+            app:destination="@id/homeFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
