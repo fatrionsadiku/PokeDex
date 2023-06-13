@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/homeFragment"
         tools:layout="@layout/fragment_home"
-        android:name="com.example.pokedex.ui.HomeFragment"
+        android:name="com.example.pokedex.ui.pokemondetails.homefragment.HomeFragment"
         android:label="homeFrament">
         <action
             android:id="@+id/action_homeFragment_to_pokeDetailsFragment2"
@@ -72,7 +72,7 @@
     </fragment>
     <fragment
         android:id="@+id/favoritePokemons"
-        android:name="com.example.pokedex.ui.FavoritePokemons"
+        android:name="com.example.pokedex.ui.pokemondetails.favoritepokemons.FavoritePokemons"
         android:label="FavoritePokemons"
         tools:layout="@layout/favorite_pokemons"
         >

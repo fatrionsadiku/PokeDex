@@ -1,4 +1,4 @@
-package com.example.pokedex.viewmodels
+package com.example.pokedex.ui
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.Repository
 import com.example.pokedex.data.UserPreferences
-import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokeAbilities
 import com.example.pokedex.data.models.PokeHeldItems
 import com.example.pokedex.data.models.Pokemon

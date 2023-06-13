@@ -18,7 +18,7 @@ import com.example.pokedex.databinding.PokemonBasicInfoBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.utils.customviews.CustomCardView
-import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
+import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color

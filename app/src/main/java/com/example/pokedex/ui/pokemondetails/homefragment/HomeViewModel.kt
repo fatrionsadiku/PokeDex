@@ -1,4 +1,4 @@
-package com.example.pokedex.viewmodels
+package com.example.pokedex.ui.pokemondetails.homefragment
 
 import android.os.Parcelable
 import android.util.Log

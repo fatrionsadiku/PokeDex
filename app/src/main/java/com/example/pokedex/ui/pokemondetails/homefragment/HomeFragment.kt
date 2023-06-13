@@ -1,4 +1,4 @@
-package com.example.pokedex.ui
+package com.example.pokedex.ui.pokemondetails.homefragment
 
 import android.app.AlertDialog
 import android.content.DialogInterface
@@ -24,7 +24,6 @@ import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import com.example.pokedex.utils.requireMainActivity
-import com.example.pokedex.viewmodels.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -134,10 +133,11 @@ class HomeFragment : Fragment(), CheckedItemState {
 
     private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int?) {
 
-        val action = HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
-            pokeName,
-            pokeId ?: 0
-        )
+        val action =
+            HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
+                pokeName,
+                pokeId ?: 0
+            )
         findNavController().navigate(action)
     }
 

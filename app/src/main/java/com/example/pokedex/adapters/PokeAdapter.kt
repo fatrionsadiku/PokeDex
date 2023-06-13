@@ -79,7 +79,6 @@ class PokeAdapter(
                         true -> {
                             binding.favoriteButton.progress = 1f
                         }
-
                         false -> {
                             binding.favoriteButton.progress = 0f
                         }
@@ -122,7 +121,6 @@ class PokeAdapter(
                         lottieAnimationView.progress =
                             if (lottieAnimationView.progress == 1f) 0f else 1f
                     }
-
                 }
             }
         }

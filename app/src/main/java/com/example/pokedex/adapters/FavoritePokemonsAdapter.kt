@@ -30,7 +30,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class FavoritePokemonsAdapter(
-    val itemClicker: (pokeName: String, pokeId: Int?) -> Unit
+    val itemClicker: (pokeName: String, pokeId: Int?) -> Unit,
+    val favoritePokemon: (position: Int) -> Unit,
+    val stateCheckedItemState: CheckedItemState
 ) : RecyclerView.Adapter<FavoritePokemonsAdapter.ViewHolder>() {
     var pokemons: List<FavoritePokemon>
         get() = differ.currentList
@@ -72,6 +74,19 @@ class FavoritePokemonsAdapter(
                     GifDecoder(result.source, options)
                 }
             }
+            binding.favoriteButton.apply {
+                stateCheckedItemState.doesSelectedItemExist(pokemon.pokeName) {
+                    when (it) {
+                        true -> {
+                            binding.favoriteButton.progress = 1f
+                        }
+
+                        false -> {
+                            binding.favoriteButton.progress = 0f
+                        }
+                    }
+                }
+            }
         }
 
         private fun getPokemonID(pokemon: FavoritePokemon) = pokemon.url?.replace(
@@ -98,6 +113,15 @@ class FavoritePokemonsAdapter(
                         val currentPoke = pokemons[currentPosition]
                         val currentPokeId = getPokemonID(currentPoke)
                         itemClicker.invoke(currentPoke.pokeName, currentPokeId)
+                    }
+                }
+                favoriteButton.setOnClickListener { lottieView ->
+                    val currentPosition = adapterPosition
+                    if (currentPosition != RecyclerView.NO_POSITION) {
+                        val lottieAnimationView = lottieView as LottieAnimationView
+                        favoritePokemon.invoke(currentPosition)
+                        lottieAnimationView.progress =
+                            if (lottieAnimationView.progress == 1f) 0f else 1f
                     }
                 }
             }

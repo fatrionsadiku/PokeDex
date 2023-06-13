@@ -3,7 +3,6 @@ package com.example.pokedex.ui.pokemondetails.pokeevotree
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.LayoutDirection
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -17,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import coil.decode.GifDecoder
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
@@ -31,7 +29,7 @@ import com.example.pokedex.utils.Utility.getPokemonID
 import com.example.pokedex.utils.Utility.linearLayoutParams
 import com.example.pokedex.utils.Utility.pokeNameParams
 import com.example.pokedex.utils.capitalize
-import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
+import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.skydoves.balloon.ArrowOrientation
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation

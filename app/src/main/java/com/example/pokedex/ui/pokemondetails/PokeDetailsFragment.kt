@@ -17,7 +17,7 @@ import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.adapters.FragmentAdapter
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
-import com.example.pokedex.viewmodels.PokeDetailsSharedViewModel
+import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
