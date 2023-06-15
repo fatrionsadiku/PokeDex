@@ -4,13 +4,15 @@ import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.migrations.SharedPreferencesMigration
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.room.Room
 import com.example.pokedex.data.Repository
+import com.example.pokedex.data.database.FavoriteDao.FavoritePokemonDao
+import com.example.pokedex.data.database.FavoriteDatabase.FavoritePokemonDatabase
 import com.example.pokedex.data.server.PokeApiService
 import com.example.pokedex.utils.Utility
 import dagger.Module
@@ -21,20 +23,33 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
 private const val USER_PREFERENCES = "user_preferences"
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+    @Provides
+    @Singleton
+    fun provideFavoritePokemonDatabase(application: Application): FavoritePokemonDatabase =
+        Room.databaseBuilder(
+            application,
+            FavoritePokemonDatabase::class.java,
+            "favoritepokemon_database"
+        )
+            .fallbackToDestructiveMigration()
+            .build()
+
+    @Provides
+    @Singleton
+    fun provideFavoritePokemonDao(database : FavoritePokemonDatabase) = database.FavoritePokemonDao()
 
     @Provides
     fun provideOkHTTPClient(application: Application): OkHttpClient = OkHttpClient.Builder()
@@ -69,7 +84,7 @@ object AppModule {
             corruptionHandler = ReplaceFileCorruptionHandler(
                 produceNewData = { emptyPreferences() }
             ),
-            migrations = listOf(SharedPreferencesMigration(appContext,USER_PREFERENCES)),
+            migrations = listOf(SharedPreferencesMigration(appContext, USER_PREFERENCES)),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { appContext.preferencesDataStoreFile(USER_PREFERENCES) }
         )
@@ -82,7 +97,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providePokemonRepository(pokeApiService: PokeApiService) = Repository(pokeApiService)
+    fun providePokemonRepository(pokeApiService: PokeApiService, favoritePokemonDao: FavoritePokemonDao) = Repository(pokeApiService,favoritePokemonDao)
 }
 
 @Retention(AnnotationRetention.RUNTIME)

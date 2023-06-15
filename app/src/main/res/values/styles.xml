@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="MyCustomTabLayout" parent="Widget.Design.TabLayout">
         <item name="tabTextAppearance">@style/MyCustomTextAppearance</item>
     </style>
@@ -7,4 +8,6 @@
     <style name="MyCustomTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
     </style>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar" />
 </resources>

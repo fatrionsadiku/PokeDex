@@ -1,16 +1,22 @@
-package com.example.pokedex.viewmodels
+package com.example.pokedex.ui.pokemondetails.homefragment
 
+import android.os.Parcelable
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.data.Repository
+import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.data.models.PokemonsApiResult
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Response
 import javax.inject.Inject
 @HiltViewModel
@@ -20,9 +26,19 @@ class HomeViewModel @Inject constructor(
     val pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
     private var currentPokemonList : MutableList<PokemonResult>? = null
     private var currentPokemonPage = 0
+    val totalNumberOfFavs = repository.getTotalNumberOfFavs().asLiveData()
+    val favoritePokemons = repository.getFavoritePokemons().asLiveData()
+    var recyclerViewState : Parcelable? = null
+
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("ViewModelD", "DED RIP!")
+    }
 
     init {
         getPaginatedPokemon()
+        Log.d("ViewModelD", "REBORN HAHAH")
     }
 
     fun getPaginatedPokemon() = viewModelScope.launch {
@@ -47,6 +63,17 @@ class HomeViewModel @Inject constructor(
             }
         }
         return Resource.Error(message = response.message())
+    }
+
+    fun favoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
+        repository.favoritePokemon(pokemon)
+    }
+
+    suspend fun doesPokemonExist(pokeName : String) : Boolean = withContext(Dispatchers.IO) {
+        repository.doesPokemonExist(pokeName)
+    }
+    fun unFavoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
+        repository.unFavoritePokemon(pokemon)
     }
 
 

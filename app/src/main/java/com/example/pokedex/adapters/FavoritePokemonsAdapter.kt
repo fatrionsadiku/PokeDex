@@ -8,9 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -19,6 +16,7 @@ import coil.decode.GifDecoder
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
+import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.databinding.PokeLayoutBinding
 import com.example.pokedex.utils.capitalize
@@ -26,14 +24,17 @@ import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
 import com.skydoves.rainbow.contextColor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class PokeAdapter(
+class FavoritePokemonsAdapter(
     val itemClicker: (pokeName: String, pokeId: Int?) -> Unit,
     val favoritePokemon: (position: Int) -> Unit,
     val stateCheckedItemState: CheckedItemState
-) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
-    private lateinit var childLifeCycle: Lifecycle
-    var pokemons: List<PokemonResult>
+) : RecyclerView.Adapter<FavoritePokemonsAdapter.ViewHolder>() {
+    var pokemons: List<FavoritePokemon>
         get() = differ.currentList
         set(value) {
             differ.submitList(value)
@@ -44,9 +45,9 @@ class PokeAdapter(
 
         //Will try to refactor code as soon as i find a workaround to loading images and getting dominant color at the same time
         @RequiresApi(Build.VERSION_CODES.O)
-        fun bindData(pokemon: PokemonResult) {
+        fun bindData(pokemon: FavoritePokemon) {
             binding.pokeName.apply {
-                text = pokemon.name.capitalize()
+                text = pokemon.pokeName.capitalize()
                 alpha = 0f
             }.animate().setDuration(500).alpha(1f)
             binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "official")) {
@@ -74,11 +75,12 @@ class PokeAdapter(
                 }
             }
             binding.favoriteButton.apply {
-                stateCheckedItemState.doesSelectedItemExist(pokemon.name) {
+                stateCheckedItemState.doesSelectedItemExist(pokemon.pokeName) {
                     when (it) {
                         true -> {
                             binding.favoriteButton.progress = 1f
                         }
+
                         false -> {
                             binding.favoriteButton.progress = 0f
                         }
@@ -87,18 +89,18 @@ class PokeAdapter(
             }
         }
 
-        private fun getPokemonID(pokemon: PokemonResult) = pokemon.url.replace(
+        private fun getPokemonID(pokemon: FavoritePokemon) = pokemon.url?.replace(
             "https://pokeapi.co/api/v2/pokemon/", ""
-        ).replace("/", "").toInt()
+        )?.replace("/", "")?.toInt()
 
-        private fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
+        private fun getPokemonPicture(pokemon: FavoritePokemon, type: String): String {
             val pokeId = getPokemonID(pokemon)
             return when (type) {
                 "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
                 "home" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
                 "official" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
                 "gif" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
-                "xyani" -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.name}.gif"
+                "xyani" -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.pokeName}.gif"
                 else -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
             }
         }
@@ -110,7 +112,7 @@ class PokeAdapter(
                     if (currentPosition != RecyclerView.NO_POSITION) {
                         val currentPoke = pokemons[currentPosition]
                         val currentPokeId = getPokemonID(currentPoke)
-                        itemClicker.invoke(currentPoke.name, currentPokeId)
+                        itemClicker.invoke(currentPoke.pokeName, currentPokeId)
                     }
                 }
                 favoriteButton.setOnClickListener { lottieView ->
@@ -129,11 +131,6 @@ class PokeAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             PokeLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val childLifeCycleOwner = object : LifecycleOwner {
-            override val lifecycle: Lifecycle
-                get() = LifecycleRegistry(this)
-        }
-        childLifeCycle = childLifeCycleOwner.lifecycle
         return ViewHolder(binding)
     }
 
@@ -144,20 +141,6 @@ class PokeAdapter(
     }
 
     override fun getItemCount(): Int = pokemons.size
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-}
-
-private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
-    override fun areItemsTheSame(oldItem: PokemonResult, newItem: PokemonResult): Boolean {
-        return oldItem == newItem
-    }
-
-    override fun areContentsTheSame(oldItem: PokemonResult, newItem: PokemonResult): Boolean {
-        return oldItem.name == newItem.name
-    }
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -171,6 +154,15 @@ private fun getDominantColor(drawable: Drawable, onFinish: (Int) -> Unit) {
     }
 }
 
-interface CheckedItemState {
-    fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit)
+private val diffCallback = object : DiffUtil.ItemCallback<FavoritePokemon>() {
+    override fun areItemsTheSame(oldItem: FavoritePokemon, newItem: FavoritePokemon): Boolean {
+        return oldItem == newItem
+    }
+
+    override fun areContentsTheSame(oldItem: FavoritePokemon, newItem: FavoritePokemon): Boolean {
+        return oldItem.pokeName == newItem.pokeName
+    }
+
 }
+
+

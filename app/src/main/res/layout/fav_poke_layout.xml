@@ -17,18 +17,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center">
 
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/favoriteButton"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:lottie_rawRes="@raw/favorite_icon"
-            android:scaleX="1.5"
-            android:scaleY="1.5"
-            android:layout_margin="12dp"/>
-
-
         <ImageView
             android:id="@+id/pokemonPlaceHolder"
             android:layout_width="85dp"

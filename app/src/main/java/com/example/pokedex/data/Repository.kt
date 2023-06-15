@@ -1,5 +1,7 @@
 package com.example.pokedex.data
 
+import com.example.pokedex.data.database.FavoriteDao.FavoritePokemonDao
+import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokeHeldItems
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.models.PokemonEvolutionChain
@@ -14,8 +16,17 @@ import javax.inject.Inject
 
 @ApplicationScope
 class Repository @Inject constructor(
-    private val pokeApi : PokeApiService
+    private val pokeApi : PokeApiService,
+    private val favPokeDao : FavoritePokemonDao
 ) {
+
+    fun getFavoritePokemons() = favPokeDao.getFavoritePokemons()
+
+    suspend fun doesPokemonExist(pokemonName: String) = favPokeDao.doesPokemonExist(pokemonName)
+
+    fun getTotalNumberOfFavs() = favPokeDao.getTotalNumberOfFavorites()
+    suspend fun favoritePokemon(pokemon : FavoritePokemon) = favPokeDao.favoritePokemon(pokemon)
+    suspend fun unFavoritePokemon(pokemon : FavoritePokemon) = favPokeDao.unFavoritePokemon(pokemon)
     suspend fun getSinglePokemonByName(pokemonName: String): Response<Pokemon> {
         val response = try {
             pokeApi.getPokemonByName(pokemonName)
