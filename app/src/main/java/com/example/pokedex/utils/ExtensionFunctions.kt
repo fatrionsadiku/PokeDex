@@ -2,6 +2,7 @@ package com.example.pokedex.utils
 
 import android.content.res.Resources
 import android.util.TypedValue
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.pokedex.ui.MainActivity
@@ -33,6 +34,26 @@ fun String.capitalize(): String {
  * @return [MainActivity]
  */
 fun Fragment.requireMainActivity() = this.activity as MainActivity
+/**
+ * Gets or sets the visibility state of the View.
+ *
+ * When getting the value, it returns `true` if the View's visibility is [View.VISIBLE],
+ * indicating that the View is visible on the screen. Otherwise, it returns `false`.
+ *
+ * When setting the value, it sets the visibility of the View based on the given [value].
+ * If [value] is `true`, the View's visibility is set to [View.VISIBLE], making it visible.
+ * If [value] is `false`, the View's visibility is set to [View.INVISIBLE], making it invisible
+ * while still taking up space in the layout.
+ *
+ * @see View.getVisibility
+ * @see View.VISIBLE
+ * @see View.INVISIBLE
+ */
+inline var View.isViewVisible: Boolean
+    get() = visibility == View.VISIBLE
+    set(value) {
+        visibility = if (value) View.VISIBLE else View.INVISIBLE
+    }
 /**
  * Returns the second member of a list, in other words
  * it returns the [1] element

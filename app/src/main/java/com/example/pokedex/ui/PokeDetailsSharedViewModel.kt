@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pokedex.data.HideDetails
 import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.Repository
 import com.example.pokedex.data.UserPreferences
@@ -14,6 +15,7 @@ import com.example.pokedex.data.models.PokemonEvolutionChain
 import com.example.pokedex.data.server.PokeApiService
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.Utility
+import com.example.pokedex.utils.third
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -33,7 +35,9 @@ class PokeDetailsSharedViewModel @Inject constructor(
     val pokemonSpeciesResponse = MutableLiveData<PokemonEvolutionChain?>()
     val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
     val preferencesFlow = userPreferences.preferencesFlow
+    val hideDetailsFlow = userPreferences.hideDetailsFlow
     val favoritePokemonsFlow = repository.getFavoritePokemons()
+    var pokemonDescription = MutableLiveData<List<String>>()
 
     fun getSinglePokemonByName(pokemonName: String) = viewModelScope.launch {
         apiCallResponse.postValue(Resource.Loading())
@@ -50,6 +54,11 @@ class PokeDetailsSharedViewModel @Inject constructor(
         val pokeSpecies = repository.getPokemonSpeciesId(id)
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
+            val pokeDescription = listOf(
+                pokeSpecies.body()?.textEntries?.first()?.pokemonDescription!!,
+                pokeSpecies.body()?.textEntries?.third()?.pokemonDescription!!
+            )
+            pokemonDescription.postValue(pokeDescription)
             val currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)
             getPokemonSpecies(currentPokeEvoId)
         }
@@ -104,5 +113,8 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     fun onRedirectStateSelecetd(redirectState: RedirectState) = viewModelScope.launch {
         userPreferences.updateRedirectState(redirectState)
+    }
+    fun onHideDetailsStateChanged(detailsState: HideDetails) = viewModelScope.launch {
+        userPreferences.updateDetailsState(detailsState)
     }
 }

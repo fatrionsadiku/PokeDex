@@ -16,10 +16,11 @@ import com.example.pokedex.R
 import com.example.pokedex.data.models.PokeHeldItems
 import com.example.pokedex.databinding.HeldItemDialogBinding
 import com.example.pokedex.databinding.PokeAbilitiesBinding
+import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.utils.customviews.PokeAbilitiesLayout
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
+import com.example.pokedex.utils.isViewVisible
 import com.google.android.material.textview.MaterialTextView
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
@@ -34,7 +35,7 @@ class PokeAbilities : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = PokeAbilitiesBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
@@ -62,11 +63,16 @@ class PokeAbilities : Fragment() {
                 }
             }
             viewModel.pokemonHeldItems.observe(viewLifecycleOwner) { response ->
-                when(response){
-                    is Resource.Error -> Toast.makeText(requireContext(),"Something happened idk", Toast.LENGTH_LONG).show()
+                when (response) {
+                    is Resource.Error -> Toast.makeText(
+                        requireContext(),
+                        "Something happened idk",
+                        Toast.LENGTH_LONG
+                    ).show()
+
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
-                        binding.hasNoHeldItems.isVisible = response.data!!.isEmpty()
+                        binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()
                         hideProgressBar()
                         response.data.forEach { heldItem ->
                             val currentHeldItem = ImageView(requireContext()).apply {
@@ -80,7 +86,7 @@ class PokeAbilities : Fragment() {
                                     crossfade(500)
                                 }
                                 setOnClickListener {
-                                    showBalloonDialog(heldItem,requireContext(),this)
+                                    showBalloonDialog(heldItem, requireContext(), this)
                                 }
                             }
                             binding.pokeItemsHolder.addView(currentHeldItem)
@@ -115,7 +121,10 @@ class PokeAbilities : Fragment() {
             findViewById<MaterialTextView>(R.id.itemTitle).text =
                 heldItem?.name?.replace("-", " ")?.capitalize()
             findViewById<MaterialTextView>(R.id.itemEffect).text =
-                heldItem?.effectEntries?.first()?.effect
+                "\n ${
+                    heldItem?.effectEntries?.first()?.effect?.replace("\n", "")
+                        ?.replace(".", ".\n\n")
+                }"
         }
         balloon.showAlignTop(view)
     }
@@ -124,9 +133,10 @@ class PokeAbilities : Fragment() {
         binding.paginationProgressBar.visibility = View.VISIBLE
         binding.paginationProgressBar.playAnimation()
     }
+
     private fun hideProgressBar() {
-            binding.paginationProgressBar.visibility = View.GONE
-            binding.paginationProgressBar.cancelAnimation()
+        binding.paginationProgressBar.visibility = View.GONE
+        binding.paginationProgressBar.cancelAnimation()
     }
 
 }

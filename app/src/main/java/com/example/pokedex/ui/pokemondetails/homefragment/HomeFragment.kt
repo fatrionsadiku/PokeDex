@@ -34,7 +34,6 @@ class HomeFragment : Fragment(), CheckedItemState {
     private lateinit var binding: FragmentHomeBinding
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: PokeAdapter
-    private lateinit var recyclerView: RecyclerView
     private var doubleBackToExitOnce = false
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +57,7 @@ class HomeFragment : Fragment(), CheckedItemState {
     override fun onPause() {
         super.onPause()
         Log.d("RecyclerView Activity", "onPause: ")
-        val state = recyclerView.layoutManager?.onSaveInstanceState()
+        val state = binding.recyclerView.layoutManager?.onSaveInstanceState()
         viewModel.recyclerViewState = state
     }
 
@@ -67,14 +66,14 @@ class HomeFragment : Fragment(), CheckedItemState {
         Log.d("RecyclerView Activity", "onResume: ")
         val currentSavedState = viewModel.recyclerViewState
         if (currentSavedState != null) {
-            recyclerView.layoutManager?.onRestoreInstanceState(currentSavedState)
+            binding.recyclerView.layoutManager?.onRestoreInstanceState(currentSavedState)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Log.d("RecyclerView Activity", "onDestroy: ")
-        val state = recyclerView.layoutManager?.onSaveInstanceState()
+        val state = binding.recyclerView.layoutManager?.onSaveInstanceState()
         viewModel.recyclerViewState = state
     }
 
@@ -86,10 +85,9 @@ class HomeFragment : Fragment(), CheckedItemState {
 
     private fun setUpPokeRecyclerView() =
         try {
-            recyclerView = binding.recyclerView
             adapter = PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
             fetchApiData()
-            recyclerView.apply {
+            binding.recyclerView.apply {
                 adapter = this@HomeFragment.adapter
                 layoutManager = GridLayoutManager(requireContext(), 2)
                 addItemDecoration(SpacesItemDecoration())
@@ -166,7 +164,7 @@ class HomeFragment : Fragment(), CheckedItemState {
             delay(500)
             binding.paginationProgressBar.visibility = View.INVISIBLE
             binding.paginationProgressBar.cancelAnimation()
-            recyclerView.setPadding(0, 0, 0, 0)
+            binding.recyclerView.setPadding(0, 0, 0, 0)
         }
         isLoading = false
     }
@@ -174,7 +172,7 @@ class HomeFragment : Fragment(), CheckedItemState {
     private fun showProgressBar() {
         binding.paginationProgressBar.visibility = View.VISIBLE
         binding.paginationProgressBar.playAnimation()
-        recyclerView.setPadding(0, 0, 0, 130)
+        binding.recyclerView.setPadding(0, 0, 0, 130)
         isLoading = true
     }
 

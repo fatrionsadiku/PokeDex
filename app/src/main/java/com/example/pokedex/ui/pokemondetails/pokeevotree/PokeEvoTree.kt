@@ -23,13 +23,13 @@ import com.example.pokedex.data.RedirectState
 import com.example.pokedex.data.models.PokemonEvolutionChain
 import com.example.pokedex.databinding.EvoTreeSettingsBinding
 import com.example.pokedex.databinding.PokeEvoTreeLayoutBinding
+import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.example.pokedex.ui.pokemondetails.PokeDetailsFragment
 import com.example.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.example.pokedex.utils.Utility.getPokemonID
 import com.example.pokedex.utils.Utility.linearLayoutParams
 import com.example.pokedex.utils.Utility.pokeNameParams
 import com.example.pokedex.utils.capitalize
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.skydoves.balloon.ArrowOrientation
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
@@ -47,7 +47,7 @@ class PokeEvoTree : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = PokeEvoTreeLayoutBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
@@ -75,22 +75,88 @@ class PokeEvoTree : Fragment() {
         }
     }
 
-
-    // Will soon implement custom views to reduce boiler plate code as it's pretty unreadable as is
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPokemonEvoTree(pokeSpecies: PokemonEvolutionChain) {
         binding.linearLayout.removeAllViews()
         val pokeDetailsFragment =
             this.parentFragment as PokeDetailsFragment
         val pokeAbilitiesFragment = parentFragmentManager.findFragmentByTag("f1") as? PokeAbilities
-        val pokeImageParams = LinearLayout.LayoutParams(
-            resources.getDimensionPixelSize(R.dimen.image_width),
-            resources.getDimensionPixelSize(R.dimen.image_height),
-            0.5f
-        ).also {
-            it.gravity = Gravity.CENTER_HORIZONTAL
+        val neonPointingGif = createNeonPointingGif()
+        val firstPokemonId = getPokemonID(pokeSpecies.chain.species.url)
+        val firstPokeName = createPokemonNameTextView(pokeSpecies.chain.species.name.capitalize())
+        val firstPokeForm = createPokemonFormImageView(
+            pokemonId = firstPokemonId,
+            pokeName = firstPokeName.text.toString().toLowerCase(),
+            pokeDetailsFragment = pokeDetailsFragment,
+            pokeAbilitiesFragment = pokeAbilitiesFragment!!
+        )
+        val firstPokeFormLayout = createPokemonFormLayout(
+            pokemonForm = firstPokeForm,
+            pokemonName = firstPokeName,
+            neonPointingGif = neonPointingGif,
+            currentPokemonId = firstPokemonId,
+            pokeDetailsFragment = pokeDetailsFragment
+        )
+        binding.linearLayout.addView(firstPokeFormLayout)
+        pokeSpecies.chain.evoDetails.forEach { evoForm ->
+            val secondPokemonId = getPokemonID(evoForm.species.url)
+            val secondPokeName = createPokemonNameTextView(evoForm.species.name.capitalize())
+            val secondPokemonForm = createPokemonFormImageView(
+                pokemonId = secondPokemonId,
+                pokeName = secondPokeName.text.toString().toLowerCase(),
+                pokeDetailsFragment = pokeDetailsFragment,
+                pokeAbilitiesFragment = pokeAbilitiesFragment!!
+            )
+            val secondPokeFormLayout = createPokemonFormLayout(
+                pokemonForm = secondPokemonForm,
+                pokemonName = secondPokeName,
+                neonPointingGif = neonPointingGif,
+                currentPokemonId = secondPokemonId,
+                pokeDetailsFragment = pokeDetailsFragment
+            )
+            binding.linearLayout.addView(secondPokeFormLayout)
+            if (evoForm.evoDetails.isNotEmpty()) {
+                val thirdPokemonId = getPokemonID(evoForm.evoDetails[0]?.species?.url!!)
+                val thirdPokeName =
+                    createPokemonNameTextView(evoForm.evoDetails[0]?.species?.name?.capitalize())
+                val thirdPokeForm = createPokemonFormImageView(
+                    pokemonId = thirdPokemonId,
+                    pokeName = thirdPokeName.text.toString().toLowerCase(),
+                    pokeDetailsFragment = pokeDetailsFragment,
+                    pokeAbilitiesFragment = pokeAbilitiesFragment!!
+                )
+                val thirdPokeFormLayout = createPokemonFormLayout(
+                    pokemonForm = thirdPokeForm,
+                    pokemonName = thirdPokeName,
+                    neonPointingGif = neonPointingGif,
+                    currentPokemonId = thirdPokemonId,
+                    pokeDetailsFragment = pokeDetailsFragment
+                )
+                binding.linearLayout.addView(thirdPokeFormLayout)
+            }
         }
-        val neonPointingGif = LottieAnimationView(requireContext()).apply {
+    }
+
+    private fun createPokemonFormLayout(
+        pokemonForm: ImageView,
+        pokemonName: TextView,
+        neonPointingGif: LottieAnimationView,
+        currentPokemonId: Int,
+        pokeDetailsFragment: PokeDetailsFragment,
+    ): LinearLayout {
+        return LinearLayout(requireContext()).apply {
+            layoutParams = linearLayoutParams
+            orientation = LinearLayout.VERTICAL
+            addView(pokemonForm)
+            addView(pokemonName)
+            if (pokeDetailsFragment.currentPokemonId == currentPokemonId) {
+                addView(neonPointingGif)
+            }
+        }
+    }
+
+    private fun createNeonPointingGif(): LottieAnimationView {
+        return LottieAnimationView(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(
                 resources.getDimensionPixelSize(R.dimen.pointing_up_width),
                 resources.getDimensionPixelSize(R.dimen.pointing_up_height),
@@ -105,132 +171,52 @@ class PokeEvoTree : Fragment() {
             repeatCount = 999
             playAnimation()
         }
-        val firstPokemonId = getPokemonID(pokeSpecies.chain.species.url)
-        val firstPokeForm = ImageView(requireContext()).apply {
-            this.layoutParams = pokeImageParams
+    }
+
+    private fun createPokemonFormImageView(
+        pokemonId: Int,
+        pokeName: String,
+        pokeDetailsFragment: PokeDetailsFragment,
+        pokeAbilitiesFragment : PokeAbilities
+    ): ImageView {
+        val pokeImageParams = LinearLayout.LayoutParams(
+            resources.getDimensionPixelSize(R.dimen.image_width),
+            resources.getDimensionPixelSize(R.dimen.image_height),
+            0.5f
+        ).also {
+            it.gravity = Gravity.CENTER_HORIZONTAL
+        }
+        return ImageView(requireContext()).apply {
+            layoutParams = pokeImageParams
             load(
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                    firstPokemonId
-                }.png"
+                "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokemonId.png"
             ) {
                 crossfade(500)
             }
             setOnClickListener {
-                val pokeId = getPokemonID(pokeSpecies.chain.species.url)
-                val pokeName = pokeSpecies.chain.species.name
-                pokeAbilitiesFragment?.binding?.pokeDetailsHolder?.removeAllViews()
-                pokeDetailsFragment.getPokemonDetails(pokeName, pokeId)
+                pokeDetailsFragment.getPokemonDetails(pokeName, pokemonId)
+                pokeAbilitiesFragment.binding.apply {
+                    pokeItemsHolder.removeAllViews()
+                    pokeDetailsHolder.removeAllViews()
+                }
                 viewLifecycleOwner.lifecycleScope.launch {
                     if (viewModel.preferencesFlow.first().redirectState == RedirectState.REDIRECT_TO_DETAILS) {
                         pokeDetailsFragment.binding.pokeInfosViewPager.currentItem = 0
                     }
                 }
+
             }
         }
-        val firstPokeName = TextView(requireContext()).apply {
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createPokemonNameTextView(name: String?): TextView {
+        return TextView(requireContext()).apply {
             layoutParams = pokeNameParams
-            text = pokeSpecies.chain.species.name.capitalize()
+            text = name?.capitalize()
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
             setTextColor(Color.parseColor("#759EA1"))
             typeface = resources.getFont(R.font.ryogothic)
-        }
-        val firstPokeFormLayout = LinearLayout(requireContext()).apply {
-            layoutParams = linearLayoutParams
-            orientation = LinearLayout.VERTICAL
-            addView(firstPokeForm)
-            addView(firstPokeName)
-            if (pokeDetailsFragment.currentPokemonId == firstPokemonId) {
-                addView(neonPointingGif)
-            }
-
-        }
-        binding.linearLayout.addView(firstPokeFormLayout)
-        pokeSpecies.chain.evoDetails.forEach { evoForm ->
-            val secondPokemonId = getPokemonID(evoForm.species.url)
-            val secondPokemonForm = ImageView(requireContext()).apply {
-                this.layoutParams = pokeImageParams
-                load(
-                    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                        secondPokemonId
-                    }.png"
-                ) {
-                    crossfade(500)
-                }
-                setOnClickListener {
-                    val pokeId = getPokemonID(evoForm.species.url)
-                    pokeAbilitiesFragment?.binding?.pokeDetailsHolder?.removeAllViews()
-                    pokeDetailsFragment.getPokemonDetails(evoForm.species.name, pokeId)
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        if (viewModel.preferencesFlow.first().redirectState == RedirectState.REDIRECT_TO_DETAILS) {
-                            pokeDetailsFragment.binding.pokeInfosViewPager.currentItem = 0
-                        }
-                    }
-
-                }
-            }
-            val secondPokeName = TextView(requireContext()).apply {
-                layoutParams = pokeNameParams
-                text = evoForm.species.name.capitalize()
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-                setTextColor(Color.parseColor("#759EA1"))
-                typeface = resources.getFont(R.font.ryogothic)
-            }
-            val secondPokeFormLayout = LinearLayout(requireContext()).apply {
-                layoutParams = linearLayoutParams
-                orientation = LinearLayout.VERTICAL
-                addView(secondPokemonForm)
-                addView(secondPokeName)
-                if (pokeDetailsFragment.currentPokemonId == secondPokemonId) {
-                    addView(neonPointingGif)
-                }
-
-            }
-            binding.linearLayout.addView(secondPokeFormLayout)
-            if (evoForm.evoDetails.isNotEmpty()) {
-                val thirdPokemonId = getPokemonID(evoForm.evoDetails[0]?.species?.url!!)
-                val thirdPokeForm = ImageView(requireContext()).apply {
-                    this.layoutParams = pokeImageParams
-                    load(
-                        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${
-                            thirdPokemonId
-                        }.png"
-                    ) {
-                        crossfade(500)
-                    }
-                    setOnClickListener {
-                        val pokeId = getPokemonID(evoForm.evoDetails[0]?.species?.url!!)
-                        pokeAbilitiesFragment?.binding?.pokeDetailsHolder?.removeAllViews()
-                        pokeDetailsFragment.getPokemonDetails(
-                            evoForm.evoDetails[0]?.species?.name!!,
-                            pokeId
-                        )
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            if (viewModel.preferencesFlow.first().redirectState == RedirectState.REDIRECT_TO_DETAILS) {
-                                pokeDetailsFragment.binding.pokeInfosViewPager.currentItem = 0
-                            }
-                        }
-
-                    }
-                }
-                val thirdPokeName = TextView(requireContext()).apply {
-                    layoutParams = pokeNameParams
-                    text = evoForm.evoDetails[0]?.species?.name?.capitalize()
-                    gravity = Gravity.CENTER_VERTICAL
-                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-                    setTextColor(Color.parseColor("#759EA1"))
-                    typeface = resources.getFont(R.font.ryogothic)
-                }
-                val thirdPokeFormLayout = LinearLayout(requireContext()).apply {
-                    layoutParams = linearLayoutParams
-                    orientation = LinearLayout.VERTICAL
-                    addView(thirdPokeForm)
-                    addView(thirdPokeName)
-                    if (pokeDetailsFragment.currentPokemonId == thirdPokemonId) {
-                        addView(neonPointingGif)
-                    }
-                }
-                binding.linearLayout.addView(thirdPokeFormLayout)
-            }
         }
     }
 
@@ -254,8 +240,41 @@ class PokeEvoTree : Fragment() {
 
     private fun setUpSettingsBalloon(view: View) {
         val dialogBinding = EvoTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
-        val balloon = Balloon.Builder(requireContext())
-            .setLayout(dialogBinding.root)
+        val balloon = createBalloon(dialogBinding.root, view)
+        toggleButton = balloon.getContentView().findViewById(R.id.toggleButton)
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (viewModel.preferencesFlow.first().redirectState) {
+                RedirectState.REDIRECT_TO_DETAILS -> {
+                    toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
+                    isSwitchOn = true
+                }
+
+                RedirectState.REDIRECT_TO_EVOTREE -> {
+                    toggleButton.setMinAndMaxProgress(0f, 0.5f)
+                    isSwitchOn = false
+                }
+            }
+        }
+        toggleButton.setOnClickListener {
+            val newRedirectState = if (isSwitchOn) {
+                toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
+                toggleButton.playAnimation()
+                RedirectState.REDIRECT_TO_EVOTREE
+            } else {
+                toggleButton.setMinAndMaxProgress(0.0f, 0.5f)
+                toggleButton.playAnimation()
+                RedirectState.REDIRECT_TO_DETAILS
+            }
+            isSwitchOn = !isSwitchOn
+            viewModel.onRedirectStateSelecetd(newRedirectState)
+        }
+
+        balloon.showAlignBottom(view)
+    }
+
+    private fun createBalloon(contentView: View, view: View): Balloon {
+        return Balloon.Builder(requireContext())
+            .setLayout(contentView)
             .setArrowSize(10)
             .setArrowOrientation(ArrowOrientation.TOP)
             .setArrowPosition(0.5f)
@@ -265,43 +284,13 @@ class PokeEvoTree : Fragment() {
             .setCornerRadius(4f)
             .setMarginRight(20)
             .setOnBalloonDismissListener {
-                view as LottieAnimationView
-                view.playAnimation()
+                (view as LottieAnimationView).playAnimation()
             }
             .setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
             .setBalloonAnimation(BalloonAnimation.FADE)
             .build()
-        toggleButton =
-            balloon.getContentView().findViewById(R.id.toggleButton)
-        viewLifecycleOwner.lifecycleScope.launch {
-            isSwitchOn = when (viewModel.preferencesFlow.first().redirectState) {
-                RedirectState.REDIRECT_TO_DETAILS -> {
-                    toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
-                    true
-                }
-
-                RedirectState.REDIRECT_TO_EVOTREE -> {
-                    toggleButton.setMinAndMaxProgress(0f, 0.5f)
-                    false
-                }
-            }
-        }
-        toggleButton.setOnClickListener {
-            toggleButton.setOnClickListener {
-                if (isSwitchOn) {
-                    toggleButton.setMinAndMaxProgress(0.5f, 1.0f)
-                    toggleButton.playAnimation()
-                    isSwitchOn = false
-                    viewModel.onRedirectStateSelecetd(RedirectState.REDIRECT_TO_EVOTREE)
-                } else {
-                    toggleButton.setMinAndMaxProgress(0.0f, 0.5f)
-                    toggleButton.playAnimation()
-                    isSwitchOn = true
-                    viewModel.onRedirectStateSelecetd(RedirectState.REDIRECT_TO_DETAILS)
-                }
-            }
-        }
-        balloon.showAlignBottom(view)
     }
-
 }
+
+
+

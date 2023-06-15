@@ -9,62 +9,73 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import coil.decode.SvgDecoder
 import coil.load
-import com.example.pokedex.databinding.PokeDetailsLayoutBinding
 import com.example.pokedex.adapters.FragmentAdapter
+import com.example.pokedex.data.HideDetails
+import com.example.pokedex.databinding.PokeDetailsLayoutBinding
+import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment() {
     lateinit var binding: PokeDetailsLayoutBinding
-    val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
-    var currentPokemonId : Int = 0
-    private lateinit var pokeViewModel: PokeDetailsSharedViewModel
+    private val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
+    var currentPokemonId: Int = 0
+    private var hideDetails = false
+    private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         binding = PokeDetailsLayoutBinding.inflate(inflater, container, false)
-        pokeViewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
         return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.pokemonPhoto.setImageResource(0)
         getPokemonDetails(pokemonArgs.pokemonName!!, pokemonArgs.pokemonId)
         setUpPokeDetailsViewPager()
-
+        setUpDetailsState()
     }
 
-    fun getPokemonDetails(pokemonName : String,pokeId : Int) {
+    fun getPokemonDetails(pokemonName: String, pokeId: Int) {
         pokeViewModel.getSinglePokemonByName(pokemonName)
         pokeViewModel.apiCallResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
-                is Resource.Error -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
+                is Resource.Error   -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
                     currentPokemonId = pokeId
                     hideProgressBar()
-                    fillPokemonDataOnScreen(pokemonName,pokeId)
+                    fillPokemonDataOnScreen(pokemonName, pokeId)
                     pokeViewModel.getPokemonSpeciesId(pokemonArgs.pokemonId)
                     pokeViewModel.pokemonResponse.postValue(response.data)
+                    pokeViewModel.pokemonDescription.observe(viewLifecycleOwner) { pokeDescriptions ->
+                        val stringBuilder = StringBuilder()
+                        pokeDescriptions.forEach { pokeDescription ->
+                            stringBuilder.append(pokeDescription.replace("\n", " ").replace(".", ".\n")).append("\n")
+                        }
+                        binding.pokemonDescription.text = stringBuilder.toString()
+                    }
                 }
             }
         }
     }
 
-    private fun fillPokemonDataOnScreen(pokeName: String, pokeId : Int) {
+    private fun fillPokemonDataOnScreen(pokeName: String, pokeId: Int) {
         binding.apply {
             pokemonPhoto.load(getImageUrl(pokeId)) {
                 crossfade(500)
@@ -83,7 +94,7 @@ class PokeDetailsFragment : Fragment() {
 
     private fun setUpPokeDetailsViewPager() {
         binding.apply {
-            val adapter = FragmentAdapter(childFragmentManager,viewLifecycleOwner.lifecycle)
+            val adapter = FragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
             pokeInfosViewPager.adapter = adapter
             TabLayoutMediator(tabLayout, pokeInfosViewPager) { tab, position ->
                 tab.apply {
@@ -104,6 +115,68 @@ class PokeDetailsFragment : Fragment() {
 
             }.attach()
             tabLayout.background = ColorDrawable(Color.WHITE)
+        }
+    }
+
+    private fun setUpDetailsState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (pokeViewModel.hideDetailsFlow.first().detailsState) {
+                HideDetails.SHOW_ONLY_POKEMON -> {
+                    binding.hideDetailsButton.progress = 1f
+                    binding.topPartPokeDetails.visibility = View.INVISIBLE
+                    binding.pokemonDescription.visibility = View.VISIBLE
+                    hideDetails = true
+                }
+                HideDetails.SHOW_ALL_DETAILS  -> {
+                    binding.hideDetailsButton.progress = 0f
+                    binding.topPartPokeDetails.visibility = View.VISIBLE
+                    binding.pokemonDescription.visibility = View.INVISIBLE
+                    hideDetails = false
+                }
+            }
+        }
+        binding.hideDetailsButton.setOnClickListener {
+            if (hideDetails) {
+                pokeViewModel.onHideDetailsStateChanged(HideDetails.SHOW_ALL_DETAILS)
+                binding.hideDetailsButton.progress = 0f
+                binding.pokemonDescription.apply {
+                    alpha = 1f
+                    animate().apply {
+                        visibility = View.INVISIBLE
+                        duration = 500
+                        alpha(0f)
+                    }.start()
+                }
+                binding.topPartPokeDetails.apply {
+                    alpha = 0f
+                    animate().apply {
+                        visibility = View.VISIBLE
+                        duration = 500
+                        alpha(1f)
+                    }.start()
+                    hideDetails = !hideDetails
+                }
+            } else {
+                pokeViewModel.onHideDetailsStateChanged(HideDetails.SHOW_ONLY_POKEMON)
+                binding.hideDetailsButton.progress = 1f
+                binding.pokemonDescription.apply {
+                    alpha = 0f
+                    animate().apply {
+                        visibility = View.VISIBLE
+                        duration = 500
+                        alpha(1f)
+                    }.start()
+                }
+                binding.topPartPokeDetails.apply {
+                    alpha = 1f
+                    animate().apply {
+                        visibility = View.INVISIBLE
+                        duration = 500
+                        alpha(0f)
+                    }.start()
+                    hideDetails = !hideDetails
+                }
+            }
         }
     }
 

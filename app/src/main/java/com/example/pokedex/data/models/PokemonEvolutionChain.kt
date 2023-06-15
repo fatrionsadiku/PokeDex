@@ -30,9 +30,15 @@ data class EvolutionDetails(
 
 data class PokemonSpecies(
     @SerializedName("evolution_chain")
-    val evoChain : EvolutionChain
+    val evoChain : EvolutionChain,
+    @SerializedName("flavor_text_entries")
+    val textEntries : List<FlavorTextEntries>
 )
 
 data class EvolutionChain(
     val url : String
+)
+data class FlavorTextEntries(
+    @SerializedName("flavor_text")
+    val pokemonDescription : String
 )
