@@ -14,6 +14,8 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import coil.load
@@ -34,26 +36,17 @@ import com.skydoves.balloon.ArrowOrientation
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class PokeEvoTree : Fragment() {
-    private lateinit var binding: PokeEvoTreeLayoutBinding
-    private lateinit var viewModel: PokeDetailsSharedViewModel
+class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
+    private val binding by viewBinding(PokeEvoTreeLayoutBinding::bind)
+    private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     private lateinit var toggleButton: LottieAnimationView
     private var isSwitchOn = false
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = PokeEvoTreeLayoutBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
-        return binding.root
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

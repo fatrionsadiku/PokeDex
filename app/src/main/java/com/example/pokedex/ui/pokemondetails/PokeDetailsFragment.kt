@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import coil.decode.SvgDecoder
 import coil.load
+import com.example.pokedex.R
 import com.example.pokedex.adapters.FragmentAdapter
 import com.example.pokedex.data.HideDetails
 import com.example.pokedex.databinding.PokeDetailsLayoutBinding
@@ -21,27 +22,19 @@ import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.google.android.material.tabs.TabLayoutMediator
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class PokeDetailsFragment : Fragment() {
-    lateinit var binding: PokeDetailsLayoutBinding
+class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
+    val binding by viewBinding(PokeDetailsLayoutBinding::bind)
     private val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
     var currentPokemonId: Int = 0
     private var hideDetails = false
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = PokeDetailsLayoutBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.pokemonPhoto.setImageResource(0)

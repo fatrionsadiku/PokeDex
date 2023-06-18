@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pokedex.R
 import com.example.pokedex.adapters.CheckedItemState
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.data.models.FavoritePokemon
@@ -24,25 +25,18 @@ import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import com.example.pokedex.utils.requireMainActivity
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(), CheckedItemState {
-    private lateinit var binding: FragmentHomeBinding
+class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
+    private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: PokeAdapter
     private var doubleBackToExitOnce = false
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

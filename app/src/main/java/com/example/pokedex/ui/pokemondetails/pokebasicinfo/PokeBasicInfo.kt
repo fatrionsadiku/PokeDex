@@ -12,7 +12,10 @@ import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.example.pokedex.R
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokemonBasicInfoBinding
 import com.example.pokedex.utils.Resource
@@ -22,22 +25,13 @@ import com.example.pokedex.ui.PokeDetailsSharedViewModel
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class PokeBasicInfo : Fragment() {
-    private lateinit var binding: PokemonBasicInfoBinding
-    private lateinit var viewModel: PokeDetailsSharedViewModel
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = PokemonBasicInfoBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
-        return binding.root
-    }
-
+class PokeBasicInfo : Fragment(R.layout.pokemon_basic_info) {
+    private val binding by viewBinding(PokemonBasicInfoBinding::bind)
+    private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

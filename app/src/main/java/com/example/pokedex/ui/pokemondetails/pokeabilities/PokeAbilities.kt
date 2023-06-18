@@ -11,6 +11,8 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import coil.load
 import com.example.pokedex.R
@@ -27,22 +29,13 @@ import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class PokeAbilities : Fragment() {
-    lateinit var binding: PokeAbilitiesBinding
-    private lateinit var viewModel: PokeDetailsSharedViewModel
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = PokeAbilitiesBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(requireActivity())[PokeDetailsSharedViewModel::class.java]
-        return binding.root
-    }
-
+class PokeAbilities : Fragment(R.layout.poke_abilities) {
+    val binding by viewBinding(PokeAbilitiesBinding::bind)
+    private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

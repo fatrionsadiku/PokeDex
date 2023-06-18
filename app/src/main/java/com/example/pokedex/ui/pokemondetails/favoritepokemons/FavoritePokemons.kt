@@ -2,15 +2,14 @@ package com.example.pokedex.ui.pokemondetails.favoritepokemons
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pokedex.R
 import com.example.pokedex.adapters.CheckedItemState
 import com.example.pokedex.adapters.FavoritePokemonsAdapter
 import com.example.pokedex.data.models.FavoritePokemon
@@ -18,25 +17,17 @@ import com.example.pokedex.databinding.FavoritePokemonsBinding
 import com.example.pokedex.ui.pokemondetails.homefragment.HomeViewModel
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.requireMainActivity
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class FavoritePokemons : Fragment(), CheckedItemState {
-    private lateinit var binding: FavoritePokemonsBinding
+class FavoritePokemons : Fragment(R.layout.favorite_pokemons), CheckedItemState {
+    private val binding by viewBinding(FavoritePokemonsBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: FavoritePokemonsAdapter
     private lateinit var recyclerView: RecyclerView
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        binding = FavoritePokemonsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpPokeRecyclerView()
