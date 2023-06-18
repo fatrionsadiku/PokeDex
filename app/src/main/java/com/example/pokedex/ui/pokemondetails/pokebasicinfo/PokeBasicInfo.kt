@@ -44,7 +44,7 @@ class PokeBasicInfo : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.apply {
-            viewModel.apiCallResponse.apply {
+            viewModel.singlePokemonResponse.apply {
                 observe(viewLifecycleOwner) { apiResponse ->
                   when(apiResponse){
                       is Resource.Error -> Log.e("Error fetching data", apiResponse.message.toString())

@@ -26,31 +26,33 @@ import javax.inject.Inject
 class PokeDetailsSharedViewModel @Inject constructor(
     private val pokeApi: PokeApiService,
     private val repository: Repository,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
-    val apiCallResponse = MutableLiveData<Resource<Pokemon>>()
-    val pokemonResponse = MutableLiveData<Pokemon?>()
+    val singlePokemonResponse = MutableLiveData<Resource<Pokemon>>()
+    private val pokemonResponse = MutableLiveData<Pokemon?>()
     val abilitiesResponse = MutableLiveData<List<PokeAbilities?>>()
     val pokemonSpeciesResponse = MutableLiveData<PokemonEvolutionChain?>()
     val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
     val preferencesFlow = userPreferences.preferencesFlow
     val hideDetailsFlow = userPreferences.hideDetailsFlow
-    val favoritePokemonsFlow = repository.getFavoritePokemons()
-    var pokemonDescription = MutableLiveData<List<String>>()
+    var pokemonDescription = MutableLiveData<Resource<List<String>>>()
 
-    fun getSinglePokemonByName(pokemonName: String) = viewModelScope.launch {
-        apiCallResponse.postValue(Resource.Loading())
+    fun getSinglePokemonByName(pokemonName: String, pokemonId: Int) = viewModelScope.launch {
+        pokemonDescription.postValue(Resource.Loading())
+        singlePokemonResponse.postValue(Resource.Loading())
         val response = repository.getSinglePokemonByName(pokemonName)
-        apiCallResponse.postValue(handleApiResponse(response))
+        singlePokemonResponse.postValue(handleApiResponse(response))
+        pokemonResponse.postValue(handleApiResponse(response).data)
         val abilities = getPokemonAbilitiesByName(response.body())
         abilitiesResponse.postValue(abilities)
         pokemonHeldItems.postValue(Resource.Loading())
         val heldItems = getPokemonHeldItems(response.body())
         pokemonHeldItems.postValue(Resource.Success(heldItems))
+        getPokemonSpeciesId(pokemonId)
     }
 
-    fun getPokemonSpeciesId(id: Int) = viewModelScope.launch {
+    private fun getPokemonSpeciesId(id: Int) = viewModelScope.launch {
         val pokeSpecies = repository.getPokemonSpeciesId(id)
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
@@ -58,7 +60,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
                 pokeSpecies.body()?.textEntries?.first()?.pokemonDescription!!,
                 pokeSpecies.body()?.textEntries?.third()?.pokemonDescription!!
             )
-            pokemonDescription.postValue(pokeDescription)
+            pokemonDescription.postValue(Resource.Success(pokeDescription))
             val currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)
             getPokemonSpecies(currentPokeEvoId)
         }
@@ -108,12 +110,10 @@ class PokeDetailsSharedViewModel @Inject constructor(
         }
     }
 
-
-
-
     fun onRedirectStateSelecetd(redirectState: RedirectState) = viewModelScope.launch {
         userPreferences.updateRedirectState(redirectState)
     }
+
     fun onHideDetailsStateChanged(detailsState: HideDetails) = viewModelScope.launch {
         userPreferences.updateDetailsState(detailsState)
     }

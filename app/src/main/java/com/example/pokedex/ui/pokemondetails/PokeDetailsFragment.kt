@@ -22,6 +22,7 @@ import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -49,9 +50,14 @@ class PokeDetailsFragment : Fragment() {
         setUpDetailsState()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        pokeViewModel.pokemonDescription.value = null
+    }
+
     fun getPokemonDetails(pokemonName: String, pokeId: Int) {
-        pokeViewModel.getSinglePokemonByName(pokemonName)
-        pokeViewModel.apiCallResponse.observe(viewLifecycleOwner) { response ->
+        pokeViewModel.getSinglePokemonByName(pokemonName, pokeId)
+        pokeViewModel.singlePokemonResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is Resource.Error   -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
                 is Resource.Loading -> {
@@ -61,15 +67,40 @@ class PokeDetailsFragment : Fragment() {
                     currentPokemonId = pokeId
                     hideProgressBar()
                     fillPokemonDataOnScreen(pokemonName, pokeId)
-                    pokeViewModel.getPokemonSpeciesId(pokemonArgs.pokemonId)
-                    pokeViewModel.pokemonResponse.postValue(response.data)
-                    pokeViewModel.pokemonDescription.observe(viewLifecycleOwner) { pokeDescriptions ->
+                }
+            }
+        }
+        pokeViewModel.pokemonDescription.observe(viewLifecycleOwner) { descriptionResponse ->
+            when (descriptionResponse) {
+                is Resource.Error   -> {
+                    binding.pokemonDescription.text =
+                        "Whoops, this pokemon's bio seems to be missing\n we apologize for the inconvenience"
+                }
+                is Resource.Loading -> {
+                    binding.pokemonDescription.text = ""
+                    if (hideDetails){
+                        binding.pokeDescriptionLoadingAnimation.apply {
+                            visibility = View.VISIBLE
+                            playAnimation()
+                        }
+                    }
+                }
+                is Resource.Success -> {
+                    lifecycleScope.launch {
+                        delay(500)
+                        binding.pokeDescriptionLoadingAnimation.apply {
+                            visibility = View.INVISIBLE
+                            cancelAnimation()
+                        }
                         val stringBuilder = StringBuilder()
-                        pokeDescriptions.forEach { pokeDescription ->
-                            stringBuilder.append(pokeDescription.replace("\n", " ").replace(".", ".\n")).append("\n")
+                        descriptionResponse.data?.forEach { pokeDescription ->
+                            stringBuilder.append(pokeDescription.replace("\n", " ").replace(".", ".\n"))
+                                .append("\n")
                         }
                         binding.pokemonDescription.text = stringBuilder.toString()
                     }
+
+
                 }
             }
         }
@@ -127,6 +158,7 @@ class PokeDetailsFragment : Fragment() {
                     binding.pokemonDescription.visibility = View.VISIBLE
                     hideDetails = true
                 }
+
                 HideDetails.SHOW_ALL_DETAILS  -> {
                     binding.hideDetailsButton.progress = 0f
                     binding.topPartPokeDetails.visibility = View.VISIBLE

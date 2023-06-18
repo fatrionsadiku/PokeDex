@@ -2,6 +2,7 @@ package com.example.pokedex.ui.pokemondetails.pokeabilities
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,12 +65,7 @@ class PokeAbilities : Fragment() {
             }
             viewModel.pokemonHeldItems.observe(viewLifecycleOwner) { response ->
                 when (response) {
-                    is Resource.Error -> Toast.makeText(
-                        requireContext(),
-                        "Something happened idk",
-                        Toast.LENGTH_LONG
-                    ).show()
-
+                    is Resource.Error -> Log.e("PokeAbilities", "${response.message}", )
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
                         binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()
@@ -96,7 +92,6 @@ class PokeAbilities : Fragment() {
 
             }
         }
-
     }
 
     private fun showBalloonDialog(heldItem: PokeHeldItems?, context: Context, view: View) {

@@ -106,5 +106,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pokemon_name" />
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/pokeDescriptionLoadingAnimation"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="18dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_name"
+        app:lottie_rawRes="@raw/pokeball_loading" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
