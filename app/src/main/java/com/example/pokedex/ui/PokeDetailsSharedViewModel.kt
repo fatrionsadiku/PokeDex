@@ -57,8 +57,8 @@ class PokeDetailsSharedViewModel @Inject constructor(
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
             val pokeDescription = listOf(
-                pokeSpecies.body()?.textEntries?.first()?.pokemonDescription!!,
-                pokeSpecies.body()?.textEntries?.third()?.pokemonDescription!!
+                pokeSpecies.body()?.textEntries?.first()?.pokemonDescription ?: "",
+                pokeSpecies.body()?.textEntries?.third()?.pokemonDescription ?: ""
             )
             pokemonDescription.postValue(Resource.Success(pokeDescription))
             val currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)

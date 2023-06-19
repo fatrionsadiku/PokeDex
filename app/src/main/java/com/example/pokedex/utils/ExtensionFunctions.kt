@@ -67,9 +67,9 @@ fun <T> List<T>.second() : T {
  * Returns the third member of a list, in other words
  * it returns the [2] element
  */
-fun <T> List<T>.third() : T {
-    if (isEmpty())
-        throw NoSuchElementException("List is empty.")
-    return this[2]
+fun <T> List<T>.third(): T? {
+    require(size >= 3) { "List has less than 3 elements." }
+    return getOrNull(2)
 }
+
 

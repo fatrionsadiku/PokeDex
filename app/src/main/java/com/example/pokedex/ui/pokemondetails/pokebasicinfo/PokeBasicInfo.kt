@@ -36,7 +36,6 @@ class PokeBasicInfo : Fragment(R.layout.pokemon_basic_info) {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.apply {
             viewModel.singlePokemonResponse.apply {
                 observe(viewLifecycleOwner) { apiResponse ->
