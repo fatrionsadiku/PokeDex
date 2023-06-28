@@ -1,5 +1,6 @@
 package com.example.pokedex.ui
 
+import android.accounts.NetworkErrorException
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,7 +21,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import retrofit2.awaitResponse
+import java.io.IOException
 import javax.inject.Inject
+import kotlin.system.measureTimeMillis
 
 @HiltViewModel
 class PokeDetailsSharedViewModel @Inject constructor(
@@ -39,17 +42,33 @@ class PokeDetailsSharedViewModel @Inject constructor(
     var pokemonDescription = MutableLiveData<Resource<List<String>>>()
 
     fun getSinglePokemonByName(pokemonName: String, pokemonId: Int) = viewModelScope.launch {
-        pokemonDescription.postValue(Resource.Loading())
-        singlePokemonResponse.postValue(Resource.Loading())
-        val response = repository.getSinglePokemonByName(pokemonName)
-        singlePokemonResponse.postValue(handleApiResponse(response))
-        pokemonResponse.postValue(handleApiResponse(response).data)
-        val abilities = getPokemonAbilitiesByName(response.body())
-        abilitiesResponse.postValue(abilities)
-        pokemonHeldItems.postValue(Resource.Loading())
-        val heldItems = getPokemonHeldItems(response.body())
-        pokemonHeldItems.postValue(Resource.Success(heldItems))
-        getPokemonSpeciesId(pokemonId)
+//        val time = measureTimeMillis {
+            pokemonDescription.postValue(Resource.Loading())
+            singlePokemonResponse.postValue(Resource.Loading())
+            try {
+                val response = repository.getSinglePokemonByName(pokemonName)
+                singlePokemonResponse.postValue(handleApiResponse(response))
+                pokemonResponse.postValue(handleApiResponse(response).data)
+                val abilities = getPokemonAbilitiesByName(response.body())
+                abilitiesResponse.postValue(abilities)
+                pokemonHeldItems.postValue(Resource.Loading())
+                val heldItems = getPokemonHeldItems(response.body())
+                pokemonHeldItems.postValue(Resource.Success(heldItems))
+                getPokemonSpeciesId(pokemonId)
+            }catch (t : Throwable){
+                when(t){
+                    is IOException -> singlePokemonResponse.postValue(Resource.Error(
+                        data = null,
+                        message = "An IO error has occurred"
+                    ))
+                    is NetworkErrorException -> singlePokemonResponse.postValue(Resource.Error(
+                        data = null,
+                        message = "No network connection"
+                    ))
+                }
+            }
+//        }
+//        Log.println(Log.VERBOSE, "SharedViewModel", "\"The execution time was ${time}ms: \"")
     }
 
     private fun getPokemonSpeciesId(id: Int) = viewModelScope.launch {
@@ -110,11 +129,11 @@ class PokeDetailsSharedViewModel @Inject constructor(
         }
     }
 
-    fun onRedirectStateSelecetd(redirectState: RedirectState) = viewModelScope.launch {
+    fun onRedirectStateSelected(redirectState: RedirectState) = viewModelScope.launch {
         userPreferences.updateRedirectState(redirectState)
     }
 
-    fun onHideDetailsStateChanged(detailsState: HideDetails) = viewModelScope.launch {
+    fun onHideDetailsStateSelected(detailsState: HideDetails) = viewModelScope.launch {
         userPreferences.updateDetailsState(detailsState)
     }
 }

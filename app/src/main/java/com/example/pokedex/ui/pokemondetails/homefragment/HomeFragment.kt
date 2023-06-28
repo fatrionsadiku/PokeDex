@@ -24,6 +24,7 @@ import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
+import com.example.pokedex.utils.isNumeric
 import com.example.pokedex.utils.requireMainActivity
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,14 +35,15 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private val binding by viewBinding(FragmentHomeBinding::bind)
-    private val viewModel: HomeViewModel by activityViewModels()
-    private lateinit var adapter: PokeAdapter
+    val viewModel: HomeViewModel by activityViewModels()
+    val adapter: PokeAdapter = PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private var doubleBackToExitOnce = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpPokeRecyclerView()
         setUpPokeFiltering()
+        fetchApiData()
         onBackPressed()
         viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
             requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
@@ -79,8 +81,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
 
     private fun setUpPokeRecyclerView() =
         try {
-            adapter = PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
-            fetchApiData()
             binding.recyclerView.apply {
                 adapter = this@HomeFragment.adapter
                 layoutManager = GridLayoutManager(requireContext(), 2)
@@ -100,10 +100,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
                     hideProgressBar()
-                    adapter.pokemons = response.data!!.toList()
+                    adapter.pokemons = response.data ?: emptyList()
                 }
             }
         }
@@ -112,7 +111,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private fun setUpPokeFiltering() {
         binding.searchEditText.apply {
             addTextChangedListener { query ->
-                viewModel.filterPokemonByName(query, adapter)
+                viewModel.currentPokemoneQuery.value = query.toString()
+                viewModel.filterPokemonByName(adapter)
+                Log.d("IsNumeric", "${this.isNumeric()}")
             }
             setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {

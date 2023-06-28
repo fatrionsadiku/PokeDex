@@ -1,15 +1,19 @@
 package com.example.pokedex.ui
 
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
+import coil.decode.GifDecoder
+import coil.load
 import com.example.pokedex.R
 import com.example.pokedex.databinding.ActivityMainBinding
+import com.example.pokedex.ui.pokemondetails.homefragment.HomeFragment
+import com.example.pokedex.utils.NetworkConnection
 import com.example.pokedex.utils.customviews.CustomBottomMenuItem
-import com.skydoves.androidbottombar.BottomMenuItem
 import com.skydoves.androidbottombar.OnMenuItemSelectedListener
 import com.skydoves.androidbottombar.animations.BadgeAnimation
 import com.skydoves.androidbottombar.forms.badgeForm
@@ -22,9 +26,37 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val navController =
-            (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment).navController
+        val navHost =
+            (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
         WindowCompat.setDecorFitsSystemWindows(this@MainActivity.window, false)
+
+
+        NetworkConnection(this).observe(this) { isConnectedToInternet ->
+            when (isConnectedToInternet) {
+                true -> {
+                    val homeFragment =
+                        navHost.childFragmentManager.fragments.first() as HomeFragment
+                    if (homeFragment.adapter.itemCount == 0) homeFragment.viewModel.getPaginatedPokemon()
+                    binding.internetGroup.visibility = View.VISIBLE
+                    binding.noInternetGroup.visibility = View.GONE
+                    binding.root.background =
+                        ResourcesCompat.getDrawable(resources, R.drawable.pokedetailsbg, null)
+                }
+
+                false -> {
+                    binding.internetGroup.visibility = View.GONE
+                    binding.root.background =
+                        ResourcesCompat.getDrawable(resources, R.color.white, null)
+                    binding.noInternetGif.load(R.drawable.no_internet) {
+                        decoderFactory { result, options, _ ->
+                            GifDecoder(result.source, options)
+                        }
+                    }
+                    binding.noInternetGroup.visibility = View.VISIBLE
+                }
+            }
+        }
+
         binding.bottomNavView.addBottomMenuItems(
             mutableListOf(
                 CustomBottomMenuItem(this, title = "Home")
@@ -54,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
+        navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.pokeDetailsFragment2) {
                 binding.bottomNavView.animate().translationY(200f).setDuration(200).withEndAction {
                     binding.bottomNavView.visibility = View.GONE
@@ -69,8 +101,19 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavView.onMenuItemSelectedListener =
             OnMenuItemSelectedListener { index, _, _ ->
                 when (index) {
-                    0 -> navController.navigate(R.id.homeFragment)
-                    1 -> navController.navigate(R.id.favoritePokemons)
+                    0 -> navHost.navController.navigate(
+                        resId = R.id.homeFragment,
+                        args = null,
+                        navOptions = NavOptions.Builder().setEnterAnim(R.anim.slide_in_left)
+                            .setExitAnim(R.anim.slide_out_right).build()
+                    )
+
+                    1 -> navHost.navController.navigate(
+                        resId = R.id.favoritePokemons,
+                        args = null,
+                        navOptions = NavOptions.Builder().setEnterAnim(R.anim.slide_in_right)
+                            .setExitAnim(R.anim.slide_out_left).build()
+                    )
                 }
             }
     }

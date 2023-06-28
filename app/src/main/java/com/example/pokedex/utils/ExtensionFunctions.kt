@@ -3,8 +3,8 @@ package com.example.pokedex.utils
 import android.content.res.Resources
 import android.util.TypedValue
 import android.view.View
+import android.widget.EditText
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import com.example.pokedex.ui.MainActivity
 
 /**
@@ -14,8 +14,10 @@ import com.example.pokedex.ui.MainActivity
  */
 fun Int.dpToPx(): Int {
     val displayMetrics = Resources.getSystem().displayMetrics
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), displayMetrics).toInt()
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), displayMetrics)
+        .toInt()
 }
+
 /**
  * Capitalizes the first letter of a string
  */
@@ -34,6 +36,7 @@ fun String.capitalize(): String {
  * @return [MainActivity]
  */
 fun Fragment.requireMainActivity() = this.activity as MainActivity
+
 /**
  * Gets or sets the visibility state of the View.
  *
@@ -54,15 +57,17 @@ inline var View.isViewVisible: Boolean
     set(value) {
         visibility = if (value) View.VISIBLE else View.INVISIBLE
     }
+
 /**
  * Returns the second member of a list, in other words
  * it returns the [1] element
  */
-fun <T> List<T>.second() : T {
+fun <T> List<T>.second(): T {
     if (isEmpty())
         throw NoSuchElementException("List is empty.")
     return this[1]
 }
+
 /**
  * Returns the third member of a list, in other words
  * it returns the [2] element
@@ -70,6 +75,17 @@ fun <T> List<T>.second() : T {
 fun <T> List<T>.third(): T? {
     require(size >= 3) { "List has less than 3 elements." }
     return getOrNull(2)
+}
+
+fun EditText.isNumeric(): Boolean {
+    if (this.text.toString().all {
+            it.isLetter()
+        }) return false
+    if (this.text.toString().contains("[a-z]".toRegex()) && this.text.toString()
+            .contains("[0-9]".toRegex())
+    ) return false
+    return (this.text.toString().toInt() >= 0 || this.text.toString()
+        .toInt() <= 0) && this.text.toString().all { !it.isLetter() }
 }
 
 

@@ -4,13 +4,12 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.decode.SvgDecoder
 import coil.load
@@ -41,6 +40,7 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
         getPokemonDetails(pokemonArgs.pokemonName!!, pokemonArgs.pokemonId)
         setUpPokeDetailsViewPager()
         setUpDetailsState()
+        onBackButtonPresed()
     }
 
     override fun onDestroyView() {
@@ -162,8 +162,12 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
         }
         binding.hideDetailsButton.setOnClickListener {
             if (hideDetails) {
-                pokeViewModel.onHideDetailsStateChanged(HideDetails.SHOW_ALL_DETAILS)
-                binding.hideDetailsButton.progress = 0f
+                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ALL_DETAILS)
+                binding.hideDetailsButton.apply {
+                    speed = -1f
+                    playAnimation()
+                    progress = 1f
+                }
                 binding.pokemonDescription.apply {
                     alpha = 1f
                     animate().apply {
@@ -182,8 +186,12 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
                     hideDetails = !hideDetails
                 }
             } else {
-                pokeViewModel.onHideDetailsStateChanged(HideDetails.SHOW_ONLY_POKEMON)
-                binding.hideDetailsButton.progress = 1f
+                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ONLY_POKEMON)
+                binding.hideDetailsButton.apply {
+                    speed = 1f
+                    playAnimation()
+                    progress = 0f
+                }
                 binding.pokemonDescription.apply {
                     alpha = 0f
                     animate().apply {
@@ -211,5 +219,10 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
 
     private fun hideProgressBar() {
         binding.progressBar.visibility = View.INVISIBLE
+    }
+    private fun onBackButtonPresed(){
+        binding.backButton.setOnClickListener {
+            findNavController().popBackStack()
+        }
     }
 }

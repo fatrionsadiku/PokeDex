@@ -58,16 +58,16 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/paginationProgressBar"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:paddingBottom="10dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_loop="true"
         app:lottie_rawRes="@raw/pokeball_loading"
-        app:lottie_speed="2" />
+        app:lottie_speed="1.5" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,11 +3,13 @@ package com.example.pokedex.utils
 import android.view.Gravity
 import android.widget.LinearLayout
 import com.example.pokedex.R
+import java.util.concurrent.TimeUnit
+import kotlin.system.measureNanoTime
 
 object Utility {
 
     const val BASE_URL = "https://pokeapi.co/api/v2/"
-    const val PAGE_SIZE = 20
+    const val PAGE_SIZE = 1200
     const val MAX_POKE_SIZE = 1281
     val pokeNameParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -32,6 +34,12 @@ object Utility {
         "https://pokeapi.co/api/v2/evolution-chain/",
         ""
     ).replace("/", "").toInt()
+
+    fun measure(codeBlock : () -> Unit){
+        val nanoTime = measureNanoTime(codeBlock)
+        val milliSeconds = TimeUnit.NANOSECONDS.toMillis(nanoTime)
+        println("The code execution took ${milliSeconds}ms")
+    }
 
 
 }

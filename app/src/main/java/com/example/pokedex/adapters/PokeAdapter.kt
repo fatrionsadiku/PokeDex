@@ -30,7 +30,7 @@ import com.skydoves.rainbow.contextColor
 class PokeAdapter(
     val itemClicker: (pokeName: String, pokeId: Int?) -> Unit,
     val favoritePokemon: (position: Int) -> Unit,
-    val stateCheckedItemState: CheckedItemState
+    val stateCheckedItemState: CheckedItemState,
 ) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     private lateinit var childLifeCycle: Lifecycle
     var pokemons: List<PokemonResult>
@@ -95,11 +95,11 @@ class PokeAdapter(
             val pokeId = getPokemonID(pokemon)
             return when (type) {
                 "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-                "home" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-                "official" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
-                "gif" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
-                "xyani" -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.name}.gif"
-                else -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+                "home"       -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+                "official"   -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
+                "gif"        -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
+                "xyani"      -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.name}.gif"
+                else         -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
             }
         }
 

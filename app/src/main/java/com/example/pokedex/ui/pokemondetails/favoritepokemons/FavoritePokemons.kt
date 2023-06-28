@@ -1,8 +1,11 @@
 package com.example.pokedex.ui.pokemondetails.favoritepokemons
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -28,9 +31,11 @@ class FavoritePokemons : Fragment(R.layout.favorite_pokemons), CheckedItemState 
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: FavoritePokemonsAdapter
     private lateinit var recyclerView: RecyclerView
+    private var doubleBackToExitOnce = false
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpPokeRecyclerView()
+        onBackPressed()
         viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
             requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
         }
@@ -86,6 +91,38 @@ class FavoritePokemons : Fragment(R.layout.favorite_pokemons), CheckedItemState 
             )
         findNavController().navigate(action)
     }
+
+    private fun onBackPressed() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            when (doubleBackToExitOnce) {
+                false -> {
+                    if (adapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
+                    else binding.recyclerView.smoothScrollToPosition(0)
+                    doubleBackToExitOnce = true
+                }
+                true -> {
+                    AlertDialog.Builder(requireContext()).apply {
+                        setTitle("Do you want to exit out of the app?")
+                            .setNegativeButton(
+                                "Yes"
+                            ) { _, _ ->
+                                requireActivity().finish()
+                            }
+                            .setPositiveButton(
+                                "No",
+                                DialogInterface.OnClickListener { dialogInterface, i ->
+                                    dialogInterface.dismiss()
+                                    doubleBackToExitOnce = false
+                                }).setOnCancelListener {
+                                doubleBackToExitOnce = false
+                            }
+                            .create().show()
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 
