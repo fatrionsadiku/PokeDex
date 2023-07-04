@@ -37,6 +37,7 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @AndroidEntryPoint
 class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
@@ -76,7 +77,7 @@ class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
         val firstPokeName = createPokemonNameTextView(pokeSpecies.chain.species.name.capitalize())
         val firstPokeForm = createPokemonFormImageView(
             pokemonId = firstPokemonId,
-            pokeName = firstPokeName.text.toString().toLowerCase(),
+            pokeName = firstPokeName.text.toString().lowercase(Locale.ROOT),
             pokeDetailsFragment = pokeDetailsFragment,
             pokeAbilitiesFragment = pokeAbilitiesFragment!!
         )
@@ -93,9 +94,9 @@ class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
             val secondPokeName = createPokemonNameTextView(evoForm.species.name.capitalize())
             val secondPokemonForm = createPokemonFormImageView(
                 pokemonId = secondPokemonId,
-                pokeName = secondPokeName.text.toString().toLowerCase(),
+                pokeName = secondPokeName.text.toString().lowercase(Locale.ROOT),
                 pokeDetailsFragment = pokeDetailsFragment,
-                pokeAbilitiesFragment = pokeAbilitiesFragment!!
+                pokeAbilitiesFragment = pokeAbilitiesFragment
             )
             val secondPokeFormLayout = createPokemonFormLayout(
                 pokemonForm = secondPokemonForm,
@@ -111,9 +112,9 @@ class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
                     createPokemonNameTextView(evoForm.evoDetails[0]?.species?.name?.capitalize())
                 val thirdPokeForm = createPokemonFormImageView(
                     pokemonId = thirdPokemonId,
-                    pokeName = thirdPokeName.text.toString().toLowerCase(),
+                    pokeName = thirdPokeName.text.toString().lowercase(Locale.ROOT),
                     pokeDetailsFragment = pokeDetailsFragment,
-                    pokeAbilitiesFragment = pokeAbilitiesFragment!!
+                    pokeAbilitiesFragment = pokeAbilitiesFragment
                 )
                 val thirdPokeFormLayout = createPokemonFormLayout(
                     pokemonForm = thirdPokeForm,
@@ -181,6 +182,7 @@ class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
             load(
                 "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokemonId.png"
             ) {
+                allowHardware(false)
                 crossfade(500)
             }
             setOnClickListener {

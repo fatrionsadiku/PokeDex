@@ -5,16 +5,12 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.example.pokedex.R
 import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.databinding.PokemonBasicInfoBinding
@@ -52,14 +48,12 @@ class PokeBasicInfo : Fragment(R.layout.pokemon_basic_info) {
                               showPokemonTypes(pokemon)
                               showPokemonStats(pokemon)
                           }
-
                       }
                   }
                 }
                 this.value = null
             }
         }
-
     }
 
     private fun showPokemonStats(pokemon: Pokemon) {

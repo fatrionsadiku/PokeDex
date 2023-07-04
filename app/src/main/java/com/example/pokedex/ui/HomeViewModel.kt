@@ -1,4 +1,4 @@
-package com.example.pokedex.ui.pokemondetails.homefragment
+package com.example.pokedex.ui
 
 import android.accounts.NetworkErrorException
 import android.os.Parcelable
@@ -36,6 +36,7 @@ class HomeViewModel @Inject constructor(
     val favoritePokemons = repository.getFavoritePokemons().asLiveData()
     val currentPokemoneQuery = MutableStateFlow("")
     var recyclerViewState: Parcelable? = null
+    val doesAdapterHaveItems = MutableLiveData(false)
 
 
     override fun onCleared() {

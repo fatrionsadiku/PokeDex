@@ -1,18 +1,35 @@
 package com.example.pokedex.ui.pokemondetails
 
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.ContentValues
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.viewpager2.widget.ViewPager2
 import coil.decode.SvgDecoder
 import coil.load
+import com.example.pokedex.BuildConfig
 import com.example.pokedex.R
 import com.example.pokedex.adapters.FragmentAdapter
 import com.example.pokedex.data.HideDetails
@@ -26,6 +43,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
+
 
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
@@ -34,6 +56,7 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
     var currentPokemonId: Int = 0
     private var hideDetails = false
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
+    private var currentViewPagerFragment: String = ""
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.pokemonPhoto.setImageResource(0)
@@ -41,6 +64,21 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
         setUpPokeDetailsViewPager()
         setUpDetailsState()
         onBackButtonPresed()
+        binding.saveDetails.setOnClickListener {
+            val currentDetailsScreen = getScreenShotFromView(binding.root)
+            if (currentDetailsScreen != null) {
+                if (SDK_INT >= Build.VERSION_CODES.Q) {
+                    saveMediaToStorage(currentDetailsScreen)
+                } else {
+                    if (!checkPermission()) {
+                        verifyStoragePermissions()
+                    } else saveMediaToStorage(currentDetailsScreen)
+                }
+            }
+        }
+        binding.shareDetails.setOnClickListener {
+            showShareIntent(binding.root)
+        }
     }
 
     override fun onDestroyView() {
@@ -56,6 +94,7 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
+
                 is Resource.Success -> {
                     currentPokemonId = pokeId
                     hideProgressBar()
@@ -69,15 +108,17 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
                     binding.pokemonDescription.text =
                         "Whoops, this pokemon's bio seems to be missing\n we apologize for the inconvenience"
                 }
+
                 is Resource.Loading -> {
                     binding.pokemonDescription.text = ""
-                    if (hideDetails){
+                    if (hideDetails) {
                         binding.pokeDescriptionLoadingAnimation.apply {
                             visibility = View.VISIBLE
                             playAnimation()
                         }
                     }
                 }
+
                 is Resource.Success -> {
                     lifecycleScope.launch {
                         delay(500)
@@ -87,7 +128,9 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
                         }
                         val stringBuilder = StringBuilder()
                         descriptionResponse.data?.forEach { pokeDescription ->
-                            stringBuilder.append(pokeDescription.replace("\n", " ").replace(".", ".\n"))
+                            stringBuilder.append(
+                                pokeDescription.replace("\n", " ").replace(".", ".\n")
+                            )
                                 .append("\n")
                         }
                         binding.pokemonDescription.text = stringBuilder.toString()
@@ -108,7 +151,7 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
                 }.lifecycle(viewLifecycleOwner)
             }
             progressBar.isVisible = false
-            pokemonName.text = "${pokeName.capitalize()}"
+            pokemonName.text = pokeName.capitalize()
             progressBar.isVisible = false
         }
     }
@@ -136,10 +179,164 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
                         }
                     }
                 }
-
             }.attach()
+            pokeInfosViewPager.registerOnPageChangeCallback(object :
+                ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    when (position) {
+                        0 -> {
+                            currentViewPagerFragment = "Details"
+                        }
+
+                        1 -> {
+                            currentViewPagerFragment = "Abilities/Items"
+                        }
+
+                        2 -> {
+                            currentViewPagerFragment = "Evolution Tree"
+                        }
+                    }
+                }
+            })
             tabLayout.background = ColorDrawable(Color.WHITE)
         }
+    }
+
+    private fun getScreenShotFromView(v: View): Bitmap? {
+        // create a bitmap object
+        var screenshot: Bitmap? = null
+        try {
+            // inflate screenshot object
+            // with Bitmap.createBitmap it
+            // requires three parameters
+            // width and height of the view and
+            // the background color
+            screenshot =
+                Bitmap.createBitmap(v.measuredWidth, v.measuredHeight, Bitmap.Config.ARGB_8888)
+            // Now draw this bitmap on a canvas
+            val canvas = Canvas(screenshot)
+            v.draw(canvas)
+        } catch (e: Exception) {
+            Log.e("GFG", "Failed to capture screenshot because:" + e.message)
+        }
+        // return the bitmap
+        return screenshot
+    }
+
+    // this method saves the image to gallery
+    private fun saveMediaToStorage(bitmap: Bitmap) {
+        // Generating a file name
+        val filename =
+            "PokeDex_${pokemonArgs.pokemonName?.capitalize()}_${System.currentTimeMillis()}.jpg"
+        // Output stream
+        var fos: OutputStream? = null
+        // For devices running android >= Q
+        if (SDK_INT >= Build.VERSION_CODES.Q) {
+            // getting the contentResolver
+            requireContext().contentResolver?.also { resolver ->
+                // Content resolver will process the contentvalues
+                val contentValues = ContentValues().apply {
+                    // putting file information in content values
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                }
+                // Inserting the contentValues to
+                // contentResolver and getting the Uri
+                val imageUri: Uri? =
+                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+                // Opening an outputstream with the Uri that we got
+                fos = imageUri?.let { resolver.openOutputStream(it) }
+            }
+        } else {
+            // These for devices running on android < Q
+            val imagesDir =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                    .toString()
+            val image = File(imagesDir, filename)
+            fos = FileOutputStream(image)
+        }
+        fos?.use {
+            // Finally writing the bitmap to the output stream that we opened
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            Toast.makeText(
+                requireContext(),
+                "${pokemonArgs.pokemonName?.capitalize()}'s $currentViewPagerFragment saved to Gallery",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun showShareIntent(view: View) {
+        val intent = Intent(Intent.ACTION_SEND).setType("image/*")
+
+        val currentView = getScreenShotFromView(view)
+        try {
+            val cachePath = File(requireContext().cacheDir, "sharedpokemon")
+            cachePath.mkdirs()
+            val stream =
+                FileOutputStream("$cachePath/image.png") // overwrites this image every time to save space
+            currentView?.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        val imagePath = File(requireContext().cacheDir, "sharedpokemon")
+        val newFile = File(imagePath, "image.png")
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            BuildConfig.APPLICATION_ID + ".provider",
+            newFile
+        )
+        val shareMessage = when (currentViewPagerFragment) {
+            "Details"         -> "Hey, check out this awesome pokemon, it has some crazy stats!!!. Can you believe how strong it is?"
+            "Abilities/Items" -> "Hey, check out this awesome pokemon, it's abilities are INSANE!!!. Can you believe how skilled it is?"
+            "Evolution Tree"  -> "Hey, check out this awesome pokemon's evolution tree, such an amazing evolution."
+            else              -> "Hey, check out this awesome pokemon"
+        }
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        intent.putExtra(Intent.EXTRA_TEXT, shareMessage)
+        intent.putExtra(Intent.EXTRA_SUBJECT, shareMessage)
+        startActivity(Intent.createChooser(intent, "Share pokemon via:"))
+    }
+
+    /**
+    Checks and verifies the storage permissions required by the application.
+    Iterates through a list of permissions and prompts the user to grant any missing permissions.
+    Permissions required for storage access are declared in the PERMISSIONS_STORAGE array.
+    The function checks if each permission is granted using ActivityCompat.checkSelfPermission().
+    If any permission is not granted, it requests the permissions using ActivityCompat.requestPermissions().
+     */
+    private fun verifyStoragePermissions() {
+        val PERMISSIONS_STORAGE = arrayOf(
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            WRITE_EXTERNAL_STORAGE
+        )
+        for (permission in PERMISSIONS_STORAGE) {
+            val currentPermission = ActivityCompat.checkSelfPermission(
+                requireActivity(),
+                permission
+            )
+            if (currentPermission != PackageManager.PERMISSION_GRANTED) {
+                // We don't have permission so prompt the user
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    PERMISSIONS_STORAGE,
+                    1
+                )
+            }
+        }
+    }
+
+    /**
+     * Used to check storage permissions on devices running on Android SDK 29 and lower
+     * @return Storage Permission State
+     */
+    private fun checkPermission(): Boolean {
+        val result = ContextCompat.checkSelfPermission(requireContext(), WRITE_EXTERNAL_STORAGE)
+        return result == PackageManager.PERMISSION_GRANTED
     }
 
     private fun setUpDetailsState() {
@@ -220,7 +417,8 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
     private fun hideProgressBar() {
         binding.progressBar.visibility = View.INVISIBLE
     }
-    private fun onBackButtonPresed(){
+
+    private fun onBackButtonPresed() {
         binding.backButton.setOnClickListener {
             findNavController().popBackStack()
         }

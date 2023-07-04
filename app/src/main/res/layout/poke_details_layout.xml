@@ -20,6 +20,26 @@
         app:lottie_rawRes="@raw/hide_details" />
 
     <ImageView
+        android:id="@+id/saveDetails"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/baseline_save_24"
+        app:layout_constraintEnd_toEndOf="@id/hideDetailsButton"
+        app:layout_constraintStart_toStartOf="@id/hideDetailsButton"
+        app:layout_constraintTop_toBottomOf="@id/hideDetailsButton" />
+
+    <ImageView
+        android:id="@+id/shareDetails"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/baseline_share_24"
+        app:layout_constraintEnd_toEndOf="@id/saveDetails"
+        app:layout_constraintStart_toStartOf="@id/saveDetails"
+        app:layout_constraintTop_toBottomOf="@id/saveDetails" />
+
+    <ImageView
         android:id="@+id/backButton"
         android:layout_width="50dp"
         android:layout_height="50dp"

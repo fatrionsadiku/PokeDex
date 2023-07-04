@@ -2,6 +2,7 @@ package com.example.pokedex.ui
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
@@ -11,7 +12,6 @@ import coil.decode.GifDecoder
 import coil.load
 import com.example.pokedex.R
 import com.example.pokedex.databinding.ActivityMainBinding
-import com.example.pokedex.ui.pokemondetails.homefragment.HomeFragment
 import com.example.pokedex.utils.NetworkConnection
 import com.example.pokedex.utils.customviews.CustomBottomMenuItem
 import com.skydoves.androidbottombar.OnMenuItemSelectedListener
@@ -22,6 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
+    private val viewModel: HomeViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -33,10 +34,10 @@ class MainActivity : AppCompatActivity() {
 
         NetworkConnection(this).observe(this) { isConnectedToInternet ->
             when (isConnectedToInternet) {
-                true -> {
-                    val homeFragment =
-                        navHost.childFragmentManager.fragments.first() as HomeFragment
-                    if (homeFragment.adapter.itemCount == 0) homeFragment.viewModel.getPaginatedPokemon()
+                true  -> {
+//                    val homeFragment =
+//                        navHost.childFragmentManager.fragments.first() as HomeFragment
+                    if (viewModel.doesAdapterHaveItems.value == false) viewModel.getPaginatedPokemon()
                     binding.internetGroup.visibility = View.VISIBLE
                     binding.noInternetGroup.visibility = View.GONE
                     binding.root.background =

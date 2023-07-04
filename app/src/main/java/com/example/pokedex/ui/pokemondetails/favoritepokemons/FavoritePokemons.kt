@@ -1,7 +1,6 @@
 package com.example.pokedex.ui.pokemondetails.favoritepokemons
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,7 +16,7 @@ import com.example.pokedex.adapters.CheckedItemState
 import com.example.pokedex.adapters.FavoritePokemonsAdapter
 import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FavoritePokemonsBinding
-import com.example.pokedex.ui.pokemondetails.homefragment.HomeViewModel
+import com.example.pokedex.ui.HomeViewModel
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.requireMainActivity
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
@@ -109,11 +108,11 @@ class FavoritePokemons : Fragment(R.layout.favorite_pokemons), CheckedItemState 
                                 requireActivity().finish()
                             }
                             .setPositiveButton(
-                                "No",
-                                DialogInterface.OnClickListener { dialogInterface, i ->
-                                    dialogInterface.dismiss()
-                                    doubleBackToExitOnce = false
-                                }).setOnCancelListener {
+                                "No"
+                            ) { dialogInterface, _ ->
+                                dialogInterface.dismiss()
+                                doubleBackToExitOnce = false
+                            }.setOnCancelListener {
                                 doubleBackToExitOnce = false
                             }
                             .create().show()

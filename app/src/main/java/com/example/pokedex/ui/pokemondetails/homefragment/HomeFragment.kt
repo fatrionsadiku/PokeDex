@@ -1,12 +1,9 @@
 package com.example.pokedex.ui.pokemondetails.homefragment
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.core.widget.addTextChangedListener
@@ -21,6 +18,7 @@ import com.example.pokedex.adapters.CheckedItemState
 import com.example.pokedex.adapters.PokeAdapter
 import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FragmentHomeBinding
+import com.example.pokedex.ui.HomeViewModel
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
@@ -103,6 +101,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 is Resource.Success -> {
                     hideProgressBar()
                     adapter.pokemons = response.data ?: emptyList()
+                    viewModel.doesAdapterHaveItems.value = true
                 }
             }
         }
@@ -232,11 +231,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                                 requireActivity().finish()
                             }
                             .setPositiveButton(
-                                "No",
-                                DialogInterface.OnClickListener { dialogInterface, i ->
-                                    dialogInterface.dismiss()
-                                    doubleBackToExitOnce = false
-                                }).setOnCancelListener {
+                                "No"
+                            ) { dialogInterface, _ ->
+                                dialogInterface.dismiss()
+                                doubleBackToExitOnce = false
+                            }.setOnCancelListener {
                                 doubleBackToExitOnce = false
                             }
                             .create().show()
