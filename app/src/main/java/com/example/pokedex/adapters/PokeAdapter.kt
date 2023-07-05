@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
@@ -15,7 +14,6 @@ import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import coil.decode.GifDecoder
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
@@ -49,15 +47,19 @@ class PokeAdapter(
                 text = pokemon.name.capitalize()
                 alpha = 0f
             }.animate().setDuration(500).alpha(1f)
+            binding.pokeId.apply {
+                val currentId = getPokemonID(pokemon)
+                val formattedId = String.format("%04d", currentId)
+                text = "Nᵒ $formattedId"
+                alpha = 0f
+            }.animate().setDuration(500).alpha(1f)
+            binding.pokemonDojo.apply {
+                alpha = 0.5f
+            }.animate().setDuration(500).alpha(1f)
             binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "official")) {
-                crossfade(500)
-                listener(onError = { _, error ->
-                    Log.d("SUBTAG", "Error -> ${error.throwable.message}")
-                }, onSuccess = { _, _ ->
-                    Log.d("SUBTAG", "Content image loaded")
-                })
-                target(onSuccess = { result ->
-                    getDominantColor(result) { hexColor ->
+                listener { _, result ->
+                    binding.pokemonPlaceHolder.load(result.drawable){crossfade(500)}
+                    getDominantColor(result.drawable) { hexColor ->
                         Rainbow(binding.pokemonDojo).palette {
                             +contextColor(R.color.white)
                             +color(hexColor)
@@ -65,20 +67,15 @@ class PokeAdapter(
                             background(RainbowOrientation.BOTTOM_TOP, 14)
                         }
                     }
-                })
-            }
-            binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "xyani")) {
-                crossfade(500)
-                decoderFactory { result, options, _ ->
-                    GifDecoder(result.source, options)
                 }
             }
             binding.favoriteButton.apply {
                 stateCheckedItemState.doesSelectedItemExist(pokemon.name) {
                     when (it) {
-                        true -> {
+                        true  -> {
                             binding.favoriteButton.progress = 1f
                         }
+
                         false -> {
                             binding.favoriteButton.progress = 0f
                         }
@@ -102,7 +99,6 @@ class PokeAdapter(
                 else         -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
             }
         }
-
         init {
             binding.apply {
                 root.setOnClickListener {
@@ -125,6 +121,7 @@ class PokeAdapter(
             }
         }
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =

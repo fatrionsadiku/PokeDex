@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.R
 import com.example.pokedex.adapters.CheckedItemState
@@ -20,7 +20,6 @@ import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.ui.HomeViewModel
 import com.example.pokedex.utils.Resource
-import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.Utility.PAGE_SIZE
 import com.example.pokedex.utils.isNumeric
 import com.example.pokedex.utils.requireMainActivity
@@ -81,8 +80,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         try {
             binding.recyclerView.apply {
                 adapter = this@HomeFragment.adapter
-                layoutManager = GridLayoutManager(requireContext(), 2)
-                addItemDecoration(SpacesItemDecoration())
+                layoutManager = LinearLayoutManager(requireContext())
                 addOnScrollListener(this@HomeFragment.scrollListener)
             }
 
@@ -196,7 +194,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
 
-            val layoutManager = recyclerView.layoutManager as GridLayoutManager
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
             val totalItemCount = layoutManager.itemCount
 

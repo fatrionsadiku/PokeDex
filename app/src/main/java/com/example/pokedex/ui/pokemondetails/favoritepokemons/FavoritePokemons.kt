@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.R
 import com.example.pokedex.adapters.CheckedItemState
@@ -17,7 +17,6 @@ import com.example.pokedex.adapters.FavoritePokemonsAdapter
 import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FavoritePokemonsBinding
 import com.example.pokedex.ui.HomeViewModel
-import com.example.pokedex.utils.SpacesItemDecoration
 import com.example.pokedex.utils.requireMainActivity
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,9 +53,7 @@ class FavoritePokemons : Fragment(R.layout.favorite_pokemons), CheckedItemState 
                 adapter.pokemons = it
             }
             recyclerView.adapter = adapter
-            recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-            recyclerView.addItemDecoration(SpacesItemDecoration())
-
+            recyclerView.layoutManager = LinearLayoutManager(requireContext())
         } catch (e: Exception) {
             Log.e("Error fetching poke", "setUpPokeRecyclerView: ${e.toString()}")
         }

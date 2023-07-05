@@ -27,7 +27,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
-import coil.decode.SvgDecoder
 import coil.load
 import com.example.pokedex.BuildConfig
 import com.example.pokedex.R
@@ -144,21 +143,15 @@ class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
 
     private fun fillPokemonDataOnScreen(pokeName: String, pokeId: Int) {
         binding.apply {
-            pokemonPhoto.load(getImageUrl(pokeId)) {
+            pokemonPhoto.load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"){
                 crossfade(500)
-                decoderFactory { result, options, _ ->
-                    SvgDecoder(result.source, options)
-                }.lifecycle(viewLifecycleOwner)
+                allowHardware(false)
             }
             progressBar.isVisible = false
             pokemonName.text = pokeName.capitalize()
             progressBar.isVisible = false
         }
     }
-
-    private fun getImageUrl(id: Int) =
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$id.svg"
-
     private fun setUpPokeDetailsViewPager() {
         binding.apply {
             val adapter = FragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
