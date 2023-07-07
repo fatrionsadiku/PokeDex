@@ -12,9 +12,9 @@ import androidx.fragment.app.activityViewModels
 import coil.load
 import com.example.pokedex.R
 import com.example.pokedex.data.models.PokeHeldItems
-import com.example.pokedex.databinding.HeldItemDialogBinding
-import com.example.pokedex.databinding.PokeAbilitiesBinding
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
+import com.example.pokedex.databinding.DialogHeldItemBinding
+import com.example.pokedex.databinding.FragmentPokemonAbilitiesBinding
+import com.example.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.utils.customviews.PokeAbilitiesLayout
@@ -28,8 +28,8 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class PokeAbilities : Fragment(R.layout.poke_abilities) {
-    val binding by viewBinding(PokeAbilitiesBinding::bind)
+class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
+    val binding by viewBinding(FragmentPokemonAbilitiesBinding::bind)
     private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -85,7 +85,7 @@ class PokeAbilities : Fragment(R.layout.poke_abilities) {
 
     private fun showBalloonDialog(heldItem: PokeHeldItems?, context: Context, view: View) {
         val heldItemsDialog =
-            HeldItemDialogBinding.inflate(LayoutInflater.from(requireContext()))
+            DialogHeldItemBinding.inflate(LayoutInflater.from(requireContext()))
         val balloon = Balloon.Builder(context)
             .setWidthRatio(1f)
             .setWidth(BalloonSizeSpec.WRAP)

@@ -18,7 +18,7 @@ import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
 import com.example.pokedex.data.models.PokemonResult
-import com.example.pokedex.databinding.PokeLayoutBinding
+import com.example.pokedex.databinding.ItemPokemonBinding
 import com.example.pokedex.utils.capitalize
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
@@ -38,7 +38,7 @@ class PokeAdapter(
         }
     private val differ = AsyncListDiffer(this, diffCallback)
 
-    inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ItemPokemonBinding) : RecyclerView.ViewHolder(binding.root) {
 
         //Will try to refactor code as soon as i find a workaround to loading images and getting dominant color at the same time
         @RequiresApi(Build.VERSION_CODES.O)
@@ -125,7 +125,7 @@ class PokeAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
-            PokeLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemPokemonBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         val childLifeCycleOwner = object : LifecycleOwner {
             override val lifecycle: Lifecycle
                 get() = LifecycleRegistry(this)

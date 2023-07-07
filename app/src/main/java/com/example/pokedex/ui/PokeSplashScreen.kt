@@ -3,15 +3,15 @@ package com.example.pokedex.ui
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.pokedex.databinding.PokeSplashScreenBinding
+import com.example.pokedex.databinding.ActivitySplashScreenBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PokeSplashScreen : AppCompatActivity() {
-    private lateinit var binding : PokeSplashScreenBinding
+    private lateinit var binding : ActivitySplashScreenBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = PokeSplashScreenBinding.inflate(layoutInflater)
+        binding = ActivitySplashScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         binding.apply {

@@ -13,11 +13,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.pokedex.R
 import com.example.pokedex.data.models.Pokemon
-import com.example.pokedex.databinding.PokemonBasicInfoBinding
+import com.example.pokedex.databinding.FragmentPokemonBasicInfoBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.example.pokedex.utils.customviews.CustomCardView
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
+import com.example.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
@@ -25,8 +25,8 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class PokeBasicInfo : Fragment(R.layout.pokemon_basic_info) {
-    private val binding by viewBinding(PokemonBasicInfoBinding::bind)
+class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
+    private val binding by viewBinding(FragmentPokemonBasicInfoBinding::bind)
     private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     @SuppressLint("SetTextI18n")
     @RequiresApi(Build.VERSION_CODES.N)

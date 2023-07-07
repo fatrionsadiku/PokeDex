@@ -12,6 +12,7 @@ import coil.decode.GifDecoder
 import coil.load
 import com.example.pokedex.R
 import com.example.pokedex.databinding.ActivityMainBinding
+import com.example.pokedex.ui.homefragment.HomeViewModel
 import com.example.pokedex.utils.NetworkConnection
 import com.example.pokedex.utils.customviews.CustomBottomMenuItem
 import com.skydoves.androidbottombar.OnMenuItemSelectedListener
@@ -37,7 +38,6 @@ class MainActivity : AppCompatActivity() {
                 true  -> {
 //                    val homeFragment =
 //                        navHost.childFragmentManager.fragments.first() as HomeFragment
-                    if (viewModel.doesAdapterHaveItems.value == false) viewModel.getPaginatedPokemon()
                     binding.internetGroup.visibility = View.VISIBLE
                     binding.noInternetGroup.visibility = View.GONE
                     binding.root.background =
@@ -45,15 +45,17 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 false -> {
-                    binding.internetGroup.visibility = View.GONE
-                    binding.root.background =
-                        ResourcesCompat.getDrawable(resources, R.color.white, null)
-                    binding.noInternetGif.load(R.drawable.no_internet) {
-                        decoderFactory { result, options, _ ->
-                            GifDecoder(result.source, options)
+                    if (viewModel.doesCachedPokemonDatabaseHaveItems.value == false) {
+                        binding.internetGroup.visibility = View.GONE
+                        binding.root.background =
+                            ResourcesCompat.getDrawable(resources, R.color.white, null)
+                        binding.noInternetGif.load(R.drawable.no_internet) {
+                            decoderFactory { result, options, _ ->
+                                GifDecoder(result.source, options)
+                            }
                         }
+                        binding.noInternetGroup.visibility = View.VISIBLE
                     }
-                    binding.noInternetGroup.visibility = View.VISIBLE
                 }
             }
         }

@@ -1,0 +1,153 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pokemonDetails"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/pokedetailsbg"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingTop="30dp">
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/hideDetailsButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="18dp"
+        android:baselineAlignBottom="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_rawRes="@raw/hide_details" />
+
+    <ImageView
+        android:id="@+id/saveDetails"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/baseline_save_24"
+        app:layout_constraintEnd_toEndOf="@id/hideDetailsButton"
+        app:layout_constraintStart_toStartOf="@id/hideDetailsButton"
+        app:layout_constraintTop_toBottomOf="@id/hideDetailsButton" />
+
+    <ImageView
+        android:id="@+id/shareDetails"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/baseline_share_24"
+        app:layout_constraintEnd_toEndOf="@id/saveDetails"
+        app:layout_constraintStart_toStartOf="@id/saveDetails"
+        app:layout_constraintTop_toBottomOf="@id/saveDetails" />
+
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="18dp"
+        android:src="@drawable/baseline_keyboard_backspace_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/pokemon_photo"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginBottom="30dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/pokemon_photo"
+        app:layout_constraintEnd_toEndOf="@id/pokemon_photo"
+        app:layout_constraintStart_toStartOf="@id/pokemon_photo"
+        app:layout_constraintTop_toTopOf="@id/pokemon_photo" />
+
+    <LinearLayout
+        android:id="@+id/topPartPokeDetails"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="18dp"
+        android:background="@drawable/top_poke_details"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_photo">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            style="@style/MyCustomTabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|top"
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            app:tabIndicator="@drawable/tab_indicator"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorGravity="stretch"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="@color/black" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pokeInfosViewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/pokemon_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/ryogothic"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/topPartPokeDetails"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_photo" />
+
+    <TextView
+        android:id="@+id/pokemonDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="18sp"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/ryogothic"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_name" />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/pokeDescriptionLoadingAnimation"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="18dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_name"
+        app:lottie_rawRes="@raw/pokeball_loading" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

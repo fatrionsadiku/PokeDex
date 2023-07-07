@@ -31,9 +31,8 @@ import coil.load
 import com.example.pokedex.BuildConfig
 import com.example.pokedex.R
 import com.example.pokedex.adapters.FragmentAdapter
-import com.example.pokedex.data.HideDetails
-import com.example.pokedex.databinding.PokeDetailsLayoutBinding
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
+import com.example.pokedex.data.persistent.HideDetails
+import com.example.pokedex.databinding.FragmentPokemonDetailsBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.capitalize
 import com.google.android.material.tabs.TabLayoutMediator
@@ -49,8 +48,8 @@ import java.io.OutputStream
 
 
 @AndroidEntryPoint
-class PokeDetailsFragment : Fragment(R.layout.poke_details_layout) {
-    val binding by viewBinding(PokeDetailsLayoutBinding::bind)
+class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
+    val binding by viewBinding(FragmentPokemonDetailsBinding::bind)
     private val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
     var currentPokemonId: Int = 0
     private var hideDetails = false

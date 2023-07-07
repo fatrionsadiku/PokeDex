@@ -18,11 +18,11 @@ import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
-import com.example.pokedex.data.RedirectState
+import com.example.pokedex.data.persistent.RedirectState
 import com.example.pokedex.data.models.PokemonEvolutionChain
-import com.example.pokedex.databinding.EvoTreeSettingsBinding
-import com.example.pokedex.databinding.PokeEvoTreeLayoutBinding
-import com.example.pokedex.ui.PokeDetailsSharedViewModel
+import com.example.pokedex.databinding.DialogEvolutionTreeSettingsBinding
+import com.example.pokedex.databinding.FragmentPokemonEvolutionTreeBinding
+import com.example.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.example.pokedex.ui.pokemondetails.PokeDetailsFragment
 import com.example.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.example.pokedex.utils.Utility.getPokemonID
@@ -40,11 +40,16 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 @AndroidEntryPoint
-class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
-    private val binding by viewBinding(PokeEvoTreeLayoutBinding::bind)
+class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
+    private val binding by viewBinding(FragmentPokemonEvolutionTreeBinding::bind)
     private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     private lateinit var toggleButton: LottieAnimationView
     private var isSwitchOn = false
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.linearLayout.removeAllViews()
+    }
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -231,7 +236,7 @@ class PokeEvoTree : Fragment(R.layout.poke_evo_tree_layout) {
     }
 
     private fun setUpSettingsBalloon(view: View) {
-        val dialogBinding = EvoTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
+        val dialogBinding = DialogEvolutionTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
         val balloon = createBalloon(dialogBinding.root, view)
         toggleButton = balloon.getContentView().findViewById(R.id.toggleButton)
         viewLifecycleOwner.lifecycleScope.launch {

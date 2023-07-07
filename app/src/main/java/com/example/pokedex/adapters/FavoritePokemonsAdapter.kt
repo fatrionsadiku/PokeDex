@@ -15,7 +15,7 @@ import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.example.pokedex.R
 import com.example.pokedex.data.models.FavoritePokemon
-import com.example.pokedex.databinding.PokeLayoutBinding
+import com.example.pokedex.databinding.ItemPokemonBinding
 import com.example.pokedex.utils.capitalize
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
@@ -34,7 +34,7 @@ class FavoritePokemonsAdapter(
         }
     private val differ = AsyncListDiffer(this, diffCallback)
 
-    inner class ViewHolder(val binding: PokeLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ItemPokemonBinding) : RecyclerView.ViewHolder(binding.root) {
         @RequiresApi(Build.VERSION_CODES.O)
         fun bindData(pokemon: FavoritePokemon) {
             binding.pokeName.apply {
@@ -119,7 +119,7 @@ class FavoritePokemonsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
-            PokeLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemPokemonBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
