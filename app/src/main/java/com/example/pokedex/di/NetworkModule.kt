@@ -6,10 +6,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
@@ -37,4 +40,13 @@ object NetworkModule {
     @Singleton
     fun providePokeAPIInstance(retrofit: Retrofit): PokeApiService =
         retrofit.create(PokeApiService::class.java)
+
+    @ApplicationScope
+    @Singleton
+    @Provides
+    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class ApplicationScope

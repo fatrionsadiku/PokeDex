@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
@@ -26,7 +27,7 @@ import com.skydoves.rainbow.color
 import com.skydoves.rainbow.contextColor
 
 class PokeAdapter(
-    val itemClicker: (pokeName: String, pokeId: Int?) -> Unit,
+    val itemClicker: (pokeName: String, pokeId: Int) -> Unit,
     val favoritePokemon: (position: Int) -> Unit,
     val stateCheckedItemState: CheckedItemState,
 ) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
@@ -106,7 +107,9 @@ class PokeAdapter(
                     if (currentPosition != RecyclerView.NO_POSITION) {
                         val currentPoke = pokemons[currentPosition]
                         val currentPokeId = getPokemonID(currentPoke)
-                        itemClicker.invoke(currentPoke.name, currentPokeId)
+                        val currentPokemonName = currentPoke.name
+                        Log.d("RecyclerView", "$currentPokemonName,$currentPokeId")
+                        itemClicker.invoke(currentPokemonName, currentPokeId)
                     }
                 }
                 favoriteButton.setOnClickListener { lottieView ->

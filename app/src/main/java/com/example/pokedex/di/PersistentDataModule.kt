@@ -37,12 +37,5 @@ object AppModule {
             produceFile = { appContext.preferencesDataStoreFile(USER_PREFERENCES) }
         )
     }
-    @ApplicationScope
-    @Singleton
-    @Provides
-    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
 
-@Retention(AnnotationRetention.RUNTIME)
-@Qualifier
-annotation class ApplicationScope

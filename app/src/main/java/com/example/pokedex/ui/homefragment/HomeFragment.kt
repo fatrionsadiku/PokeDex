@@ -120,12 +120,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         }
     }
 
-    private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int?) {
-
+    private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int) {
         val action =
             HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
                 pokeName,
-                pokeId ?: 0
+                pokeId
             )
         findNavController().navigate(action)
     }

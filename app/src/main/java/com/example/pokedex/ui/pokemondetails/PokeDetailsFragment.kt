@@ -50,7 +50,7 @@ import java.io.OutputStream
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     val binding by viewBinding(FragmentPokemonDetailsBinding::bind)
-    private val pokemonArgs: PokeDetailsFragmentArgs by navArgs()
+    private val pokemonArgs by navArgs<PokeDetailsFragmentArgs>()
     var currentPokemonId: Int = 0
     private var hideDetails = false
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
@@ -92,7 +92,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
                     currentPokemonId = pokeId
                     hideProgressBar()

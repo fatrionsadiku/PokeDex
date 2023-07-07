@@ -15,15 +15,15 @@ data class PokemonsApiResult(
     val results: MutableList<PokemonResult>
 )
 @Entity(tableName = "cached_pokemons")
-@Parcelize
 data class PokemonResult(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    val primaryKey: Int,
     @SerializedName("name")
     @ColumnInfo("pokemon_name")
     val name: String,
     @SerializedName("url")
     @ColumnInfo("url")
     val url: String,
-) : Parcelable  {
+)  {
 }
 

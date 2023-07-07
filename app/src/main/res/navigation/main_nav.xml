@@ -31,10 +31,6 @@
         tools:layout="@layout/fragment_pokemon_details"
         android:name="com.example.pokedex.ui.pokemondetails.PokeDetailsFragment"
         android:label="PokeDetailsFragment" >
-        <argument
-            android:name="pokemon_name"
-            app:argType="string"
-            app:nullable="true" />
         <action
             android:id="@+id/action_pokeDetailsFragment2_to_homeFragment"
             app:destination="@id/homeFragment"
@@ -43,9 +39,6 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
             />
-        <argument
-            android:name="pokemon_id"
-            app:argType="integer" />
         <action
             android:id="@+id/action_pokeDetailsFragment2_to_favoritePokemons"
             app:destination="@id/favoritePokemons"
@@ -54,6 +47,12 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
             />
+        <argument
+            android:name="pokemonName"
+            app:argType="string" />
+        <argument
+            android:name="pokemonId"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/pokeEvoTree"
