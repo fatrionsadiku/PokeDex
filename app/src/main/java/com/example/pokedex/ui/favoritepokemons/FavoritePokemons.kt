@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.decode.GifDecoder
 import coil.load
 import com.example.pokedex.R
-import com.example.pokedex.adapters.CheckedItemState
-import com.example.pokedex.adapters.FavoritePokemonsAdapter
+import com.example.pokedex.ui.adapters.CheckedItemState
+import com.example.pokedex.ui.adapters.FavoritePokemonsAdapter
 import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.databinding.FragmentFavoritePokemonsBinding
 import com.example.pokedex.ui.homefragment.HomeViewModel

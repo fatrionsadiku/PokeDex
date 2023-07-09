@@ -8,6 +8,7 @@ import com.example.pokedex.data.models.Pokemon
 import com.example.pokedex.data.models.PokemonEvolutionChain
 import com.example.pokedex.data.models.PokemonSpecies
 import com.example.pokedex.data.network.PokeApiService
+import com.example.pokedex.data.persistent.SortOrder
 import com.example.pokedex.di.ApplicationScope
 import com.example.pokedex.utils.networkBoundResource
 import kotlinx.coroutines.delay
@@ -21,9 +22,9 @@ class NetworkRepository @Inject constructor(
     private val cachedPokemonsDao: CachedPokemonsDao,
     private val pokemonDatabase: PokemonDatabase
 ) {
-    fun getCachedPokemons() = networkBoundResource(
+    fun getCachedPokemons(sortOrder: SortOrder) = networkBoundResource(
         query = {
-            cachedPokemonsDao.getCachedPokemons()
+            cachedPokemonsDao.getPokemons(sortOrder)
         },
         fetch = {
             delay(2000)

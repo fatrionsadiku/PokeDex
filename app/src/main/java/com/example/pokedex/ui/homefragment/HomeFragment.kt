@@ -14,9 +14,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.R
-import com.example.pokedex.adapters.CheckedItemState
-import com.example.pokedex.adapters.PokeAdapter
+import com.example.pokedex.ui.adapters.CheckedItemState
+import com.example.pokedex.ui.adapters.PokeAdapter
 import com.example.pokedex.data.models.FavoritePokemon
+import com.example.pokedex.data.persistent.SortOrder
 import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.isNumeric
@@ -25,13 +26,15 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
-    private val adapter: PokeAdapter = PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+    private val adapter: PokeAdapter =
+        PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private var doubleBackToExitOnce = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,6 +43,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         setUpPokeFiltering()
         fetchApiData()
         onBackPressed()
+        setUpPokeSortOrder()
         viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
             requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
         }
@@ -60,7 +64,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
             binding.recyclerView.layoutManager?.onRestoreInstanceState(currentSavedState)
         }
     }
-
     override fun onDestroy() {
         super.onDestroy()
         Log.d("RecyclerView Activity", "onDestroy: ")
@@ -74,10 +77,38 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         }
     }
 
+    private fun setUpPokeSortOrder(){
+        binding.filterPokemons.setOnClickListener {
+            lifecycleScope.launch {
+                viewModel.sortOrderFlow.first { sortOrder ->
+                    Log.d("SORTORDER", sortOrder.sortOrder.name)
+                    when (sortOrder.sortOrder) {
+                        SortOrder.BY_ID_DESCENDING -> {
+                            viewModel.onSortOrderChanged(SortOrder.BY_ID_ASCENDING)
+                            binding.recyclerView.adapter = adapter
+                            binding.recyclerView.scrollToPosition(0)
+                            Log.d("AdapterItemCount", adapter.itemCount.toString())
+                            true
+                        }
+                        SortOrder.BY_ID_ASCENDING  -> {
+                            viewModel.onSortOrderChanged(SortOrder.BY_ID_DESCENDING)
+                            binding.recyclerView.adapter = adapter
+                            binding.recyclerView.scrollToPosition(1281)
+                            Log.d("AdapterItemCount", adapter.itemCount.toString())
+                            true
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
     private fun setUpPokeRecyclerView() =
         try {
             binding.recyclerView.apply {
                 adapter = this@HomeFragment.adapter
+                setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(requireContext())
                 addOnScrollListener(this@HomeFragment.scrollListener)
             }
@@ -94,7 +125,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
                     hideProgressBar()
                     viewModel.doesAdapterHaveItems.value = true

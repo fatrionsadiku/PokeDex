@@ -1,4 +1,4 @@
-package com.example.pokedex.adapters
+package com.example.pokedex.ui.adapters
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

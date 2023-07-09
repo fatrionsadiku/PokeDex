@@ -30,7 +30,7 @@ import androidx.viewpager2.widget.ViewPager2
 import coil.load
 import com.example.pokedex.BuildConfig
 import com.example.pokedex.R
-import com.example.pokedex.adapters.FragmentAdapter
+import com.example.pokedex.ui.adapters.FragmentAdapter
 import com.example.pokedex.data.persistent.HideDetails
 import com.example.pokedex.databinding.FragmentPokemonDetailsBinding
 import com.example.pokedex.utils.Resource
