@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
-    private val adapter: PokeAdapter =
+    private val pokeAdapter: PokeAdapter =
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private var doubleBackToExitOnce = false
 
@@ -85,16 +85,16 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                     when (sortOrder.sortOrder) {
                         SortOrder.BY_ID_DESCENDING -> {
                             viewModel.onSortOrderChanged(SortOrder.BY_ID_ASCENDING)
-                            binding.recyclerView.adapter = adapter
+                            binding.recyclerView.adapter = pokeAdapter
                             binding.recyclerView.scrollToPosition(0)
-                            Log.d("AdapterItemCount", adapter.itemCount.toString())
+                            Log.d("AdapterItemCount", pokeAdapter.itemCount.toString())
                             true
                         }
                         SortOrder.BY_ID_ASCENDING  -> {
                             viewModel.onSortOrderChanged(SortOrder.BY_ID_DESCENDING)
-                            binding.recyclerView.adapter = adapter
+                            binding.recyclerView.adapter = pokeAdapter
                             binding.recyclerView.scrollToPosition(1281)
-                            Log.d("AdapterItemCount", adapter.itemCount.toString())
+                            Log.d("AdapterItemCount", pokeAdapter.itemCount.toString())
                             true
                         }
 
@@ -107,7 +107,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private fun setUpPokeRecyclerView() =
         try {
             binding.recyclerView.apply {
-                adapter = this@HomeFragment.adapter
+                adapter = this@HomeFragment.pokeAdapter
                 setHasFixedSize(true)
                 layoutManager = LinearLayoutManager(requireContext())
                 addOnScrollListener(this@HomeFragment.scrollListener)
@@ -130,7 +130,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                     viewModel.doesAdapterHaveItems.value = true
                 }
             }
-            adapter.pokemons = response.data!!
+            pokeAdapter.pokemons = response.data!!
         }
     }
 
@@ -138,7 +138,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         binding.searchEditText.apply {
             this.addTextChangedListener { query ->
                 viewModel.currentPokemoneQuery.value = query.toString()
-                viewModel.filterPokemonByName(adapter)
+                viewModel.filterPokemonByName(pokeAdapter)
                 Log.d("IsNumeric", "${this.isNumeric()}")
             }
             setOnEditorActionListener { _, actionId, _ ->
@@ -160,8 +160,8 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     }
 
     private fun favoritePokemon(position: Int) =
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-            val currentPokemon = adapter.pokemons[position]
+        viewLifecycleOwner.lifecycleScope.launch {
+            val currentPokemon = pokeAdapter.pokemons[position]
             when (viewModel.doesPokemonExist(currentPokemon.name)) {
                 true  -> viewModel.unFavoritePokemon(
                     FavoritePokemon(
@@ -181,7 +181,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
 
     private fun hideProgressBar() {
         viewLifecycleOwner.lifecycleScope.launch {
-            delay(500)
             binding.paginationProgressBar.visibility = View.INVISIBLE
             binding.paginationProgressBar.cancelAnimation()
             binding.recyclerView.setPadding(0, 0, 0, 0)
@@ -242,7 +241,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             when (doubleBackToExitOnce) {
                 false -> {
-                    if (adapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
+                    if (pokeAdapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
                     else binding.recyclerView.smoothScrollToPosition(0)
                     doubleBackToExitOnce = true
                 }

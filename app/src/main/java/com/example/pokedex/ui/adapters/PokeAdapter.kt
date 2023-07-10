@@ -31,7 +31,6 @@ class PokeAdapter(
     val favoritePokemon: (position: Int) -> Unit,
     val stateCheckedItemState: CheckedItemState,
 ) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
-    private lateinit var childLifeCycle: Lifecycle
     var pokemons: List<PokemonResult>
         get() = differ.currentList
         set(value) {
@@ -129,11 +128,6 @@ class PokeAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding =
             ItemPokemonBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val childLifeCycleOwner = object : LifecycleOwner {
-            override val lifecycle: Lifecycle
-                get() = LifecycleRegistry(this)
-        }
-        childLifeCycle = childLifeCycleOwner.lifecycle
         return ViewHolder(binding)
     }
 
