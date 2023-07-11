@@ -28,7 +28,7 @@ class NetworkRepository @Inject constructor(
         },
         fetch = {
             delay(2000)
-            pokeApi.getPaginatedPokemons(1281, 0)
+            pokeApi.getPaginatedPokemons(1273, 0)
         },
         saveFetchResult = { pokeResponse ->
             pokemonDatabase.withTransaction {

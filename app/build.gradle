@@ -102,6 +102,9 @@ dependencies {
 //    Balloon (Custom Tooltips View)
     implementation "com.github.skydoves:balloon:1.5.3"
 
+//    Custom Menu PopUp
+    implementation "com.github.skydoves:powermenu:2.2.4"
+
 //    Datastore Preferences
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

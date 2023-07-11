@@ -8,15 +8,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import coil.decode.GifDecoder
+import coil.decode.SvgDecoder
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
+import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.example.pokedex.R
 import com.example.pokedex.data.models.PokemonResult
 import com.example.pokedex.databinding.ItemPokemonBinding
@@ -38,9 +38,11 @@ class PokeAdapter(
         }
     private val differ = AsyncListDiffer(this, diffCallback)
 
-    inner class ViewHolder(val binding: ItemPokemonBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        //Will try to refactor code as soon as i find a workaround to loading images and getting dominant color at the same time
+    private var _pokeImageUrl: String? = null
+
+    inner class ViewHolder(val binding: ItemPokemonBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         @RequiresApi(Build.VERSION_CODES.O)
         fun bindData(pokemon: PokemonResult) {
             binding.pokeName.apply {
@@ -56,9 +58,14 @@ class PokeAdapter(
             binding.pokemonDojo.apply {
                 alpha = 0.5f
             }.animate().setDuration(500).alpha(1f)
-            binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "official")) {
+            binding.pokemonPlaceHolder.load(
+                if (_pokeImageUrl != null) getPokemonPicture(
+                    pokemon,
+                    _pokeImageUrl!!
+                ) else getPokemonPicture(pokemon, "official")
+            ) {
                 listener { _, result ->
-                    binding.pokemonPlaceHolder.load(result.drawable){crossfade(500)}
+                    binding.pokemonPlaceHolder.load(result.drawable) { crossfade(500) }
                     getDominantColor(result.drawable) { hexColor ->
                         Rainbow(binding.pokemonDojo).palette {
                             +contextColor(R.color.white)
@@ -67,6 +74,11 @@ class PokeAdapter(
                             background(RainbowOrientation.BOTTOM_TOP, 14)
                         }
                     }
+                }
+                if (_pokeImageUrl == "dreamworld")  decoderFactory { result, options, _ ->
+                    SvgDecoder(result.source, options)
+                } else if(_pokeImageUrl == "xyani")   decoderFactory { result, options, _ ->
+                    GifDecoder(result.source, options)
                 }
             }
             binding.favoriteButton.apply {
@@ -84,21 +96,6 @@ class PokeAdapter(
             }
         }
 
-        private fun getPokemonID(pokemon: PokemonResult) = pokemon.url.replace(
-            "https://pokeapi.co/api/v2/pokemon/", ""
-        ).replace("/", "").toInt()
-
-        private fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
-            val pokeId = getPokemonID(pokemon)
-            return when (type) {
-                "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-                "home"       -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-                "official"   -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
-                "gif"        -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
-                "xyani"      -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.name}.gif"
-                else         -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-            }
-        }
         init {
             binding.apply {
                 root.setOnClickListener {
@@ -138,9 +135,15 @@ class PokeAdapter(
     }
 
     override fun getItemCount(): Int = pokemons.size
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
+    fun changePokemonPhoto(type: PokemonPhotoTypes) {
+        _pokeImageUrl = when (type) {
+            PokemonPhotoTypes.HOME     -> "home"
+            PokemonPhotoTypes.OFFICIAL -> "official"
+            PokemonPhotoTypes.DREAMWORLD -> "dreamworld"
+            PokemonPhotoTypes.XYANI -> "xyani"
+        }
     }
+
 }
 
 private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
@@ -153,6 +156,21 @@ private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
     }
 
 }
+private fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
+    val pokeId = getPokemonID(pokemon)
+    return when (type) {
+        "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$pokeId.svg"
+        "home"       -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+        "official"   -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
+        "gif"        -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
+        "xyani"      -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.name}.gif"
+        else         -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+    }
+}
+
+private fun getPokemonID(pokemon: PokemonResult) = pokemon.url.replace(
+    "https://pokeapi.co/api/v2/pokemon/", ""
+).replace("/", "").toInt()
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun getDominantColor(drawable: Drawable, onFinish: (Int) -> Unit) {
@@ -167,4 +185,11 @@ private fun getDominantColor(drawable: Drawable, onFinish: (Int) -> Unit) {
 
 interface CheckedItemState {
     fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit)
+}
+
+enum class PokemonPhotoTypes {
+    HOME,
+    OFFICIAL,
+    DREAMWORLD,
+    XYANI
 }
