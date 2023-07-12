@@ -19,10 +19,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedex.R
 import com.example.pokedex.data.models.FavoritePokemon
+import com.example.pokedex.data.persistent.PokemonPhotoTypes
 import com.example.pokedex.databinding.FragmentHomeBinding
 import com.example.pokedex.ui.adapters.CheckedItemState
 import com.example.pokedex.ui.adapters.PokeAdapter
-import com.example.pokedex.ui.adapters.PokemonPhotoTypes
 import com.example.pokedex.utils.Resource
 import com.example.pokedex.utils.isNumeric
 import com.example.pokedex.utils.requireMainActivity
@@ -31,6 +31,7 @@ import com.skydoves.powermenu.PowerMenu
 import com.skydoves.powermenu.PowerMenuItem
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -41,9 +42,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private lateinit var powerMenu: PowerMenu
     private var doubleBackToExitOnce = false
+    private var pokemonPhotoType : String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observePokemonPhotoType()
         setUpPowerMenu()
         setUpPokeRecyclerView()
         setUpPokeFiltering()
@@ -111,7 +114,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
                     hideProgressBar()
                     viewModel.doesAdapterHaveItems.value = true
@@ -203,34 +205,48 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 }
             }
         }
+    }
 
-//        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//            super.onScrolled(recyclerView, dx, dy)
-//
-//            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-//            val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
-//            val totalItemCount = layoutManager.itemCount
-//
-//            val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
-//            val isAtLastItem = lastVisibleItemPosition == totalItemCount - 1
-//            val isNotAtBeginning = lastVisibleItemPosition >= 0
-//            val isTotalMoreThanVisible = totalItemCount >= PAGE_SIZE
-//            val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning &&
-//                    isTotalMoreThanVisible && isScrolling
-//            if (shouldPaginate) {
-//                viewModel.getPaginatedPokemon()
-//                isScrolling = false
-//            }
-//        }
+    private fun observePokemonPhotoType() {
+        lifecycleScope.launch {
+            viewModel.pokemonPhotoTypeFlow.first { photoType ->
+                when (photoType.photoType) {
+                    PokemonPhotoTypes.HOME       -> {
+                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.HOME)
+                        pokemonPhotoType = "home"
+                        true
+                    }
+
+                    PokemonPhotoTypes.OFFICIAL   -> {
+                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
+                        pokemonPhotoType = "official"
+                        true
+                    }
+
+                    PokemonPhotoTypes.DREAMWORLD -> {
+                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.DREAMWORLD)
+                        pokemonPhotoType = "dreamworld"
+                        true
+                    }
+
+                    PokemonPhotoTypes.XYANI      -> {
+                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.XYANI)
+                        pokemonPhotoType = "xyani"
+                        true
+                    }
+
+                }
+            }
+        }
     }
 
     private fun setUpPowerMenu() {
         powerMenu = PowerMenu.Builder(requireContext())
-            .addItem(PowerMenuItem("Official", true)) // aad an item list.
-            .addItem(PowerMenuItem("Dreamworld", false)) // aad an item list.
-            .addItem(PowerMenuItem("Xyani", false)) // aad an item list.
-            .addItem(PowerMenuItem("Home", false)) // aad an item list.
-            .setAnimation(MenuAnimation.ELASTIC_TOP_RIGHT) // Animation start point (TOP | LEFT).
+            .addItem(PowerMenuItem("Official", pokemonPhotoType == "official"))
+            .addItem(PowerMenuItem("Dreamworld", pokemonPhotoType == "dreamworld"))
+            .addItem(PowerMenuItem("Xyani", pokemonPhotoType == "xyani"))
+            .addItem(PowerMenuItem("Home", pokemonPhotoType == "home"))
+            .setAnimation(MenuAnimation.FADE)
             .setMenuRadius(10f) // sets the corner radius.
             .setMenuShadow(10f) // sets the shadow.
             .setTextGravity(Gravity.CENTER)
@@ -243,21 +259,28 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 when (item.title) {
                     "Official"   -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
+                        viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.OFFICIAL)
                         val myAdapter = binding.recyclerView.adapter
                         binding.recyclerView.adapter = myAdapter
                     }
+
                     "Dreamworld" -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.DREAMWORLD)
+                        viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.DREAMWORLD)
                         val myAdapter = binding.recyclerView.adapter
                         binding.recyclerView.adapter = myAdapter
                     }
+
                     "Xyani"      -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.XYANI)
+                        viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.XYANI)
                         val myAdapter = binding.recyclerView.adapter
                         binding.recyclerView.adapter = myAdapter
                     }
-                    "Home"     -> {
+
+                    "Home"       -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.HOME)
+                        viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.HOME)
                         val myAdapter = binding.recyclerView.adapter
                         binding.recyclerView.adapter = myAdapter
                     }

@@ -8,7 +8,11 @@ import kotlin.system.measureNanoTime
 object Utility {
 
     const val BASE_URL = "https://pokeapi.co/api/v2/"
-    const val PAGE_SIZE = 1281
+    val listOfColors =
+        listOf(
+            "#80B362", "#FF7377", "#E6676B", "#BF565A", "#3EB39F", "#FF7276", "#A5A9A0", "#FFB673",
+            "#FFFCC9", "#FFC1CC", "#DBE2E9", "#BF9972", "#B67233"
+        )
     val pokeNameParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT,
         LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -28,13 +32,14 @@ object Utility {
         "https://pokeapi.co/api/v2/pokemon-species/",
         ""
     ).replace("/", "").toInt()
+
     fun getPokemonSpeciesId(url: String) = url.replace(
         "https://pokeapi.co/api/v2/evolution-chain/",
         ""
     ).replace("/", "").toInt()
 
 
-    fun measure(codeBlock : () -> Unit){
+    fun measure(codeBlock: () -> Unit) {
         val nanoTime = measureNanoTime(codeBlock)
         val milliSeconds = TimeUnit.NANOSECONDS.toMillis(nanoTime)
         println("The code execution took ${milliSeconds}ms")

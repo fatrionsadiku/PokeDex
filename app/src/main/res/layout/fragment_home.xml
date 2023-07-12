@@ -31,6 +31,7 @@
             android:drawableStart="@drawable/baseline_search_24"
             android:drawablePadding="10dp"
             android:imeOptions="actionDone"
+            android:completionThreshold="3"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,7 +61,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

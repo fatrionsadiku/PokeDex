@@ -1,6 +1,7 @@
 package com.example.pokedex.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -24,12 +25,23 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private val viewModel: HomeViewModel by viewModels()
+    private lateinit var navHost : NavHostFragment
+    override fun onResume() {
+        super.onResume()
+        Log.d("ActivityState", navHost.navController.currentDestination?.label.toString())
+        if (navHost.navController.currentDestination?.label == "PokeDetailsFragment") {
+            binding.bottomNavView.animate().translationY(200f).setDuration(1).withEndAction {
+                binding.bottomNavView.visibility = View.GONE
+            }.start()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val navHost =
-            (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
+        navHost = (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
+
         WindowCompat.setDecorFitsSystemWindows(this@MainActivity.window, false)
 
 

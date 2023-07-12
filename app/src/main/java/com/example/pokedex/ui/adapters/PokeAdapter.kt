@@ -1,6 +1,7 @@
 package com.example.pokedex.ui.adapters
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -16,10 +17,11 @@ import coil.decode.GifDecoder
 import coil.decode.SvgDecoder
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
-import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.example.pokedex.R
 import com.example.pokedex.data.models.PokemonResult
+import com.example.pokedex.data.persistent.PokemonPhotoTypes
 import com.example.pokedex.databinding.ItemPokemonBinding
+import com.example.pokedex.utils.Utility.listOfColors
 import com.example.pokedex.utils.capitalize
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
@@ -37,8 +39,6 @@ class PokeAdapter(
             differ.submitList(value)
         }
     private val differ = AsyncListDiffer(this, diffCallback)
-
-
     private var _pokeImageUrl: String? = null
 
     inner class ViewHolder(val binding: ItemPokemonBinding) :
@@ -66,18 +66,28 @@ class PokeAdapter(
             ) {
                 listener { _, result ->
                     binding.pokemonPlaceHolder.load(result.drawable) { crossfade(500) }
-                    getDominantColor(result.drawable) { hexColor ->
+                    if (_pokeImageUrl == "xyani") {
                         Rainbow(binding.pokemonDojo).palette {
+                            +color(Color.parseColor(listOfColors.random()))
                             +contextColor(R.color.white)
-                            +color(hexColor)
                         }.apply {
-                            background(RainbowOrientation.BOTTOM_TOP, 14)
+                            background(RainbowOrientation.TOP_BOTTOM,14)
+                        }
+
+                    } else {
+                        getDominantColor(result.drawable) { hexColor ->
+                            Rainbow(binding.pokemonDojo).palette {
+                                +contextColor(R.color.white)
+                                +color(hexColor)
+                            }.apply {
+                                background(RainbowOrientation.BOTTOM_TOP, 14)
+                            }
                         }
                     }
                 }
-                if (_pokeImageUrl == "dreamworld")  decoderFactory { result, options, _ ->
+                if (_pokeImageUrl == "dreamworld") decoderFactory { result, options, _ ->
                     SvgDecoder(result.source, options)
-                } else if(_pokeImageUrl == "xyani")   decoderFactory { result, options, _ ->
+                } else if (_pokeImageUrl == "xyani") decoderFactory { result, options, _ ->
                     GifDecoder(result.source, options)
                 }
             }
@@ -137,10 +147,10 @@ class PokeAdapter(
     override fun getItemCount(): Int = pokemons.size
     fun changePokemonPhoto(type: PokemonPhotoTypes) {
         _pokeImageUrl = when (type) {
-            PokemonPhotoTypes.HOME     -> "home"
-            PokemonPhotoTypes.OFFICIAL -> "official"
+            PokemonPhotoTypes.HOME       -> "home"
+            PokemonPhotoTypes.OFFICIAL   -> "official"
             PokemonPhotoTypes.DREAMWORLD -> "dreamworld"
-            PokemonPhotoTypes.XYANI -> "xyani"
+            PokemonPhotoTypes.XYANI      -> "xyani"
         }
     }
 
@@ -156,6 +166,7 @@ private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
     }
 
 }
+
 private fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
     val pokeId = getPokemonID(pokemon)
     return when (type) {
@@ -187,9 +198,6 @@ interface CheckedItemState {
     fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit)
 }
 
-enum class PokemonPhotoTypes {
-    HOME,
-    OFFICIAL,
-    DREAMWORLD,
-    XYANI
+interface PokemonPhotoTypeState {
+    fun changePokemonPhotoType(pokemonPhotoTypes: PokemonPhotoTypes): PokemonPhotoTypes
 }

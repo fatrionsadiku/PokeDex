@@ -6,7 +6,8 @@
     android:background="@drawable/pokedetailsbg"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingTop="30dp">
+    android:paddingTop="30dp"
+    android:tag="DetailsFragment">
 
 
     <com.airbnb.lottie.LottieAnimationView
@@ -91,10 +92,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center|top"
-            android:background="@android:color/transparent"
-            android:elevation="0dp"
             android:layout_marginStart="12dp"
             android:layout_marginEnd="12dp"
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
             app:tabIndicator="@drawable/tab_indicator"
             app:tabIndicatorAnimationMode="elastic"
             app:tabIndicatorGravity="stretch"

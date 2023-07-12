@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokedex.ui.adapters.PokeAdapter
 import com.example.pokedex.data.models.FavoritePokemon
 import com.example.pokedex.data.models.PokemonResult
-import com.example.pokedex.data.persistent.RedirectState
+import com.example.pokedex.data.persistent.PokemonPhotoTypes
 import com.example.pokedex.data.persistent.SortOrder
 import com.example.pokedex.data.persistent.UserPreferences
 import com.example.pokedex.repositories.DatabaseRepository
@@ -36,6 +36,7 @@ class HomeViewModel @Inject constructor(
     val favoritePokemons = databaseRepository.getFavoritePokemons().asLiveData()
     val doesDatabaseHaveITems = databaseRepository.doesDatabaseHaveItems().asLiveData()
     val doesCachedPokemonDatabaseHaveItems = databaseRepository.doesCachedDatabaseHaveItems().asLiveData()
+    val pokemonPhotoTypeFlow = preferences.pokemonPhotoTypeFlow
     val currentPokemoneQuery = MutableStateFlow("")
     var recyclerViewState: Parcelable? = null
     val doesAdapterHaveItems = MutableLiveData(false)
@@ -56,6 +57,9 @@ class HomeViewModel @Inject constructor(
     fun onSortOrderChanged(sortOrder: SortOrder) = viewModelScope.launch {
         preferences.updateSortOrder(sortOrder)
         getPokemonResponse(sortOrder)
+    }
+    fun onPokemonPhotoTypeSelected(pokemonPhotoTypes: PokemonPhotoTypes) = viewModelScope.launch {
+        preferences.updatePokemonPhotoType(pokemonPhotoTypes)
     }
     fun favoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
         databaseRepository.favoritePokemon(pokemon)

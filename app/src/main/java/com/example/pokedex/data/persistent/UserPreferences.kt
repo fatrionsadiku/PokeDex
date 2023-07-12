@@ -24,13 +24,21 @@ enum class SortOrder {
     BY_ID_DESCENDING,
     BY_ID_ASCENDING
 }
+enum class PokemonPhotoTypes {
+    HOME,
+    OFFICIAL,
+    DREAMWORLD,
+    XYANI
+}
 data class RedirectToDetails(val redirectState: RedirectState)
 data class HideDetailsState(val detailsState: HideDetails)
 data class PokemonSortOrder(val sortOrder: SortOrder)
+data class PokemonPhotoType(val photoType: PokemonPhotoTypes)
 
 private val PREFERENCES_KEY = stringPreferencesKey("redirect_to_details")
 private val HIDE_DETAILS_KEY = stringPreferencesKey("hide_details")
 private val SORT_ORDER_KEY = stringPreferencesKey("sort_order")
+private val POKEMON_PICTURE_TYPE_KEY = stringPreferencesKey("pokemon_picture")
 
 @Singleton
 class UserPreferences @Inject constructor(
@@ -74,6 +82,18 @@ class UserPreferences @Inject constructor(
             )
             PokemonSortOrder(sortOrder)
         }
+    val pokemonPhotoTypeFlow = dataStore.data
+        .catch { exception ->
+            if (exception is IOException){
+                emit(emptyPreferences())
+            }
+        }
+        .map { photoType ->
+            val photoType = PokemonPhotoTypes.valueOf(
+                photoType[POKEMON_PICTURE_TYPE_KEY] ?: PokemonPhotoTypes.OFFICIAL.name
+            )
+            PokemonPhotoType(photoType)
+        }
 
     suspend fun updateRedirectState(redirectState: RedirectState){
         dataStore.edit {preferences ->
@@ -88,6 +108,11 @@ class UserPreferences @Inject constructor(
     suspend fun updateSortOrder(sortOrder: SortOrder){
         dataStore.edit {preferences ->
             preferences[SORT_ORDER_KEY] = sortOrder.name
+        }
+    }
+    suspend fun updatePokemonPhotoType(pokePhotoType: PokemonPhotoTypes){
+        dataStore.edit { photoType ->
+            photoType[POKEMON_PICTURE_TYPE_KEY] = pokePhotoType.name
         }
     }
 
