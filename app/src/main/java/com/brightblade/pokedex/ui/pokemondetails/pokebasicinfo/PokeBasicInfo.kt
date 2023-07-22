@@ -14,9 +14,9 @@ import androidx.fragment.app.activityViewModels
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.Pokemon
 import com.brightblade.pokedex.databinding.FragmentPokemonBasicInfoBinding
-import com.brightblade.pokedex.utils.Resource
-import com.brightblade.pokedex.utils.capitalize
-import com.brightblade.pokedex.utils.customviews.CustomCardView
+import com.brightblade.utils.Resource
+import com.brightblade.utils.capitalize
+import com.brightblade.utils.customviews.CustomCardView
 import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
@@ -36,7 +36,7 @@ class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
             viewModel.singlePokemonResponse.apply {
                 observe(viewLifecycleOwner) { apiResponse ->
                   when(apiResponse){
-                      is Resource.Error -> Log.e("Error fetching data", apiResponse.message.toString())
+                      is Resource.Error   -> Log.e("Error fetching data", apiResponse.message.toString())
                       is Resource.Loading -> Log.d("Loading...","Loading...")
                       is Resource.Success -> {
                           val pokemon = apiResponse.data

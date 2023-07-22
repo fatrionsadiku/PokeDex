@@ -1,7 +1,7 @@
 package com.brightblade.pokedex.di
 
 import com.brightblade.pokedex.data.network.PokeApiService
-import com.brightblade.pokedex.utils.Utility
+import com.brightblade.utils.Utility
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

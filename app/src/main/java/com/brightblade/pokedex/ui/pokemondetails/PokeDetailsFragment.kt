@@ -32,8 +32,8 @@ import com.brightblade.pokedex.R
 import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.pokedex.data.persistent.HideDetails
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
-import com.brightblade.pokedex.utils.Resource
-import com.brightblade.pokedex.utils.capitalize
+import com.brightblade.utils.Resource
+import com.brightblade.utils.capitalize
 import com.google.android.material.tabs.TabLayoutMediator
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint

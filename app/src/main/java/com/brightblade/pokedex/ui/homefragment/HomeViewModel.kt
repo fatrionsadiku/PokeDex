@@ -14,7 +14,7 @@ import com.brightblade.pokedex.data.persistent.SortOrder
 import com.brightblade.pokedex.data.persistent.UserPreferences
 import com.brightblade.pokedex.repositories.DatabaseRepository
 import com.brightblade.pokedex.repositories.NetworkRepository
-import com.brightblade.pokedex.utils.Resource
+import com.brightblade.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -15,10 +15,10 @@ import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.databinding.DialogHeldItemBinding
 import com.brightblade.pokedex.databinding.FragmentPokemonAbilitiesBinding
 import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
-import com.brightblade.pokedex.utils.Resource
-import com.brightblade.pokedex.utils.capitalize
-import com.brightblade.pokedex.utils.customviews.PokeAbilitiesLayout
-import com.brightblade.pokedex.utils.isViewVisible
+import com.brightblade.utils.Resource
+import com.brightblade.utils.capitalize
+import com.brightblade.utils.customviews.PokeAbilitiesLayout
+import com.brightblade.utils.isViewVisible
 import com.google.android.material.textview.MaterialTextView
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
@@ -53,7 +53,7 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
             }
             viewModel.pokemonHeldItems.observe(viewLifecycleOwner) { response ->
                 when (response) {
-                    is Resource.Error -> Log.e("PokeAbilities", "${response.message}", )
+                    is Resource.Error   -> Log.e("PokeAbilities", "${response.message}", )
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
                         binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()

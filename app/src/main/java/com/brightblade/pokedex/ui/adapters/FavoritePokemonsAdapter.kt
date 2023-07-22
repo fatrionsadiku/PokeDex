@@ -16,7 +16,7 @@ import com.airbnb.lottie.LottieAnimationView
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.databinding.ItemPokemonBinding
-import com.brightblade.pokedex.utils.capitalize
+import com.brightblade.utils.capitalize
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color

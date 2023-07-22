@@ -25,10 +25,10 @@ import com.brightblade.pokedex.databinding.FragmentPokemonEvolutionTreeBinding
 import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsFragment
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
-import com.brightblade.pokedex.utils.Utility.getPokemonID
-import com.brightblade.pokedex.utils.Utility.linearLayoutParams
-import com.brightblade.pokedex.utils.Utility.pokeNameParams
-import com.brightblade.pokedex.utils.capitalize
+import com.brightblade.utils.Utility.getPokemonID
+import com.brightblade.utils.Utility.linearLayoutParams
+import com.brightblade.utils.Utility.pokeNameParams
+import com.brightblade.utils.capitalize
 import com.skydoves.balloon.ArrowOrientation
 import com.skydoves.balloon.Balloon
 import com.skydoves.balloon.BalloonAnimation

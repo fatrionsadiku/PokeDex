@@ -1,10 +1,10 @@
-package com.brightblade.pokedex.utils.customviews
+package com.brightblade.utils.customviews
 
 import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import com.brightblade.pokedex.R
-import com.brightblade.pokedex.utils.dpToPx
+import com.brightblade.utils.dpToPx
 import com.skydoves.androidbottombar.BottomMenuItem
 
 class CustomBottomMenuItem(

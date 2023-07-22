@@ -1,4 +1,4 @@
-package com.brightblade.pokedex.utils
+package com.brightblade.utils
 
 import android.content.res.Resources
 import android.util.TypedValue

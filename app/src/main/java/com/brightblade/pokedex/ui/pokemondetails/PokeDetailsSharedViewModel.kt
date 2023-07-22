@@ -14,9 +14,9 @@ import com.brightblade.pokedex.data.models.Pokemon
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
 import com.brightblade.pokedex.data.network.PokeApiService
 import com.brightblade.pokedex.repositories.NetworkRepository
-import com.brightblade.pokedex.utils.Resource
-import com.brightblade.pokedex.utils.Utility
-import com.brightblade.pokedex.utils.third
+import com.brightblade.utils.Resource
+import com.brightblade.utils.Utility
+import com.brightblade.utils.third
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -56,11 +56,13 @@ class PokeDetailsSharedViewModel @Inject constructor(
                 getPokemonSpeciesId(pokemonId)
             }catch (t : Throwable){
                 when(t){
-                    is IOException -> singlePokemonResponse.postValue(Resource.Error(
+                    is IOException -> singlePokemonResponse.postValue(
+                        Resource.Error(
                         data = null,
                         message = "An IO error has occurred"
                     ))
-                    is NetworkErrorException -> singlePokemonResponse.postValue(Resource.Error(
+                    is NetworkErrorException -> singlePokemonResponse.postValue(
+                        Resource.Error(
                         data = null,
                         message = "No network connection"
                     ))

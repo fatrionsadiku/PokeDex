@@ -1,4 +1,4 @@
-package com.brightblade.pokedex.utils.customviews
+package com.brightblade.utils.customviews
 
 import android.content.Context
 import android.graphics.Color

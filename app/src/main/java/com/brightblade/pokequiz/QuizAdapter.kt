@@ -11,8 +11,8 @@ import coil.load
 import com.brightblade.pokedex.R
 import com.brightblade.pokequiz.quizmodels.Quiz
 import com.brightblade.pokedex.databinding.ItemQuizTypeBinding
-import com.brightblade.pokedex.utils.Utility.listOfColors
-import com.brightblade.pokedex.utils.Utility.listOfIcons
+import com.brightblade.utils.Utility.listOfColors
+import com.brightblade.utils.Utility.listOfIcons
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
@@ -47,8 +47,8 @@ class QuizAdapter(val itemClicker : (quizType : String) -> Unit) : RecyclerView.
             binding.root.setOnClickListener {
                 val currentPosition = adapterPosition
                 if (currentPosition != RecyclerView.NO_POSITION) {
-                    val selectedQuizName = quizzes[position].title
-                    itemClicker(selectedQuizName)
+                    val selectedQuizName = quizzes[currentPosition].title
+                    itemClicker(selectedQuizName.toLowerCase())
                 }
             }
         }

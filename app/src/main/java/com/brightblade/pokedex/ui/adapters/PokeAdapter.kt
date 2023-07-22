@@ -21,8 +21,8 @@ import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.PokemonResult
 import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
 import com.brightblade.pokedex.databinding.ItemPokemonBinding
-import com.brightblade.pokedex.utils.Utility.listOfColors
-import com.brightblade.pokedex.utils.capitalize
+import com.brightblade.utils.Utility.listOfColors
+import com.brightblade.utils.capitalize
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color

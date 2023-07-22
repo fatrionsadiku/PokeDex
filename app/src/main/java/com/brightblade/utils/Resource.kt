@@ -1,4 +1,4 @@
-package com.brightblade.pokedex.utils
+package com.brightblade.utils
 
 sealed class Resource<T>(val data : T? = null, val message : String? = null) {
     class Success<T>(data: T?) : Resource<T>(data)

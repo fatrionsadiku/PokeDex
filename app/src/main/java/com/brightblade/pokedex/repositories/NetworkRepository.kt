@@ -10,7 +10,7 @@ import com.brightblade.pokedex.data.models.PokemonSpecies
 import com.brightblade.pokedex.data.network.PokeApiService
 import com.brightblade.pokedex.data.persistent.SortOrder
 import com.brightblade.pokedex.di.ApplicationScope
-import com.brightblade.pokedex.utils.networkBoundResource
+import com.brightblade.utils.networkBoundResource
 import kotlinx.coroutines.delay
 import retrofit2.Call
 import retrofit2.Response

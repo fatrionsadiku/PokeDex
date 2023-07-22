@@ -39,24 +39,4 @@ class QuizFragment : Fragment(R.layout.fragment_questions) {
             Log.d(TAG, questionsList.toString())
         }
     }
-//
-//    private fun bindViews() {
-//        binding.apply {
-//            btnPrevious.visibility = View.GONE
-//            btnSubmit.visibility = View.GONE
-//            btnNext.visibility = View.GONE
-//            if(index == 1){ //first question
-//                btnNext.visibility = View.VISIBLE
-//            }
-//            else if(index == questionAdapter.question) { // last question
-//                btnSubmit.visibility = View.VISIBLE
-//                btnPrevious.visibility = View.VISIBLE
-//            }
-//            else{ // Middle
-//                btnPrevious.visibility = View.VISIBLE
-//                btnNext.visibility = View.VISIBLE
-//            }
-//            }
-//
-//        }
 }

@@ -1,4 +1,4 @@
-package com.brightblade.pokedex.utils
+package com.brightblade.utils
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -35,7 +35,7 @@ inline fun <ResultType, RequestType> networkBoundResource(
 
         } catch (throwable: Throwable) {
             //Dispatch any error emitted to the UI, plus data emmited from the Database
-            query().map { Resource.Error(it,"Error fetching data") }
+            query().map { Resource.Error(it, "Error fetching data") }
 
         }
 

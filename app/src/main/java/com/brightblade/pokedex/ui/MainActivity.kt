@@ -14,8 +14,8 @@ import coil.load
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.databinding.ActivityMainBinding
 import com.brightblade.pokedex.ui.homefragment.HomeViewModel
-import com.brightblade.pokedex.utils.NetworkConnection
-import com.brightblade.pokedex.utils.customviews.CustomBottomMenuItem
+import com.brightblade.utils.NetworkConnection
+import com.brightblade.utils.customviews.CustomBottomMenuItem
 import com.skydoves.androidbottombar.OnBottomMenuInitializedListener
 import com.skydoves.androidbottombar.OnMenuItemSelectedListener
 import com.skydoves.androidbottombar.animations.BadgeAnimation

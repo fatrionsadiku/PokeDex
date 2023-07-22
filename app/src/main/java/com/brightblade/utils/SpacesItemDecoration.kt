@@ -1,4 +1,4 @@
-package com.brightblade.pokedex.utils
+package com.brightblade.utils
 
 import android.graphics.Rect
 import android.view.View

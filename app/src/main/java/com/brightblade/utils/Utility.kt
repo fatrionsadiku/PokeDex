@@ -1,4 +1,4 @@
-package com.brightblade.pokedex.utils
+package com.brightblade.utils
 
 import android.view.Gravity
 import android.widget.LinearLayout

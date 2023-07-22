@@ -1,5 +1,6 @@
 package com.brightblade.pokedex.ui.homefragment
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -24,9 +25,9 @@ import com.brightblade.pokedex.databinding.FragmentHomeBinding
 import com.brightblade.pokedex.ui.PokeSplashScreen
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.PokeAdapter
-import com.brightblade.pokedex.utils.Resource
-import com.brightblade.pokedex.utils.isNumeric
-import com.brightblade.pokedex.utils.requireMainActivity
+import com.brightblade.utils.Resource
+import com.brightblade.utils.isNumeric
+import com.brightblade.utils.requireMainActivity
 import com.skydoves.powermenu.MenuAnimation
 import com.skydoves.powermenu.PowerMenu
 import com.skydoves.powermenu.PowerMenuItem
@@ -300,27 +301,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
 
                 true  -> {
                     Intent(requireMainActivity(),PokeSplashScreen::class.java).also {
+                        val animations = ActivityOptions.makeCustomAnimation(requireContext(),android.R.anim.fade_in, android.R.anim.fade_out)
                         it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(it)
+                        startActivity(it,animations.toBundle())
                         requireActivity().finish()
                     }
-//                    AlertDialog.Builder(requireContext()).apply {
-//                        setTitle("Do you want to exit out of the app?")
-//                            .setNegativeButton(
-//                                "Yes"
-//                            ) { _, _ ->
-//                                requireActivity().finish()
-//                            }
-//                            .setPositiveButton(
-//                                "No"
-//                            ) { dialogInterface, _ ->
-//                                dialogInterface.dismiss()
-//                                doubleBackToExitOnce = false
-//                            }.setOnCancelListener {
-//                                doubleBackToExitOnce = false
-//                            }
-//                            .create().show()
-//                    }
                 }
             }
         }

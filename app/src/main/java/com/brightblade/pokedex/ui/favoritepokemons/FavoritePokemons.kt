@@ -17,7 +17,7 @@ import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.FavoritePokemonsAdapter
 import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.ui.homefragment.HomeViewModel
-import com.brightblade.pokedex.utils.requireMainActivity
+import com.brightblade.utils.requireMainActivity
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.databinding.FragmentFavoritePokemonsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
