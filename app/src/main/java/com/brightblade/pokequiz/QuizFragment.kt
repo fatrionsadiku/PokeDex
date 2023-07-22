@@ -1,0 +1,62 @@
+package com.brightblade.pokequiz
+
+import android.os.Bundle
+import android.util.Log
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
+import com.brightblade.pokedex.R
+import com.brightblade.pokedex.databinding.FragmentQuestionsBinding
+import com.brightblade.pokequiz.quizmodels.Question
+import com.google.firebase.firestore.FirebaseFirestore
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
+
+class QuizFragment : Fragment(R.layout.fragment_questions) {
+    private val TAG = "QuizFragment"
+    private val binding by viewBinding(FragmentQuestionsBinding::bind)
+    private lateinit var fireStore: FirebaseFirestore
+    private val quizFragmentArgs by navArgs<QuizFragmentArgs>()
+    private lateinit var questionAdapter: QuestionAdapter
+    var questionsList: MutableList<Question> = mutableListOf()
+    private var index = 1
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setUpFireStore(quizFragmentArgs.quizType)
+
+    }
+
+    //    Forced to use Firebase :)
+    @Suppress("UNCHECKED_CAST")
+    private fun setUpFireStore(quizTitle: String) {
+        fireStore = FirebaseFirestore.getInstance()
+        val collectionReference = fireStore.collection("quizzes").document("abilities")
+        collectionReference.get().addOnSuccessListener { quiz ->
+            val listOfQuestionMaps =
+                quiz.data?.get("questions") as? List<Map<String, String>> ?: emptyList()
+            listOfQuestionMaps.forEach {
+                questionsList.add(Question.from(it))
+            }
+            Log.d(TAG, questionsList.toString())
+        }
+    }
+//
+//    private fun bindViews() {
+//        binding.apply {
+//            btnPrevious.visibility = View.GONE
+//            btnSubmit.visibility = View.GONE
+//            btnNext.visibility = View.GONE
+//            if(index == 1){ //first question
+//                btnNext.visibility = View.VISIBLE
+//            }
+//            else if(index == questionAdapter.question) { // last question
+//                btnSubmit.visibility = View.VISIBLE
+//                btnPrevious.visibility = View.VISIBLE
+//            }
+//            else{ // Middle
+//                btnPrevious.visibility = View.VISIBLE
+//                btnNext.visibility = View.VISIBLE
+//            }
+//            }
+//
+//        }
+}

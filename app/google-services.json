@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "420797725511",
+    "project_id": "pikabook-deea8",
+    "storage_bucket": "pikabook-deea8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:420797725511:android:d89b47745732089fcb6a62",
+        "android_client_info": {
+          "package_name": "com.brightblade.pokedex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "420797725511-arv8dumib7u0tpo095alffri58bss8bv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwzHm8-OH_3lrtAvO8JHG6Ztf0LdHoEHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "420797725511-arv8dumib7u0tpo095alffri58bss8bv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

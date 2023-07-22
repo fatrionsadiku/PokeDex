@@ -5,6 +5,7 @@ plugins {
     id("kotlin-parcelize")
     id 'kotlin-kapt'
     id("com.google.dagger.hilt.android")
+    id 'com.google.gms.google-services'
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
@@ -19,11 +20,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 }
 
 android {
-    namespace 'com.example.pokedex'
+    namespace 'com.brightblade.pokedex'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.pokedex"
+        applicationId "com.brightblade.pokedex"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -125,5 +126,10 @@ dependencies {
 
 //    Custom BottomNavBar
     implementation "com.github.skydoves:androidbottombar:1.0.2"
+
+//    Firebase
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
 }
