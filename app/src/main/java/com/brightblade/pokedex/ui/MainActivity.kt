@@ -80,6 +80,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val bottomMenuInitializedListener = OnBottomMenuInitializedListener() {
+            navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
+                if (destination.id == R.id.pokeDetailsFragment2) {
+                    binding.bottomNavView.animate().translationY(200f).setDuration(200).withEndAction {
+                        binding.bottomNavView.visibility = View.GONE
+                    }.start()
+                } else
+                    binding.bottomNavView.animate().apply {
+                        binding.bottomNavView.visibility = View.VISIBLE
+                        translationY(0f)
+                        duration = 200
+                    }.start()
+            }
             binding.bottomNavView.apply {
                 badgeForm(this@MainActivity) {
                     setBadgeTextSize(9f)
@@ -108,20 +120,6 @@ class MainActivity : AppCompatActivity() {
                     .build()
             )
         )
-
-
-        navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.pokeDetailsFragment2) {
-                binding.bottomNavView.animate().translationY(200f).setDuration(200).withEndAction {
-                    binding.bottomNavView.visibility = View.GONE
-                }.start()
-            } else
-                binding.bottomNavView.animate().apply {
-                    binding.bottomNavView.visibility = View.VISIBLE
-                    translationY(0f)
-                    duration = 200
-                }.start()
-        }
         binding.bottomNavView.onMenuItemSelectedListener =
             OnMenuItemSelectedListener { index, _, _ ->
                 when (index) {

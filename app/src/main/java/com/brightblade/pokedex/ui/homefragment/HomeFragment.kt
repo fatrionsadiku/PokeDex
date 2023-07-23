@@ -44,7 +44,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private lateinit var powerMenu: PowerMenu
     private var doubleBackToExitOnce = false
-    private var pokemonPhotoType : String = ""
+    private var pokemonPhotoType: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -81,6 +81,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         val state = binding.recyclerView.layoutManager?.onSaveInstanceState()
         viewModel.recyclerViewState = state
     }
+
     override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch {
             doesItemExist(viewModel.doesPokemonExist(itemName))
@@ -114,6 +115,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 is Resource.Loading -> {
                     showProgressBar()
                 }
+
                 is Resource.Success -> {
                     hideProgressBar()
                     viewModel.doesAdapterHaveItems.value = true
@@ -294,22 +296,32 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             when (doubleBackToExitOnce) {
                 false -> {
+                    val firstVisibleItem =
+                        (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    if (firstVisibleItem == 0) {
+                        navigateBackToSelectionScreen()
+                    }
                     if (pokeAdapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
                     else binding.recyclerView.smoothScrollToPosition(0)
                     doubleBackToExitOnce = true
                 }
 
-                true  -> {
-                    Intent(requireMainActivity(),PokeSplashScreen::class.java).also {
-                        val animations = ActivityOptions.makeCustomAnimation(requireContext(),android.R.anim.fade_in, android.R.anim.fade_out)
-                        it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(it,animations.toBundle())
-                        requireActivity().finish()
-                    }
-                }
+                true  -> navigateBackToSelectionScreen()
             }
         }
     }
+
+    private fun navigateBackToSelectionScreen() =
+        Intent(requireMainActivity(), PokeSplashScreen::class.java).also {
+            val animations = ActivityOptions.makeCustomAnimation(
+                requireContext(),
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+            )
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(it, animations.toBundle())
+            requireActivity().finish()
+        }
 
 }
 

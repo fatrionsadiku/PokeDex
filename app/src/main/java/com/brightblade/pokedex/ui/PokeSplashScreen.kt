@@ -21,6 +21,10 @@ class PokeSplashScreen : AppCompatActivity() {
     private val viewModel: SplashScreenViewModel by viewModels()
     private val TAG = "SplashScreen"
 
+    override fun onDestroy() {
+        viewModel.onSplashScreenAnimationStateChange(SplashScreenAnimation.PLAYANIMATION)
+        super.onDestroy()
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashScreenBinding.inflate(layoutInflater)
