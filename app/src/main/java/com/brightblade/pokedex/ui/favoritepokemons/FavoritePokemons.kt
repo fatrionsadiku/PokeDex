@@ -1,6 +1,5 @@
 package com.brightblade.pokedex.ui.favoritepokemons
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -8,18 +7,19 @@ import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.decode.GifDecoder
 import coil.load
+import com.brightblade.pokedex.R
+import com.brightblade.pokedex.data.models.FavoritePokemon
+import com.brightblade.pokedex.databinding.FragmentFavoritePokemonsBinding
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.FavoritePokemonsAdapter
-import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.ui.homefragment.HomeViewModel
 import com.brightblade.utils.requireMainActivity
-import com.brightblade.pokedex.R
-import com.brightblade.pokedex.databinding.FragmentFavoritePokemonsBinding
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -92,9 +92,9 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
         findNavController().navigate(action)
     }
 
-    private fun doFavoritePokemonsExist(){
+    private fun doFavoritePokemonsExist() {
         viewModel.doesDatabaseHaveITems.observe(viewLifecycleOwner) { doesDbHaveItems ->
-            when(doesDbHaveItems){
+            when (doesDbHaveItems) {
                 true  -> {
                     binding.noFavPokemons.apply {
                         visibility = View.VISIBLE
@@ -106,6 +106,7 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
                         alpha = 0f
                     }.animate().setDuration(1000).alpha(1f)
                 }
+
                 false -> {
                     binding.noFavPokemons.apply {
                         visibility = View.GONE
@@ -120,33 +121,27 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             when (doubleBackToExitOnce) {
                 false -> {
+                    val firstVisibleItem =
+                        (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    if (firstVisibleItem == 0) {
+                        navigateBackToHomeScreen()
+                    }
                     if (adapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
                     else binding.recyclerView.smoothScrollToPosition(0)
                     doubleBackToExitOnce = true
                 }
 
-                true  -> {
-                    AlertDialog.Builder(requireContext()).apply {
-                        setTitle("Do you want to exit out of the app?")
-                            .setNegativeButton(
-                                "Yes"
-                            ) { _, _ ->
-                                requireActivity().finish()
-                            }
-                            .setPositiveButton(
-                                "No"
-                            ) { dialogInterface, _ ->
-                                dialogInterface.dismiss()
-                                doubleBackToExitOnce = false
-                            }.setOnCancelListener {
-                                doubleBackToExitOnce = false
-                            }
-                            .create().show()
-                    }
-                }
+                true  -> navigateBackToHomeScreen()
             }
         }
     }
+
+    private fun navigateBackToHomeScreen() = findNavController().navigate(
+        resId = R.id.homeFragment,
+        args = null,
+        navOptions = NavOptions.Builder().setEnterAnim(R.anim.slide_in_left)
+            .setExitAnim(R.anim.slide_out_right).build()
+    )
 
 }
 

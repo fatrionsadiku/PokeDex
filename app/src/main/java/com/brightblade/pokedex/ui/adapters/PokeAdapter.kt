@@ -22,6 +22,7 @@ import com.brightblade.pokedex.data.models.PokemonResult
 import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
 import com.brightblade.pokedex.databinding.ItemPokemonBinding
 import com.brightblade.utils.Utility.listOfColors
+import com.brightblade.utils.Utility.listOfSilhouettes
 import com.brightblade.utils.capitalize
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
@@ -64,6 +65,7 @@ class PokeAdapter(
                     _pokeImageUrl!!
                 ) else getPokemonPicture(pokemon, "official")
             ) {
+                placeholder(listOfSilhouettes.random())
                 listener { _, result ->
                     binding.pokemonPlaceHolder.load(result.drawable) { crossfade(500) }
                     if (_pokeImageUrl == "xyani") {
@@ -71,7 +73,7 @@ class PokeAdapter(
                             +color(Color.parseColor(listOfColors.random()))
                             +contextColor(R.color.white)
                         }.apply {
-                            background(RainbowOrientation.TOP_BOTTOM,14)
+                            background(RainbowOrientation.TOP_BOTTOM, 14)
                         }
 
                     } else {
