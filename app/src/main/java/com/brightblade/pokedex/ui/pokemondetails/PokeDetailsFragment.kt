@@ -16,7 +16,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -29,14 +28,16 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import coil.load
 import com.brightblade.pokedex.R
-import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.pokedex.data.persistent.HideDetails
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
+import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.utils.Resource
 import com.brightblade.utils.capitalize
 import com.google.android.material.tabs.TabLayoutMediator
+import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import io.akndmr.ugly_tooltip.TooltipDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -53,6 +54,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     var currentPokemonId: Int = 0
     private var hideDetails = false
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
+    private lateinit var tooltipDialog: TooltipDialog
     private var currentViewPagerFragment: String = ""
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -251,10 +253,16 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         fos?.use {
             // Finally writing the bitmap to the output stream that we opened
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
-            Toast.makeText(
-                requireContext(),
-                "${pokemonArgs.pokemonName.capitalize()}'s $currentViewPagerFragment saved to Gallery",
-                Toast.LENGTH_SHORT
+            Toastic.toastic(
+                context = requireContext(),
+                message = "${pokemonArgs.pokemonName.capitalize()}'s $currentViewPagerFragment saved to Gallery",
+                duration = Toastic.LENGTH_SHORT,
+                type = Toastic.DEFAULT,
+                isIconAnimated = true,
+                customIcon = R.drawable.pokeball,
+                font = R.font.ryogothic,
+                textColor = Color.BLACK,
+                customIconAnimation = R.anim.rotate_anim
             ).show()
         }
     }
@@ -399,7 +407,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             }
         }
     }
-
     private fun showProgressBar() {
         binding.progressBar.visibility = View.VISIBLE
     }

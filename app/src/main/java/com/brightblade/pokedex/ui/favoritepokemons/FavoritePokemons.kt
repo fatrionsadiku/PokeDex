@@ -1,8 +1,10 @@
 package com.brightblade.pokedex.ui.favoritepokemons
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,14 +21,16 @@ import com.brightblade.pokedex.databinding.FragmentFavoritePokemonsBinding
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.FavoritePokemonsAdapter
 import com.brightblade.pokedex.ui.homefragment.HomeViewModel
+import com.brightblade.utils.capitalize
 import com.brightblade.utils.requireMainActivity
+import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedItemState {
+    private var favoriteStatusToast: Toast? = null
     private val binding by viewBinding(FragmentFavoritePokemonsBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
     private lateinit var adapter: FavoritePokemonsAdapter
@@ -63,15 +67,32 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
         }
 
     private fun favoritePokemon(position: Int) =
-        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+        viewLifecycleOwner.lifecycleScope.launch() {
             val currentPokemon = adapter.pokemons[position]
             when (viewModel.doesPokemonExist(currentPokemon.pokeName)) {
-                true  -> viewModel.unFavoritePokemon(
-                    FavoritePokemon(
-                        pokeName = currentPokemon.pokeName,
-                        url = currentPokemon.url
+                true  -> {
+                    viewModel.unFavoritePokemon(
+                        FavoritePokemon(
+                            pokeName = currentPokemon.pokeName,
+                            url = currentPokemon.url
+                        )
                     )
-                )
+                    if (favoriteStatusToast != null) {
+                        favoriteStatusToast!!.cancel()
+                    }
+                    favoriteStatusToast = Toastic.toastic(
+                        context = requireContext(),
+                        message = "${currentPokemon.pokeName.capitalize()} removed from favorites",
+                        duration = Toastic.LENGTH_SHORT,
+                        type = Toastic.DEFAULT,
+                        isIconAnimated = true,
+                        customIcon = R.drawable.pokeball,
+                        font = R.font.ryogothic,
+                        textColor = Color.BLACK,
+                        customIconAnimation = R.anim.rotate_anim
+                    )
+                    favoriteStatusToast!!.show()
+                }
 
                 false -> viewModel.favoritePokemon(
                     FavoritePokemon(

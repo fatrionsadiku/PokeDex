@@ -133,4 +133,8 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.1.1')
     implementation("com.google.firebase:firebase-firestore-ktx")
 
+//    Custom Toast and Tooltips
+    implementation 'com.github.yagmurerdogan:Toastic:1.0.1'
+    implementation 'com.github.akndmr:UglyTooltip:v1.0.6-beta'
+
 }

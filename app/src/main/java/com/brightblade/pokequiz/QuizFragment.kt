@@ -2,6 +2,7 @@ package com.brightblade.pokequiz
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.brightblade.pokedex.R
@@ -16,13 +17,11 @@ class QuizFragment : Fragment(R.layout.fragment_questions) {
     private lateinit var fireStore: FirebaseFirestore
     private val quizFragmentArgs by navArgs<QuizFragmentArgs>()
     private lateinit var questionAdapter: QuestionAdapter
-    var questionsList: MutableList<Question> = mutableListOf()
+    private var questionsList: MutableList<Question> = mutableListOf()
     private var index = 1
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setUpFireStore(quizFragmentArgs.quizType)
-
     }
 
     //    Forced to use Firebase :)

@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
@@ -26,11 +27,13 @@ import com.brightblade.pokedex.ui.PokeSplashScreen
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.PokeAdapter
 import com.brightblade.utils.Resource
+import com.brightblade.utils.capitalize
 import com.brightblade.utils.isNumeric
 import com.brightblade.utils.requireMainActivity
 import com.skydoves.powermenu.MenuAnimation
 import com.skydoves.powermenu.PowerMenu
 import com.skydoves.powermenu.PowerMenuItem
+import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -42,6 +45,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private val viewModel: HomeViewModel by activityViewModels()
     private val pokeAdapter: PokeAdapter =
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+    private var favoriteStatusToast: Toast? = null
     private lateinit var powerMenu: PowerMenu
     private var doubleBackToExitOnce = false
     private var pokemonPhotoType: String = ""
@@ -154,19 +158,53 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         viewLifecycleOwner.lifecycleScope.launch {
             val currentPokemon = pokeAdapter.pokemons[position]
             when (viewModel.doesPokemonExist(currentPokemon.name)) {
-                true  -> viewModel.unFavoritePokemon(
-                    FavoritePokemon(
-                        pokeName = currentPokemon.name,
-                        url = currentPokemon.url
+                true  -> {
+                    viewModel.unFavoritePokemon(
+                        FavoritePokemon(
+                            pokeName = currentPokemon.name,
+                            url = currentPokemon.url
+                        )
                     )
-                )
+                    if (favoriteStatusToast != null) {
+                        favoriteStatusToast!!.cancel()
+                    }
+                    favoriteStatusToast = Toastic.toastic(
+                        context = requireContext(),
+                        message = "${currentPokemon.name.capitalize()} removed from favorites",
+                        duration = Toastic.LENGTH_SHORT,
+                        type = Toastic.DEFAULT,
+                        isIconAnimated = true,
+                        customIcon = R.drawable.pokeball,
+                        font = R.font.ryogothic,
+                        textColor = Color.BLACK,
+                        customIconAnimation = R.anim.rotate_anim
+                    )
+                    favoriteStatusToast!!.show()
+                }
 
-                false -> viewModel.favoritePokemon(
-                    FavoritePokemon(
-                        pokeName = currentPokemon.name,
-                        url = currentPokemon.url
+                false -> {
+                    viewModel.favoritePokemon(
+                        FavoritePokemon(
+                            pokeName = currentPokemon.name,
+                            url = currentPokemon.url
+                        )
                     )
-                )
+                    if (favoriteStatusToast != null) {
+                        favoriteStatusToast!!.cancel()
+                    }
+                    favoriteStatusToast = Toastic.toastic(
+                        context = requireContext(),
+                        message = "${currentPokemon.name.capitalize()} saved to favorites",
+                        duration = Toastic.LENGTH_SHORT,
+                        type = Toastic.DEFAULT,
+                        isIconAnimated = true,
+                        customIcon = R.drawable.pokeball,
+                        font = R.font.ryogothic,
+                        textColor = Color.BLACK,
+                        customIconAnimation = R.anim.rotate_anim
+                    )
+                    favoriteStatusToast!!.show()
+                }
             }
         }
 
