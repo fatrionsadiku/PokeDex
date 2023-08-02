@@ -6,7 +6,7 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 </br>
 
 <p align="center">
-<img src="/mockups/pokedex.jpg"/>
+<img src="/mockups/pokedex_mockup.jpg"/>
 </p>
 
 <img src="/mockups/pokeapp_showcase.gif" align="right" width="320"/>
