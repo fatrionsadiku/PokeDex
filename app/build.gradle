@@ -5,6 +5,7 @@ plugins {
     id("kotlin-parcelize")
     id 'kotlin-kapt'
     id("com.google.dagger.hilt.android")
+    id 'com.google.gms.google-services'
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
@@ -19,11 +20,11 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 }
 
 android {
-    namespace 'com.example.pokedex'
+    namespace 'com.brightblade.pokedex'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.pokedex"
+        applicationId "com.brightblade.pokedex"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -69,6 +70,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.1"
     implementation("androidx.recyclerview:recyclerview:1.3.0")
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
 //    FragmentViewBindingDelegate
     implementation 'com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.2'
@@ -102,6 +104,9 @@ dependencies {
 //    Balloon (Custom Tooltips View)
     implementation "com.github.skydoves:balloon:1.5.3"
 
+//    Custom Menu PopUp
+    implementation "com.github.skydoves:powermenu:2.2.4"
+
 //    Datastore Preferences
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
@@ -122,5 +127,14 @@ dependencies {
 
 //    Custom BottomNavBar
     implementation "com.github.skydoves:androidbottombar:1.0.2"
+
+//    Firebase
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
+//    Custom Toast and Tooltips
+    implementation 'com.github.yagmurerdogan:Toastic:1.0.1'
+    implementation 'com.github.akndmr:UglyTooltip:v1.0.6-beta'
 
 }

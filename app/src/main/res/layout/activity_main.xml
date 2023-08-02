@@ -28,6 +28,7 @@
             android:layout_height="64dp"
             android:background="#fbbf2b"
             app:bottomBar_duration="300"
+            android:visibility="gone"
             app:bottomBar_flavor="icon"
             app:bottomBar_indicator_color="#2098d6"
             app:bottomBar_indicator_height="4dp"

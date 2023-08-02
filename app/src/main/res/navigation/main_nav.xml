@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/homeFragment"
         tools:layout="@layout/fragment_home"
-        android:name="com.example.pokedex.ui.homefragment.HomeFragment"
+        android:name="com.brightblade.pokedex.ui.homefragment.HomeFragment"
         android:label="homeFrament">
         <action
             android:id="@+id/action_homeFragment_to_pokeDetailsFragment2"
@@ -29,7 +29,7 @@
     <fragment
         android:id="@+id/pokeDetailsFragment2"
         tools:layout="@layout/fragment_pokemon_details"
-        android:name="com.example.pokedex.ui.pokemondetails.PokeDetailsFragment"
+        android:name="com.brightblade.pokedex.ui.pokemondetails.PokeDetailsFragment"
         android:label="PokeDetailsFragment" >
         <action
             android:id="@+id/action_pokeDetailsFragment2_to_homeFragment"
@@ -56,7 +56,7 @@
     </fragment>
     <fragment
         android:id="@+id/pokeEvoTree"
-        android:name="com.example.pokedex.ui.pokemondetails.pokeevotree.PokeEvoTree"
+        android:name="com.brightblade.pokedex.ui.pokemondetails.pokeevotree.PokeEvoTree"
         android:label="PokeEvoTree"
         tools:layout="@layout/fragment_pokemon_evolution_tree"
         >
@@ -71,7 +71,7 @@
     </fragment>
     <fragment
         android:id="@+id/favoritePokemons"
-        android:name="com.example.pokedex.ui.favoritepokemons.FavoritePokemons"
+        android:name="com.brightblade.pokedex.ui.favoritepokemons.FavoritePokemons"
         android:label="FavoritePokemons"
         tools:layout="@layout/fragment_favorite_pokemons"
         >
