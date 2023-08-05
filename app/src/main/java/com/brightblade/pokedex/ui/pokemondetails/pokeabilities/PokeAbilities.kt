@@ -31,6 +31,12 @@ import dagger.hilt.android.AndroidEntryPoint
 class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
     val binding by viewBinding(FragmentPokemonAbilitiesBinding::bind)
     private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
+
+    override fun onStop() {
+        super.onStop()
+        binding.pokeDetailsHolder.removeAllViews()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -39,9 +45,12 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
             pokeDetailsHolder.removeAllViews()
             viewModel.abilitiesResponse.apply {
                 observe(viewLifecycleOwner) { pokeAbility ->
-                    pokeAbility?.forEach {
-                        val pokeAbilityTitle = it?.name?.capitalize()
-                        val pokeAbilityDescription = it?.effectEntries?.get(1)?.effect
+                    if (pokeAbility.isNotEmpty()) pokeAbility?.forEach {
+                        val pokeAbilityTitle = it?.name?.capitalize() ?: "Missing Data"
+                        val pokeAbilityDescription =
+                            if (it?.effectEntries?.getOrNull(1) != null) it.effectEntries[1]?.effect else it?.effectEntries?.get(
+                                0
+                            )?.effect
                         val pokemonAbility = PokeAbilitiesLayout(
                             requireContext(),
                             pokeAbilityTitle,
@@ -53,7 +62,7 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
             }
             viewModel.pokemonHeldItems.observe(viewLifecycleOwner) { response ->
                 when (response) {
-                    is Resource.Error   -> Log.e("PokeAbilities", "${response.message}", )
+                    is Resource.Error -> Log.e("PokeAbilities", "${response.message}")
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
                         binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()

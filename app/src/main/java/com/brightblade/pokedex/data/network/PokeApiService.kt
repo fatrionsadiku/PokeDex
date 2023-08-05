@@ -43,9 +43,9 @@ interface PokeApiService {
     ): Response<PokemonSpecies>
 
     @GET("ability/{name}")
-    fun getPokemonAbilities(
-        @Path("name") pokemonName : String?
-    ) : Call<PokeAbilities>
+    suspend fun getPokemonAbilities(
+        @Path("name") pokemonName: String?,
+    ): Response<PokeAbilities>
 
 
 }

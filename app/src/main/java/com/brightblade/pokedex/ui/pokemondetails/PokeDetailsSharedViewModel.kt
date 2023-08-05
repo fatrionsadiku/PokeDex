@@ -5,19 +5,19 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.brightblade.pokedex.data.persistent.HideDetails
-import com.brightblade.pokedex.data.persistent.RedirectState
-import com.brightblade.pokedex.data.persistent.UserPreferences
 import com.brightblade.pokedex.data.models.PokeAbilities
 import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.data.models.Pokemon
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
-import com.brightblade.pokedex.data.network.PokeApiService
+import com.brightblade.pokedex.data.persistent.HideDetails
+import com.brightblade.pokedex.data.persistent.RedirectState
+import com.brightblade.pokedex.data.persistent.UserPreferences
 import com.brightblade.pokedex.repositories.NetworkRepository
 import com.brightblade.utils.Resource
 import com.brightblade.utils.Utility
 import com.brightblade.utils.third
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import retrofit2.awaitResponse
@@ -26,7 +26,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PokeDetailsSharedViewModel @Inject constructor(
-    private val pokeApi: PokeApiService,
     private val repository: NetworkRepository,
     private val userPreferences: UserPreferences,
 ) : ViewModel() {
@@ -42,32 +41,35 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     fun getSinglePokemonByName(pokemonName: String, pokemonId: Int) = viewModelScope.launch {
 //        val time = measureTimeMillis {
-            pokemonDescription.postValue(Resource.Loading())
-            singlePokemonResponse.postValue(Resource.Loading())
-            try {
-                val response = repository.getSinglePokemonByName(pokemonName)
-                singlePokemonResponse.postValue(handleApiResponse(response))
-                pokemonResponse.postValue(handleApiResponse(response).data)
-                val abilities = getPokemonAbilitiesByName(response.body())
-                abilitiesResponse.postValue(abilities)
-                pokemonHeldItems.postValue(Resource.Loading())
-                val heldItems = getPokemonHeldItems(response.body())
-                pokemonHeldItems.postValue(Resource.Success(heldItems))
-                getPokemonSpeciesId(pokemonId)
-            }catch (t : Throwable){
-                when(t){
-                    is IOException -> singlePokemonResponse.postValue(
-                        Resource.Error(
+        pokemonDescription.postValue(Resource.Loading())
+        singlePokemonResponse.postValue(Resource.Loading())
+        try {
+            val response = repository.getSinglePokemonByName(pokemonName)
+            singlePokemonResponse.postValue(handleApiResponse(response))
+            pokemonResponse.postValue(handleApiResponse(response).data)
+            val abilities = getPokemonAbilitiesByName(response.body())
+            abilitiesResponse.postValue(abilities)
+            pokemonHeldItems.postValue(Resource.Loading())
+            val heldItems = getPokemonHeldItems(response.body())
+            pokemonHeldItems.postValue(Resource.Success(heldItems))
+            getPokemonSpeciesId(pokemonId)
+        } catch (t: Throwable) {
+            when (t) {
+                is IOException           -> singlePokemonResponse.postValue(
+                    Resource.Error(
                         data = null,
                         message = "An IO error has occurred"
-                    ))
-                    is NetworkErrorException -> singlePokemonResponse.postValue(
-                        Resource.Error(
+                    )
+                )
+
+                is NetworkErrorException -> singlePokemonResponse.postValue(
+                    Resource.Error(
                         data = null,
                         message = "No network connection"
-                    ))
-                }
+                    )
+                )
             }
+        }
 //        }
 //        Log.println(Log.VERBOSE, "SharedViewModel", "\"The execution time was ${time}ms: \"")
     }
@@ -111,12 +113,14 @@ class PokeDetailsSharedViewModel @Inject constructor(
     private suspend fun getPokemonAbilitiesByName(pokemon: Pokemon?): MutableList<PokeAbilities?> {
         val pokeAbilities = mutableListOf<PokeAbilities?>()
         pokemon?.abilities?.forEach {
-            val call = pokeApi.getPokemonAbilities(it?.ability?.name)
-            val pokeAbility = call.awaitResponse()
-            if (pokeAbility.isSuccessful) {
-                pokeAbilities.add(pokeAbility.body())
+            val currentPokemonAbilityName = it?.ability?.name?.trim()
+            val pokeAbility = viewModelScope.async {
+                repository.getPokemonAbility(currentPokemonAbilityName!!)
             }
+            pokeAbilities.add(pokeAbility.await().body())
+
         }
+        pokeAbilities
         return pokeAbilities
     }
 

@@ -3,6 +3,7 @@ package com.brightblade.pokedex.repositories
 import androidx.room.withTransaction
 import com.brightblade.pokedex.data.database.PokemonDatabase.PokemonDao.CachedPokemonsDao
 import com.brightblade.pokedex.data.database.PokemonDatabase.PokemonDatabase
+import com.brightblade.pokedex.data.models.PokeAbilities
 import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.data.models.Pokemon
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
@@ -40,6 +41,7 @@ class NetworkRepository @Inject constructor(
             pokeList.isEmpty()
         }
     )
+
     suspend fun getSinglePokemonByName(pokemonName: String): Response<Pokemon> {
         val response = try {
             pokeApi.getPokemonByName(pokemonName)
@@ -48,6 +50,16 @@ class NetworkRepository @Inject constructor(
         }
         return response
     }
+
+    suspend fun getPokemonAbility(pokemonAbilityName: String): Response<PokeAbilities> {
+        val response = try {
+            pokeApi.getPokemonAbilities(pokemonAbilityName)
+        } catch (e: Exception) {
+            throw Exception(e.toString())
+        }
+        return response
+    }
+
     suspend fun getPokemonSpecies(id: Int): Response<PokemonEvolutionChain> {
         val response = try {
             pokeApi.getPokemonSpecies(id)
