@@ -15,9 +15,9 @@ import retrofit2.http.Query
 interface PokeApiService {
 
 
-    @GET("pokemon/{name}")
+    @GET("pokemon/{id}")
     suspend fun getPokemonByName(
-        @Path("name") pokeId: String,
+        @Path("id") pokeId: Int,
     ): Response<Pokemon>
 
 

@@ -42,9 +42,9 @@ class NetworkRepository @Inject constructor(
         }
     )
 
-    suspend fun getSinglePokemonByName(pokemonName: String): Response<Pokemon> {
+    suspend fun getSinglePokemonByName(pokemonId: Int): Response<Pokemon> {
         val response = try {
-            pokeApi.getPokemonByName(pokemonName)
+            pokeApi.getPokemonByName(pokemonId)
         } catch (e: Exception) {
             throw Exception(e.toString())
         }

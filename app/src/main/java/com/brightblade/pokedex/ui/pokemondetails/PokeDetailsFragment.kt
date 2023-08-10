@@ -31,13 +31,13 @@ import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.persistent.HideDetails
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
 import com.brightblade.pokedex.ui.adapters.FragmentAdapter
+import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.brightblade.utils.Resource
 import com.brightblade.utils.capitalize
 import com.google.android.material.tabs.TabLayoutMediator
 import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import io.akndmr.ugly_tooltip.TooltipDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -51,18 +51,56 @@ import java.io.OutputStream
 class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     val binding by viewBinding(FragmentPokemonDetailsBinding::bind)
     private val pokemonArgs by navArgs<PokeDetailsFragmentArgs>()
+    private var currentPokemonName = ""
     var currentPokemonId: Int = 0
     private var hideDetails = false
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
-    private lateinit var tooltipDialog: TooltipDialog
     private var currentViewPagerFragment: String = ""
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.pokemonPhoto.setImageResource(0)
-        getPokemonDetails(pokemonArgs.pokemonName!!, pokemonArgs.pokemonId)
+        getPokemonDetails(pokemonArgs.pokemonId)
         setUpPokeDetailsViewPager()
         setUpDetailsState()
         onBackButtonPresed()
+        saveDetailsOnClickListener()
+        shareDetailsOnClickListener()
+        nextPokemonOnClickListener()
+        previousPokemonOnClickListener()
+    }
+
+    private fun previousPokemonOnClickListener() {
+        binding.previousPokemonButton.setOnClickListener {
+            checkIfPokeAbilitiesIsNotNull()
+            getPokemonDetails(pokeId = currentPokemonId - 1)
+        }
+    }
+
+    private fun nextPokemonOnClickListener() {
+        binding.nextPokemonButton.setOnClickListener {
+            checkIfPokeAbilitiesIsNotNull()
+            getPokemonDetails(pokeId = currentPokemonId + 1)
+
+        }
+    }
+
+    private fun checkIfPokeAbilitiesIsNotNull() {
+        if ((childFragmentManager.findFragmentByTag("f1") as PokeAbilities?) != null) {
+            (childFragmentManager.findFragmentByTag("f1") as PokeAbilities).apply {
+                binding.apply {
+                    pokeItemsHolder.removeAllViews()
+                    pokeDetailsHolder.removeAllViews()
+                }
+            }
+        }
+    }
+
+    private fun shareDetailsOnClickListener() {
+        binding.shareDetails.setOnClickListener {
+            showShareIntent(binding.root)
+        }
+    }
+
+    private fun saveDetailsOnClickListener() {
         binding.saveDetails.setOnClickListener {
             val currentDetailsScreen = getScreenShotFromView(binding.root)
             if (currentDetailsScreen != null) {
@@ -75,9 +113,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 }
             }
         }
-        binding.shareDetails.setOnClickListener {
-            showShareIntent(binding.root)
-        }
     }
 
     override fun onDestroyView() {
@@ -85,18 +120,20 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         pokeViewModel.pokemonDescription.value = null
     }
 
-    fun getPokemonDetails(pokemonName: String, pokeId: Int) {
-        pokeViewModel.getSinglePokemonByName(pokemonName, pokeId)
+    fun getPokemonDetails(pokeId: Int) {
+        pokeViewModel.getSinglePokemonByName(pokeId)
         pokeViewModel.singlePokemonResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is Resource.Error   -> Log.e("PokeDetailsFragment", "Error fetching pokemon")
                 is Resource.Loading -> {
                     showProgressBar()
                 }
+
                 is Resource.Success -> {
                     currentPokemonId = pokeId
+                    currentPokemonName = response.data?.name ?: ""
                     hideProgressBar()
-                    fillPokemonDataOnScreen(pokemonName, pokeId)
+                    fillPokemonDataOnScreen(response.data?.name ?: "", pokeId)
                 }
             }
         }
@@ -142,7 +179,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
 
     private fun fillPokemonDataOnScreen(pokeName: String, pokeId: Int) {
         binding.apply {
-            pokemonPhoto.load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"){
+            pokemonPhoto.load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png") {
                 crossfade(500)
                 allowHardware(false)
             }
@@ -151,6 +188,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             progressBar.isVisible = false
         }
     }
+
     private fun setUpPokeDetailsViewPager() {
         binding.apply {
             val adapter = FragmentAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
@@ -220,7 +258,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     private fun saveMediaToStorage(bitmap: Bitmap) {
         // Generating a file name
         val filename =
-            "PokeDex_${pokemonArgs.pokemonName.capitalize()}_${System.currentTimeMillis()}.jpg"
+            "PokeDex_${currentPokemonName.capitalize()}_${currentViewPagerFragment}_${System.currentTimeMillis()}.jpg"
         // Output stream
         var fos: OutputStream? = null
         // For devices running android >= Q
@@ -255,7 +293,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
             Toastic.toastic(
                 context = requireContext(),
-                message = "${pokemonArgs.pokemonName.capitalize()}'s $currentViewPagerFragment saved to Gallery",
+                message = "${currentPokemonName.capitalize()}'s $currentViewPagerFragment saved to Gallery",
                 duration = Toastic.LENGTH_SHORT,
                 type = Toastic.DEFAULT,
                 isIconAnimated = true,
@@ -269,7 +307,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
 
     private fun showShareIntent(view: View) {
         val intent = Intent(Intent.ACTION_SEND).setType("image/*")
-
         val currentView = getScreenShotFromView(view)
         try {
             val cachePath = File(requireContext().cacheDir, "sharedpokemon")
@@ -407,6 +444,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             }
         }
     }
+
     private fun showProgressBar() {
         binding.progressBar.visibility = View.VISIBLE
     }

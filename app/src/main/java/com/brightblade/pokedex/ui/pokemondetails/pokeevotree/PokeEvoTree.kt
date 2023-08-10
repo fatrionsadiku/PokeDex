@@ -3,6 +3,7 @@ package com.brightblade.pokedex.ui.pokemondetails.pokeevotree
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -18,13 +19,14 @@ import androidx.lifecycle.lifecycleScope
 import coil.load
 import com.airbnb.lottie.LottieAnimationView
 import com.brightblade.pokedex.R
-import com.brightblade.pokedex.data.persistent.RedirectState
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
+import com.brightblade.pokedex.data.persistent.RedirectState
 import com.brightblade.pokedex.databinding.DialogEvolutionTreeSettingsBinding
 import com.brightblade.pokedex.databinding.FragmentPokemonEvolutionTreeBinding
-import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsFragment
+import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
+import com.brightblade.utils.Resource
 import com.brightblade.utils.Utility.getPokemonID
 import com.brightblade.utils.Utility.linearLayoutParams
 import com.brightblade.utils.Utility.pokeNameParams
@@ -50,18 +52,29 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
         super.onDestroyView()
         binding.linearLayout.removeAllViews()
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toggleBackToDetails()
 
         binding.apply {
-            viewModel.pokemonSpeciesResponse.apply {
-                observe(viewLifecycleOwner) { pokeSpecies ->
-                    pokeSpecies?.let {
-                        getPokemonEvoTree(it)
+            viewModel.pokemonSpeciesResponse.observe(viewLifecycleOwner) { evoChainResponse ->
+                when (evoChainResponse) {
+                    is Resource.Error   -> {
+                        hideProgressBar()
+                        Log.e("EvoTree", evoChainResponse.message.toString())
+                    }
+
+                    is Resource.Loading -> showProgressBar()
+                    is Resource.Success -> {
+                        hideProgressBar()
+                        evoChainResponse.data?.let {
+                            getPokemonEvoTree(it)
+                        }
                     }
                 }
+
             }
             toggleButton.setOnClickListener {
                 it as LottieAnimationView
@@ -173,7 +186,7 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
         pokemonId: Int,
         pokeName: String,
         pokeDetailsFragment: PokeDetailsFragment,
-        pokeAbilitiesFragment : PokeAbilities
+        pokeAbilitiesFragment: PokeAbilities,
     ): ImageView {
         val pokeImageParams = LinearLayout.LayoutParams(
             resources.getDimensionPixelSize(R.dimen.image_width),
@@ -191,7 +204,7 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
                 crossfade(500)
             }
             setOnClickListener {
-                pokeDetailsFragment.getPokemonDetails(pokeName, pokemonId)
+                pokeDetailsFragment.getPokemonDetails(pokemonId)
                 pokeAbilitiesFragment.binding.apply {
                     pokeItemsHolder.removeAllViews()
                     pokeDetailsHolder.removeAllViews()
@@ -236,7 +249,8 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
     }
 
     private fun setUpSettingsBalloon(view: View) {
-        val dialogBinding = DialogEvolutionTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
+        val dialogBinding =
+            DialogEvolutionTreeSettingsBinding.inflate(LayoutInflater.from(requireContext()))
         val balloon = createBalloon(dialogBinding.root, view)
         toggleButton = balloon.getContentView().findViewById(R.id.toggleButton)
         viewLifecycleOwner.lifecycleScope.launch {
@@ -286,6 +300,18 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
             .setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.white))
             .setBalloonAnimation(BalloonAnimation.FADE)
             .build()
+    }
+
+    private fun hideProgressBar() {
+        binding.loadingAnimation.visibility = View.INVISIBLE
+        binding.linearLayout.visibility = View.VISIBLE
+        binding.loadingAnimation.cancelAnimation()
+    }
+
+    private fun showProgressBar() {
+        binding.loadingAnimation.visibility = View.VISIBLE
+        binding.linearLayout.visibility = View.INVISIBLE
+        binding.loadingAnimation.playAnimation()
     }
 }
 

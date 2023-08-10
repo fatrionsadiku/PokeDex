@@ -9,8 +9,8 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchInput"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_height="wrap_content"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
@@ -19,7 +19,7 @@
         app:boxBackgroundColor="#10FFFFFF"
         app:endIconDrawable="@drawable/baseline_clear_24"
         app:endIconMode="clear_text"
-        app:layout_constraintEnd_toStartOf="@id/filterPokemons"
+        app:layout_constraintEnd_toStartOf="@id/filterPokemonPhotos"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -28,19 +28,29 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/white"
+            android:completionThreshold="3"
             android:drawableStart="@drawable/baseline_search_24"
             android:drawablePadding="10dp"
             android:imeOptions="actionDone"
-            android:completionThreshold="3"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
-        android:id="@+id/filterPokemons"
+        android:id="@+id/filterPokemonPhotos"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/baseline_filter_list_24"
+        app:layout_constraintBottom_toBottomOf="@id/searchInput"
+        app:layout_constraintEnd_toStartOf="@id/filterPokemonByName"
+        app:layout_constraintTop_toTopOf="@id/searchInput" />
+
+    <ImageView
+        android:id="@+id/filterPokemonByName"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginEnd="18dp"
-        android:src="@drawable/baseline_filter_list_24"
+        android:src="@drawable/baseline_sort_by_alpha_24"
         app:layout_constraintBottom_toBottomOf="@id/searchInput"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/searchInput" />
@@ -66,6 +76,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchInput" />
+
+    <com.reddit.indicatorfastscroll.FastScrollerView
+        android:id="@+id/fastscroller"
+        android:layout_width="32dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/recyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/recyclerView" />
+
+    <com.reddit.indicatorfastscroll.FastScrollerThumbView
+        android:id="@+id/fastscroller_thumb"
+        android:layout_width="40dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/fastscroller"
+        app:layout_constraintEnd_toStartOf="@id/fastscroller"
+        app:layout_constraintTop_toTopOf="@id/fastscroller" />
+
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/paginationProgressBar"

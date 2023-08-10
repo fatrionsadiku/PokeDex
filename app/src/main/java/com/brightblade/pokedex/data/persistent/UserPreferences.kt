@@ -23,7 +23,9 @@ enum class HideDetails {
 
 enum class SortOrder {
     BY_ID_DESCENDING,
-    BY_ID_ASCENDING
+    BY_ID_ASCENDING,
+    BY_NAME_DESCENDING,
+    BY_NAME_ASCENDING
 }
 
 enum class PokemonPhotoTypes {

@@ -61,6 +61,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/nextPokemonButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/baseline_arrow_right_24"
+        app:layout_constraintBottom_toBottomOf="@id/pokemon_photo"
+        app:layout_constraintStart_toEndOf="@id/pokemon_photo"
+        app:layout_constraintTop_toTopOf="@id/pokemon_photo" />
+
+    <ImageView
+        android:id="@+id/previousPokemonButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/baseline_arrow_left_24"
+        app:layout_constraintBottom_toBottomOf="@id/pokemon_photo"
+        app:layout_constraintEnd_toStartOf="@id/pokemon_photo"
+        app:layout_constraintTop_toTopOf="@id/pokemon_photo" />
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="@style/Widget.AppCompat.ProgressBar"

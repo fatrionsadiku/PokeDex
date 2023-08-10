@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.brightblade.pokedex.ui.adapters.PokeAdapter
 import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.data.models.PokemonResult
 import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
@@ -14,6 +13,7 @@ import com.brightblade.pokedex.data.persistent.SortOrder
 import com.brightblade.pokedex.data.persistent.UserPreferences
 import com.brightblade.pokedex.repositories.DatabaseRepository
 import com.brightblade.pokedex.repositories.NetworkRepository
+import com.brightblade.pokedex.ui.adapters.PokeAdapter
 import com.brightblade.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,15 +30,32 @@ class HomeViewModel @Inject constructor(
     private val databaseRepository: DatabaseRepository,
     private val preferences: UserPreferences
 ) : ViewModel() {
-    val sortOrderFlow = preferences.sortOrderFlow
-    val pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
-    val totalNumberOfFavs = databaseRepository.getTotalNumberOfFavs().asLiveData()
-    val favoritePokemons = databaseRepository.getFavoritePokemons().asLiveData()
-    val doesDatabaseHaveITems = databaseRepository.doesDatabaseHaveItems().asLiveData()
-    val doesCachedPokemonDatabaseHaveItems = databaseRepository.doesCachedDatabaseHaveItems().asLiveData()
+    private val sortOrderFlow = preferences.sortOrderFlow
+
+    private val _pokemonResponse = MutableLiveData<Resource<List<PokemonResult>>>()
+    val pokemonResponse
+        get() = _pokemonResponse
+
+    private val _totalNumberOfFavs = databaseRepository.getTotalNumberOfFavs().asLiveData()
+    val totalNumberOfFavs
+        get() = _totalNumberOfFavs
+
+    private val _favoritePokemons = databaseRepository.getFavoritePokemons().asLiveData()
+    val favoritePokemons
+        get() = _favoritePokemons
+
+    private val _doesDatabaseHaveITems = databaseRepository.doesDatabaseHaveItems().asLiveData()
+    val doesDatabaseHaveItems
+        get() = _doesDatabaseHaveITems
+
     val pokemonPhotoTypeFlow = preferences.pokemonPhotoTypeFlow
+
+    val pokemonSortOrderFlow = preferences.sortOrderFlow
+
     val currentPokemoneQuery = MutableStateFlow("")
+
     var recyclerViewState: Parcelable? = null
+
     val doesAdapterHaveItems = MutableLiveData(false)
 
     init {
@@ -50,7 +67,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getPokemonResponse(sortOrder: SortOrder) = viewModelScope.launch {
         networkRepository.getCachedPokemons(sortOrder).collectLatest {
-            pokemonResponse.postValue(it)
+            _pokemonResponse.postValue(it)
         }
     }
 
@@ -72,10 +89,10 @@ class HomeViewModel @Inject constructor(
     }
     fun filterPokemonByName(adapter: PokeAdapter) = viewModelScope.launch {
         currentPokemoneQuery.collectLatest {currentPokeQuery ->
-            this@HomeViewModel.pokemonResponse.value?.let {pokemons ->
+            this@HomeViewModel._pokemonResponse.value?.let { pokemons ->
                 adapter.pokemons = (pokemons.data?.filter {
                     val charSequence: CharSequence = currentPokeQuery
-                    it.name.contains(charSequence,true)
+                    it.name.contains(charSequence, true)
                 } ?: pokemons.data)!!
             }
         }

@@ -21,7 +21,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.FavoritePokemon
+import com.brightblade.pokedex.data.models.PokemonResult
 import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
+import com.brightblade.pokedex.data.persistent.SortOrder
 import com.brightblade.pokedex.databinding.FragmentHomeBinding
 import com.brightblade.pokedex.ui.PokeSplashScreen
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
@@ -46,23 +48,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private val pokeAdapter: PokeAdapter =
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private var favoriteStatusToast: Toast? = null
-    private lateinit var powerMenu: PowerMenu
+    private var listOfPokemons: List<PokemonResult>? = null
+    private lateinit var pokePhotoPowerMenu: PowerMenu
+    private lateinit var pokeSortyByNamePowerMenu: PowerMenu
     private var doubleBackToExitOnce = false
     private var pokemonPhotoType: String = ""
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        observePokemonPhotoType()
-        setUpPowerMenu()
-        setUpPokeRecyclerView()
-        setUpPokeFiltering()
-        fetchApiData()
-        onBackPressed()
-        setUpPokeSortOrder()
-        viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
-            requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
-        }
-    }
+    private var sortOrderType: String = ""
 
     override fun onPause() {
         super.onPause()
@@ -86,15 +77,42 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         viewModel.recyclerViewState = state
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        fetchApiData()
+        observePokemonSortOrder()
+        observePokemonPhotoType()
+        setUpPokemonPhotoPowerMenu()
+        setUpPokemonNameOrderPowerMenu()
+        setUpPokeRecyclerView()
+        setUpPokeFiltering()
+        onBackPressed()
+        setUpPokeSortOrder()
+        setUpPokePhotoType()
+        observeBottomNaw()
+    }
+
+    private fun observeBottomNaw() {
+        viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
+            requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
+        }
+    }
+
     override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch {
             doesItemExist(viewModel.doesPokemonExist(itemName))
         }
     }
 
+    private fun setUpPokePhotoType() {
+        binding.filterPokemonPhotos.setOnClickListener {
+            pokePhotoPowerMenu.showAsDropDown(it)
+        }
+    }
+
     private fun setUpPokeSortOrder() {
-        binding.filterPokemons.setOnClickListener {
-            powerMenu.showAsDropDown(it)
+        binding.filterPokemonByName.setOnClickListener {
+            pokeSortyByNamePowerMenu.showAsDropDown(it)
         }
     }
 
@@ -123,9 +141,10 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 is Resource.Success -> {
                     hideProgressBar()
                     viewModel.doesAdapterHaveItems.value = true
+                    pokeAdapter.pokemons = response.data!!
+                    listOfPokemons = response.data
                 }
             }
-            pokeAdapter.pokemons = response.data!!
         }
     }
 
@@ -209,11 +228,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         }
 
     private fun hideProgressBar() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            binding.paginationProgressBar.visibility = View.INVISIBLE
-            binding.paginationProgressBar.cancelAnimation()
-            binding.recyclerView.setPadding(0, 0, 0, 0)
-        }
+        binding.paginationProgressBar.visibility = View.INVISIBLE
+        binding.paginationProgressBar.cancelAnimation()
+        binding.recyclerView.setPadding(0, 0, 0, 0)
         isLoading = false
     }
 
@@ -224,28 +241,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         isLoading = true
     }
 
-    var isLoading = false
-    var isScrolling = false
-
-    private val scrollListener = object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
-            when (newState) {
-                RecyclerView.SCROLL_STATE_DRAGGING -> {
-                    doubleBackToExitOnce = false
-                    isScrolling = true
-                }
-
-                RecyclerView.SCROLL_STATE_SETTLING -> {
-                    isScrolling = true
-                }
-
-                RecyclerView.SCROLL_STATE_IDLE     -> {
-                    isScrolling = false
-                }
-            }
-        }
-    }
 
     private fun observePokemonPhotoType() {
         lifecycleScope.launch {
@@ -253,25 +248,25 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 when (photoType.photoType) {
                     PokemonPhotoTypes.HOME       -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.HOME)
-                        pokemonPhotoType = "home"
+                        pokemonPhotoType = PokemonPhotoTypes.HOME.name.lowercase()
                         true
                     }
 
                     PokemonPhotoTypes.OFFICIAL   -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
-                        pokemonPhotoType = "official"
+                        pokemonPhotoType = PokemonPhotoTypes.OFFICIAL.name.lowercase()
                         true
                     }
 
                     PokemonPhotoTypes.DREAMWORLD -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.DREAMWORLD)
-                        pokemonPhotoType = "dreamworld"
+                        pokemonPhotoType = PokemonPhotoTypes.DREAMWORLD.name.lowercase()
                         true
                     }
 
                     PokemonPhotoTypes.XYANI      -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.XYANI)
-                        pokemonPhotoType = "xyani"
+                        pokemonPhotoType = PokemonPhotoTypes.XYANI.name.lowercase()
                         true
                     }
 
@@ -280,22 +275,45 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         }
     }
 
-    private fun setUpPowerMenu() {
-        powerMenu = PowerMenu.Builder(requireContext())
-            .addItem(PowerMenuItem("Official", pokemonPhotoType == "official"))
-            .addItem(PowerMenuItem("Dreamworld", pokemonPhotoType == "dreamworld"))
-            .addItem(PowerMenuItem("Xyani", pokemonPhotoType == "xyani"))
-            .addItem(PowerMenuItem("Home", pokemonPhotoType == "home"))
-            .setAnimation(MenuAnimation.FADE)
-            .setMenuRadius(10f) // sets the corner radius.
-            .setMenuShadow(10f) // sets the shadow.
-            .setTextGravity(Gravity.CENTER)
-            .setTextTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD))
-            .setSelectedTextColor(Color.WHITE)
-            .setMenuColor(Color.WHITE)
-            .setSelectedMenuColor(ContextCompat.getColor(requireContext(), R.color.purple_500))
+    private fun observePokemonSortOrder() {
+        lifecycleScope.launch {
+            viewModel.pokemonSortOrderFlow.first { sortOrder ->
+                when (sortOrder.sortOrder) {
+                    SortOrder.BY_ID_ASCENDING    -> {
+                        sortOrderType = SortOrder.BY_ID_ASCENDING.name.lowercase()
+                        true
+                    }
+
+                    SortOrder.BY_ID_DESCENDING   -> {
+                        sortOrderType = SortOrder.BY_ID_DESCENDING.name.lowercase()
+                        true
+                    }
+
+                    SortOrder.BY_NAME_ASCENDING  -> {
+                        sortOrderType = SortOrder.BY_NAME_ASCENDING.name.lowercase()
+                        true
+                    }
+
+                    SortOrder.BY_NAME_DESCENDING -> {
+                        sortOrderType = SortOrder.BY_NAME_DESCENDING.name.lowercase()
+                        true
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setUpPokemonPhotoPowerMenu() {
+        pokePhotoPowerMenu = PowerMenu.Builder(requireContext())
+            .addPowerMenuItems(
+                PowerMenuItem("Official", pokemonPhotoType == "official"),
+                PowerMenuItem("Dreamworld", pokemonPhotoType == "dreamworld"),
+                PowerMenuItem("Xyani", pokemonPhotoType == "xyani"),
+                PowerMenuItem("Home", pokemonPhotoType == "home")
+            )
+            .addGenericItems()
             .setOnMenuItemClickListener { position, item ->
-                powerMenu.selectedPosition = position
+                pokePhotoPowerMenu.selectedPosition = position
                 when (item.title) {
                     "Official"   -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
@@ -325,7 +343,72 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                         binding.recyclerView.adapter = myAdapter
                     }
                 }
-                powerMenu.dismiss()
+                pokePhotoPowerMenu.dismiss()
+            }
+            .build()
+    }
+
+    private fun setUpPokemonNameOrderPowerMenu() {
+        pokeSortyByNamePowerMenu = PowerMenu.Builder(requireContext())
+            .addGenericItems()
+            .addPowerMenuItems(
+                PowerMenuItem(
+                    "nAsc",
+                    sortOrderType == SortOrder.BY_NAME_ASCENDING.name.lowercase()
+                ),
+                PowerMenuItem(
+                    "nDsc",
+                    sortOrderType == SortOrder.BY_NAME_DESCENDING.name.lowercase()
+                ),
+                PowerMenuItem(
+                    "iAsc",
+                    sortOrderType == SortOrder.BY_ID_ASCENDING.name.lowercase()
+                ),
+                PowerMenuItem(
+                    "iDsc",
+                    sortOrderType == SortOrder.BY_ID_DESCENDING.name.lowercase()
+                )
+            )
+            .setOnMenuItemClickListener { position, item ->
+                pokeSortyByNamePowerMenu.selectedPosition = position
+                when (item.title) {
+                    "nAsc" -> {
+                        viewModel.onSortOrderChanged(SortOrder.BY_NAME_ASCENDING)
+                        val myAdapter =
+                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+                        myAdapter.pokemons =
+                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
+                        binding.recyclerView.adapter = myAdapter
+                    }
+
+                    "nDsc" -> {
+                        viewModel.onSortOrderChanged(SortOrder.BY_NAME_DESCENDING)
+                        val myAdapter =
+                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+                        myAdapter.pokemons =
+                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
+                        binding.recyclerView.adapter = myAdapter
+                    }
+
+                    "iAsc" -> {
+                        viewModel.onSortOrderChanged(SortOrder.BY_ID_ASCENDING)
+                        val myAdapter =
+                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+                        myAdapter.pokemons =
+                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
+                        binding.recyclerView.adapter = myAdapter
+                    }
+
+                    "iDsc" -> {
+                        viewModel.onSortOrderChanged(SortOrder.BY_ID_DESCENDING)
+                        val myAdapter =
+                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+                        myAdapter.pokemons =
+                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
+                        binding.recyclerView.adapter = myAdapter
+                    }
+                }
+                pokeSortyByNamePowerMenu.dismiss()
             }
             .build()
     }
@@ -347,6 +430,50 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                 true  -> navigateBackToSelectionScreen()
             }
         }
+    }
+
+    var isLoading = false
+    var isScrolling = false
+
+    private val scrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            when (newState) {
+                RecyclerView.SCROLL_STATE_DRAGGING -> {
+                    doubleBackToExitOnce = false
+                    isScrolling = true
+                }
+
+                RecyclerView.SCROLL_STATE_SETTLING -> {
+                    isScrolling = true
+                }
+
+                RecyclerView.SCROLL_STATE_IDLE     -> {
+                    isScrolling = false
+                }
+            }
+        }
+    }
+
+    private fun PowerMenu.Builder.addGenericItems(): PowerMenu.Builder {
+        this.setAnimation(MenuAnimation.FADE)
+            .setMenuRadius(10f) // sets the corner radius.
+            .setMenuShadow(10f) // sets the shadow.
+            .setTextGravity(Gravity.CENTER)
+            .setTextTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD))
+            .setSelectedTextColor(Color.WHITE)
+            .setMenuColor(Color.WHITE)
+            .setSelectedMenuColor(ContextCompat.getColor(requireContext(), R.color.purple_500))
+        return this
+    }
+
+    private fun PowerMenu.Builder.addPowerMenuItems(vararg items: PowerMenuItem): PowerMenu.Builder {
+        items.forEach {
+            this.addItem(
+                it
+            )
+        }
+        return this
     }
 
     private fun navigateBackToSelectionScreen() =

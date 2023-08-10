@@ -18,6 +18,7 @@ import com.brightblade.utils.Utility
 import com.brightblade.utils.third
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import retrofit2.awaitResponse
@@ -31,24 +32,31 @@ class PokeDetailsSharedViewModel @Inject constructor(
 ) : ViewModel() {
 
     val singlePokemonResponse = MutableLiveData<Resource<Pokemon>>()
+
     private val pokemonResponse = MutableLiveData<Pokemon?>()
-    val abilitiesResponse = MutableLiveData<List<PokeAbilities?>>()
-    val pokemonSpeciesResponse = MutableLiveData<PokemonEvolutionChain?>()
+
+    val abilitiesResponse = MutableLiveData<Resource<List<PokeAbilities?>>>()
+
+    val pokemonSpeciesResponse = MutableLiveData<Resource<PokemonEvolutionChain?>>()
+
     val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
+
     val preferencesFlow = userPreferences.preferencesFlow
+
     val hideDetailsFlow = userPreferences.hideDetailsFlow
+
     var pokemonDescription = MutableLiveData<Resource<List<String>>>()
 
-    fun getSinglePokemonByName(pokemonName: String, pokemonId: Int) = viewModelScope.launch {
+    fun getSinglePokemonByName(pokemonId: Int) = viewModelScope.launch {
 //        val time = measureTimeMillis {
         pokemonDescription.postValue(Resource.Loading())
         singlePokemonResponse.postValue(Resource.Loading())
         try {
-            val response = repository.getSinglePokemonByName(pokemonName)
+            val response = repository.getSinglePokemonByName(pokemonId)
             singlePokemonResponse.postValue(handleApiResponse(response))
             pokemonResponse.postValue(handleApiResponse(response).data)
             val abilities = getPokemonAbilitiesByName(response.body())
-            abilitiesResponse.postValue(abilities)
+            abilitiesResponse.postValue(Resource.Success(abilities))
             pokemonHeldItems.postValue(Resource.Loading())
             val heldItems = getPokemonHeldItems(response.body())
             pokemonHeldItems.postValue(Resource.Success(heldItems))
@@ -89,11 +97,13 @@ class PokeDetailsSharedViewModel @Inject constructor(
     }
 
     private fun getPokemonSpecies(id: Int) = viewModelScope.launch {
+        pokemonSpeciesResponse.postValue(Resource.Loading())
         val pokeSpecies = repository.getPokemonSpecies(id)
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
-            pokemonSpeciesResponse.postValue(pokeSpecies.body())
-        }
+            delay(500)
+            pokemonSpeciesResponse.postValue(Resource.Success(pokeSpecies.body()))
+        } else pokemonSpeciesResponse.postValue(Resource.Error(message = "Error while trying to fetch pokemon data"))
     }
 
     private suspend fun getPokemonHeldItems(pokemon: Pokemon?): List<PokeHeldItems?> {
@@ -112,6 +122,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     private suspend fun getPokemonAbilitiesByName(pokemon: Pokemon?): MutableList<PokeAbilities?> {
         val pokeAbilities = mutableListOf<PokeAbilities?>()
+        abilitiesResponse.postValue(Resource.Loading())
         pokemon?.abilities?.forEach {
             val currentPokemonAbilityName = it?.ability?.name?.trim()
             val pokeAbility = viewModelScope.async {
@@ -120,7 +131,6 @@ class PokeDetailsSharedViewModel @Inject constructor(
             pokeAbilities.add(pokeAbility.await().body())
 
         }
-        pokeAbilities
         return pokeAbilities
     }
 

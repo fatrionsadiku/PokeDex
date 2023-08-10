@@ -41,6 +41,10 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
         setUpPokeRecyclerView()
         onBackPressed()
         doFavoritePokemonsExist()
+        observeBottomNav()
+    }
+
+    private fun observeBottomNav() {
         viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
             requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
         }
@@ -114,7 +118,7 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
     }
 
     private fun doFavoritePokemonsExist() {
-        viewModel.doesDatabaseHaveITems.observe(viewLifecycleOwner) { doesDbHaveItems ->
+        viewModel.doesDatabaseHaveItems.observe(viewLifecycleOwner) { doesDbHaveItems ->
             when (doesDbHaveItems) {
                 true  -> {
                     binding.noFavPokemons.apply {

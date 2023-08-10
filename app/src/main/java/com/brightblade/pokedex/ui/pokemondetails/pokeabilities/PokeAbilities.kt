@@ -9,6 +9,8 @@ import android.view.ViewGroup.LayoutParams
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.viewbinding.ViewBinding
 import coil.load
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.PokeHeldItems
@@ -26,10 +28,13 @@ import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
     val binding by viewBinding(FragmentPokemonAbilitiesBinding::bind)
+    private val TAG = "PokeAbilitiesTag"
     private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
 
     override fun onStop() {
@@ -39,34 +44,55 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        observePokemonHeldItems()
+        observePokemonAbilities()
+    }
 
-
+    private fun observePokemonAbilities() {
         binding.apply {
             pokeDetailsHolder.removeAllViews()
-            viewModel.abilitiesResponse.apply {
-                observe(viewLifecycleOwner) { pokeAbility ->
-                    if (pokeAbility.isNotEmpty()) pokeAbility?.forEach {
-                        val pokeAbilityTitle = it?.name?.capitalize() ?: "Missing Data"
-                        val pokeAbilityDescription =
-                            if (it?.effectEntries?.getOrNull(1) != null) it.effectEntries[1]?.effect else it?.effectEntries?.get(
-                                0
-                            )?.effect
-                        val pokemonAbility = PokeAbilitiesLayout(
-                            requireContext(),
-                            pokeAbilityTitle,
-                            pokeAbilityDescription
-                        )
-                        pokeDetailsHolder.addView(pokemonAbility)
+            viewModel.abilitiesResponse.observe(viewLifecycleOwner) { pokeAbilityResponse ->
+                when (pokeAbilityResponse) {
+                    is Resource.Error   -> {
+                        hideProgressBar()
+                        Log.e(TAG, "An error occurred while fetching abilities")
+                    }
+
+                    is Resource.Loading -> showProgressBar()
+                    is Resource.Success -> {
+                        lifecycleScope.launch {
+                            delay(500)
+                            hideProgressBar()
+                            if (pokeAbilityResponse.data?.isNotEmpty() == true) pokeAbilityResponse.data.forEach {
+                                val pokeAbilityTitle = it?.name?.capitalize() ?: "Missing Data"
+                                val pokeAbilityDescription =
+                                    if (it?.effectEntries?.getOrNull(1) != null) it.effectEntries[1]?.effect else it?.effectEntries?.get(
+                                        0
+                                    )?.effect
+                                val pokemonAbility = PokeAbilitiesLayout(
+                                    requireContext(),
+                                    pokeAbilityTitle,
+                                    pokeAbilityDescription
+                                )
+                                pokeDetailsHolder.addView(pokemonAbility)
+                            }
+                        }
                     }
                 }
             }
-            viewModel.pokemonHeldItems.observe(viewLifecycleOwner) { response ->
-                when (response) {
-                    is Resource.Error -> Log.e("PokeAbilities", "${response.message}")
-                    is Resource.Loading -> showProgressBar()
-                    is Resource.Success -> {
+
+        }
+    }
+
+    private fun observePokemonHeldItems() {
+        viewModel.pokemonHeldItems.observe(viewLifecycleOwner) { response ->
+            when (response) {
+                is Resource.Error   -> Log.e("PokeAbilities", "${response.message}")
+                is Resource.Loading -> {}
+                is Resource.Success -> {
+                    lifecycleScope.launch {
+                        delay(500)
                         binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()
-                        hideProgressBar()
                         response.data.forEach { heldItem ->
                             val currentHeldItem = ImageView(requireContext()).apply {
                                 this.layoutParams = LayoutParams(
@@ -87,8 +113,8 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
                         }
                     }
                 }
-
             }
+
         }
     }
 
@@ -96,11 +122,41 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
         val heldItemsDialog =
             DialogHeldItemBinding.inflate(LayoutInflater.from(requireContext()))
         val balloon = Balloon.Builder(context)
-            .setWidthRatio(1f)
+            .addGenericAttributes(heldItemsDialog)
+            .build()
+        balloon.getContentView().apply {
+            findViewById<MaterialTextView>(R.id.itemTitle).text =
+                heldItem?.name?.replace("-", " ")?.capitalize()
+            findViewById<MaterialTextView>(R.id.itemEffect).text = "\n ${
+                heldItem?.effectEntries?.first()?.effect?.replace("\n", "")
+                    ?.replace(".", ".\n\n")
+            }"
+
+        }
+        balloon.showAlignTop(view)
+    }
+
+    private fun hideProgressBar() {
+        binding.loadingAnimation.visibility = View.INVISIBLE
+        binding.pokeItemsHolder.visibility = View.VISIBLE
+        binding.pokeDetailsHolder.visibility = View.VISIBLE
+        binding.loadingAnimation.cancelAnimation()
+    }
+
+    private fun showProgressBar() {
+        binding.loadingAnimation.visibility = View.VISIBLE
+        binding.pokeItemsHolder.visibility = View.INVISIBLE
+        binding.pokeDetailsHolder.visibility = View.INVISIBLE
+        binding.hasNoHeldItems.visibility = View.INVISIBLE
+        binding.loadingAnimation.playAnimation()
+    }
+
+    private fun <T : ViewBinding> Balloon.Builder.addGenericAttributes(viewBinding: T): Balloon.Builder =
+        this.setWidthRatio(1f)
             .setWidth(BalloonSizeSpec.WRAP)
             .setHeight(BalloonSizeSpec.WRAP)
             .setTextSize(15f)
-            .setLayout(heldItemsDialog)
+            .setLayout(viewBinding)
             .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
             .setArrowSize(10)
             .setArrowPosition(0.5f)
@@ -108,28 +164,8 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
             .setCornerRadius(8f)
             .setBackgroundColorResource(R.color.white)
             .setBalloonAnimation(BalloonAnimation.FADE)
-            .setLifecycleOwner(viewLifecycleOwner)
-            .build()
-        balloon.getContentView().apply {
-            findViewById<MaterialTextView>(R.id.itemTitle).text =
-                heldItem?.name?.replace("-", " ")?.capitalize()
-            findViewById<MaterialTextView>(R.id.itemEffect).text =
-                "\n ${
-                    heldItem?.effectEntries?.first()?.effect?.replace("\n", "")
-                        ?.replace(".", ".\n\n")
-                }"
-        }
-        balloon.showAlignTop(view)
-    }
-
-    private fun showProgressBar() {
-        binding.paginationProgressBar.visibility = View.VISIBLE
-        binding.paginationProgressBar.playAnimation()
-    }
-
-    private fun hideProgressBar() {
-        binding.paginationProgressBar.visibility = View.GONE
-        binding.paginationProgressBar.cancelAnimation()
-    }
+            .setLifecycleOwner(viewLifecycleOwner).also {
+                return this
+            }
 
 }
