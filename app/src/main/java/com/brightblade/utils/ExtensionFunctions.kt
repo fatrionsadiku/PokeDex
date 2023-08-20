@@ -4,8 +4,10 @@ import android.content.res.Resources
 import android.util.TypedValue
 import android.view.View
 import android.widget.EditText
+import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import com.brightblade.pokedex.ui.MainActivity
+import kotlin.properties.ReadOnlyProperty
 
 /**
  * Converts a value in density-independent pixels (dp) to pixels (px) based on the device's display metrics.
@@ -87,5 +89,14 @@ fun EditText.isNumeric(): Boolean {
     return (this.text.toString().toInt() >= 0 || this.text.toString()
         .toInt() <= 0) && this.text.toString().all { !it.isLetter() }
 }
+
+inline fun <reified R : ActivityResultLauncher<String>> Fragment.requestPermission(
+    permission: String,
+    noinline granted: (permission: String) -> Unit = {},
+    noinline denied: (permission: String) -> Unit = {},
+    noinline explained: (permission: String) -> Unit = {},
+): ReadOnlyProperty<Fragment, R> =
+    PermissionResultDelegate(this, permission, granted, denied, explained)
+
 
 

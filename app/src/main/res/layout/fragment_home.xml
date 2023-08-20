@@ -77,23 +77,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchInput" />
 
-    <com.reddit.indicatorfastscroll.FastScrollerView
-        android:id="@+id/fastscroller"
-        android:layout_width="32dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/recyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/recyclerView" />
-
-    <com.reddit.indicatorfastscroll.FastScrollerThumbView
-        android:id="@+id/fastscroller_thumb"
-        android:layout_width="40dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/fastscroller"
-        app:layout_constraintEnd_toStartOf="@id/fastscroller"
-        app:layout_constraintTop_toTopOf="@id/fastscroller" />
-
-
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/paginationProgressBar"
         android:layout_width="65dp"

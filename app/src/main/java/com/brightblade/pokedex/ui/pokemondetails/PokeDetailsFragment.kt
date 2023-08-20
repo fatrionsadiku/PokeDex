@@ -16,7 +16,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import androidx.core.app.ActivityCompat
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
@@ -34,6 +34,7 @@ import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.brightblade.utils.Resource
 import com.brightblade.utils.capitalize
+import com.brightblade.utils.requestPermission
 import com.google.android.material.tabs.TabLayoutMediator
 import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
@@ -49,6 +50,14 @@ import java.io.OutputStream
 
 @AndroidEntryPoint
 class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
+    private val readStoragePermissionResult: ActivityResultLauncher<String> by requestPermission(
+        WRITE_EXTERNAL_STORAGE,
+        granted = {
+            storagePermissionMessage("Storage permissions have been granted")
+        },
+        denied = {
+            storagePermissionMessage("Storage permissions have not been granted")
+        })
     val binding by viewBinding(FragmentPokemonDetailsBinding::bind)
     private val pokemonArgs by navArgs<PokeDetailsFragmentArgs>()
     private var currentPokemonName = ""
@@ -107,14 +116,13 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 if (SDK_INT >= Build.VERSION_CODES.Q) {
                     saveMediaToStorage(currentDetailsScreen)
                 } else {
-                    if (!checkPermission()) {
-                        verifyStoragePermissions()
+                    if (!checkPermission(WRITE_EXTERNAL_STORAGE)) {
+                        readStoragePermissionResult.launch(WRITE_EXTERNAL_STORAGE)
                     } else saveMediaToStorage(currentDetailsScreen)
                 }
             }
         }
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         pokeViewModel.pokemonDescription.value = null
@@ -344,33 +352,26 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     The function checks if each permission is granted using ActivityCompat.checkSelfPermission().
     If any permission is not granted, it requests the permissions using ActivityCompat.requestPermissions().
      */
-    private fun verifyStoragePermissions() {
-        val PERMISSIONS_STORAGE = arrayOf(
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            WRITE_EXTERNAL_STORAGE
-        )
-        for (permission in PERMISSIONS_STORAGE) {
-            val currentPermission = ActivityCompat.checkSelfPermission(
-                requireActivity(),
-                permission
-            )
-            if (currentPermission != PackageManager.PERMISSION_GRANTED) {
-                // We don't have permission so prompt the user
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    PERMISSIONS_STORAGE,
-                    1
-                )
-            }
-        }
-    }
+//    private fun verifyStoragePermissions(): Boolean {
+//        val writeExternalPermission = WRITE_EXTERNAL_STORAGE
+//        val currentPermission = ActivityCompat.checkSelfPermission(
+//            requireActivity(),
+//            writeExternalPermission
+//        )
+//        if (currentPermission != PackageManager.PERMISSION_GRANTED) {
+//            // We don't have permission so prompt the user
+//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(WRITE_EXTERNAL_STORAGE),1)
+//        }
+//
+//        return currentPermission == PackageManager.PERMISSION_GRANTED
+//    }
 
     /**
      * Used to check storage permissions on devices running on Android SDK 29 and lower
      * @return Storage Permission State
      */
-    private fun checkPermission(): Boolean {
-        val result = ContextCompat.checkSelfPermission(requireContext(), WRITE_EXTERNAL_STORAGE)
+    private fun checkPermission(permissionName: String): Boolean {
+        val result = ContextCompat.checkSelfPermission(requireContext(), permissionName)
         return result == PackageManager.PERMISSION_GRANTED
     }
 
@@ -443,6 +444,20 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 }
             }
         }
+    }
+
+    private fun storagePermissionMessage(message: String) {
+        Toastic.toastic(
+            context = requireContext(),
+            message = message,
+            duration = Toastic.LENGTH_SHORT,
+            type = Toastic.DEFAULT,
+            isIconAnimated = true,
+            customIcon = R.drawable.pokeball,
+            font = R.font.ryogothic,
+            textColor = Color.BLACK,
+            customIconAnimation = R.anim.rotate_anim
+        ).show()
     }
 
     private fun showProgressBar() {
