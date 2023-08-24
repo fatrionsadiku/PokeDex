@@ -25,12 +25,12 @@ import com.brightblade.pokedex.data.models.PokemonResult
 import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
 import com.brightblade.pokedex.data.persistent.SortOrder
 import com.brightblade.pokedex.databinding.FragmentHomeBinding
+import com.brightblade.pokedex.ui.MainActivity
 import com.brightblade.pokedex.ui.PokeSplashScreen
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.PokeAdapter
 import com.brightblade.utils.Resource
 import com.brightblade.utils.capitalize
-import com.brightblade.utils.isNumeric
 import com.brightblade.utils.requireMainActivity
 import com.skydoves.powermenu.MenuAnimation
 import com.skydoves.powermenu.PowerMenu
@@ -40,15 +40,18 @@ import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import nl.joery.animatedbottombar.AnimatedBottomBar
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
+class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
+    MainActivity.OnHomeButtonReselected {
     private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
     private val pokeAdapter: PokeAdapter =
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private var favoriteStatusToast: Toast? = null
     private var listOfPokemons: List<PokemonResult>? = null
+    private lateinit var recyclerView: RecyclerView
     private lateinit var pokePhotoPowerMenu: PowerMenu
     private lateinit var pokeSortyByNamePowerMenu: PowerMenu
     private var doubleBackToExitOnce = false
@@ -58,7 +61,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     override fun onPause() {
         super.onPause()
         Log.d("RecyclerView Activity", "onPause: ")
-        val state = binding.recyclerView.layoutManager?.onSaveInstanceState()
+        val state = recyclerView.layoutManager?.onSaveInstanceState()
         viewModel.recyclerViewState = state
     }
 
@@ -67,24 +70,24 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         Log.d("RecyclerView Activity", "onResume: ")
         val currentSavedState = viewModel.recyclerViewState
         if (currentSavedState != null) {
-            binding.recyclerView.layoutManager?.onRestoreInstanceState(currentSavedState)
+            recyclerView.layoutManager?.onRestoreInstanceState(currentSavedState)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        val state = binding.recyclerView.layoutManager?.onSaveInstanceState()
+        val state = recyclerView.layoutManager?.onSaveInstanceState()
         viewModel.recyclerViewState = state
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setUpPokeRecyclerView()
         fetchApiData()
         observePokemonSortOrder()
         observePokemonPhotoType()
         setUpPokemonPhotoPowerMenu()
         setUpPokemonNameOrderPowerMenu()
-        setUpPokeRecyclerView()
         setUpPokeFiltering()
         onBackPressed()
         setUpPokeSortOrder()
@@ -92,42 +95,15 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
         observeBottomNaw()
     }
 
-    private fun observeBottomNaw() {
-        viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
-            requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
+    private fun setUpPokeRecyclerView() {
+        recyclerView = binding.recyclerView
+        recyclerView.apply {
+            adapter = this@HomeFragment.pokeAdapter
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(requireContext())
+            addOnScrollListener(this@HomeFragment.scrollListener)
         }
     }
-
-    override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
-        viewLifecycleOwner.lifecycleScope.launch {
-            doesItemExist(viewModel.doesPokemonExist(itemName))
-        }
-    }
-
-    private fun setUpPokePhotoType() {
-        binding.filterPokemonPhotos.setOnClickListener {
-            pokePhotoPowerMenu.showAsDropDown(it)
-        }
-    }
-
-    private fun setUpPokeSortOrder() {
-        binding.filterPokemonByName.setOnClickListener {
-            pokeSortyByNamePowerMenu.showAsDropDown(it)
-        }
-    }
-
-    private fun setUpPokeRecyclerView() =
-        try {
-            binding.recyclerView.apply {
-                adapter = this@HomeFragment.pokeAdapter
-                setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(requireContext())
-                addOnScrollListener(this@HomeFragment.scrollListener)
-            }
-
-        } catch (e: Exception) {
-            Log.e("Error fetching poke", "setUpPokeRecyclerView: ${e.toString()}")
-        }
 
 
     private fun fetchApiData() {
@@ -153,7 +129,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
             this.addTextChangedListener { query ->
                 viewModel.currentPokemoneQuery.value = query.toString()
                 viewModel.filterPokemonByName(pokeAdapter)
-                Log.d("IsNumeric", "${this.isNumeric()}")
             }
             setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -230,14 +205,14 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
     private fun hideProgressBar() {
         binding.paginationProgressBar.visibility = View.INVISIBLE
         binding.paginationProgressBar.cancelAnimation()
-        binding.recyclerView.setPadding(0, 0, 0, 0)
+        recyclerView.setPadding(0, 0, 0, 0)
         isLoading = false
     }
 
     private fun showProgressBar() {
         binding.paginationProgressBar.visibility = View.VISIBLE
         binding.paginationProgressBar.playAnimation()
-        binding.recyclerView.setPadding(0, 0, 0, 130)
+        recyclerView.setPadding(0, 0, 0, 130)
         isLoading = true
     }
 
@@ -318,29 +293,29 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                     "Official"   -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.OFFICIAL)
-                        val myAdapter = binding.recyclerView.adapter
-                        binding.recyclerView.adapter = myAdapter
+                        val myAdapter = recyclerView.adapter
+                        recyclerView.swapAdapter(myAdapter, true)
                     }
 
                     "Dreamworld" -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.DREAMWORLD)
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.DREAMWORLD)
-                        val myAdapter = binding.recyclerView.adapter
-                        binding.recyclerView.adapter = myAdapter
+                        val myAdapter = recyclerView.adapter
+                        recyclerView.adapter = myAdapter
                     }
 
                     "Xyani"      -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.XYANI)
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.XYANI)
-                        val myAdapter = binding.recyclerView.adapter
-                        binding.recyclerView.adapter = myAdapter
+                        val myAdapter = recyclerView.adapter
+                        recyclerView.swapAdapter(myAdapter, true)
                     }
 
                     "Home"       -> {
                         pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.HOME)
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.HOME)
-                        val myAdapter = binding.recyclerView.adapter
-                        binding.recyclerView.adapter = myAdapter
+                        val myAdapter = recyclerView.adapter
+                        recyclerView.adapter = myAdapter
                     }
                 }
                 pokePhotoPowerMenu.dismiss()
@@ -378,7 +353,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                             PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
                         myAdapter.pokemons =
                             if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        binding.recyclerView.adapter = myAdapter
+                        recyclerView.swapAdapter(myAdapter, true)
                     }
 
                     "nDsc" -> {
@@ -387,7 +362,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                             PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
                         myAdapter.pokemons =
                             if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        binding.recyclerView.adapter = myAdapter
+                        recyclerView.adapter = myAdapter
                     }
 
                     "iAsc" -> {
@@ -396,7 +371,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                             PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
                         myAdapter.pokemons =
                             if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        binding.recyclerView.adapter = myAdapter
+                        recyclerView.adapter = myAdapter
                     }
 
                     "iDsc" -> {
@@ -405,7 +380,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                             PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
                         myAdapter.pokemons =
                             if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        binding.recyclerView.adapter = myAdapter
+                        recyclerView.adapter = myAdapter
                     }
                 }
                 pokeSortyByNamePowerMenu.dismiss()
@@ -418,12 +393,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
             when (doubleBackToExitOnce) {
                 false -> {
                     val firstVisibleItem =
-                        (binding.recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                        (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
                     if (firstVisibleItem == 0) {
                         navigateBackToSelectionScreen()
                     }
-                    if (pokeAdapter.pokemons.size > 100) binding.recyclerView.scrollToPosition(0)
-                    else binding.recyclerView.smoothScrollToPosition(0)
+                    if (pokeAdapter.pokemons.size > 100) recyclerView.scrollToPosition(0)
+                    else recyclerView.smoothScrollToPosition(0)
                     doubleBackToExitOnce = true
                 }
 
@@ -452,6 +427,33 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
                     isScrolling = false
                 }
             }
+        }
+    }
+
+    private fun observeBottomNaw() {
+        viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
+            requireMainActivity().binding.bottomNavView.setBadgeAtTabId(
+                R.id.favorites,
+                AnimatedBottomBar.Badge(it.toString())
+            )
+        }
+    }
+
+    override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            doesItemExist(viewModel.doesPokemonExist(itemName))
+        }
+    }
+
+    private fun setUpPokePhotoType() {
+        binding.filterPokemonPhotos.setOnClickListener {
+            pokePhotoPowerMenu.showAsDropDown(it)
+        }
+    }
+
+    private fun setUpPokeSortOrder() {
+        binding.filterPokemonByName.setOnClickListener {
+            pokeSortyByNamePowerMenu.showAsDropDown(it)
         }
     }
 
@@ -487,6 +489,11 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState {
             startActivity(it, animations.toBundle())
             requireActivity().finish()
         }
+
+    override fun onHomeButtonReSelected() {
+        binding.recyclerView.smoothScrollToPosition(0)
+    }
+
 
 }
 

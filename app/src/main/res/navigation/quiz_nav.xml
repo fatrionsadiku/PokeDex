@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/quiz_nav"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/homeFragment1">
 
     <fragment
-        android:id="@+id/homeFragment"
+        android:id="@+id/homeFragment1"
         android:name="com.brightblade.pokequiz.QuizHomeFragment"
         android:label="PokeAbilities"
-        tools:layout="@layout/fragment_quiz_home" >
+        tools:layout="@layout/fragment_quiz_home">
         <action
             android:id="@+id/action_homeFragment_to_quizFragment"
             app:destination="@id/quizFragment"
@@ -26,7 +26,7 @@
         >
         <action
             android:id="@+id/action_quizFragment_to_homeFragment"
-            app:destination="@id/homeFragment"
+            app:destination="@id/homeFragment1"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"

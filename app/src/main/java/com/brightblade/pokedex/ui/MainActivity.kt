@@ -3,25 +3,21 @@ package com.brightblade.pokedex.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.databinding.ActivityMainBinding
-import com.brightblade.pokedex.ui.homefragment.HomeViewModel
-import com.brightblade.utils.customviews.CustomBottomMenuItem
-import com.skydoves.androidbottombar.OnMenuItemSelectedListener
-import com.skydoves.androidbottombar.animations.BadgeAnimation
-import com.skydoves.androidbottombar.forms.badgeForm
+import com.brightblade.pokedex.ui.homefragment.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
+import nl.joery.animatedbottombar.AnimatedBottomBar
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
+    private var tabReselectedListener: OnHomeButtonReselected? = null
     val binding get() = _binding!!
-    private val viewModel: HomeViewModel by viewModels()
     private lateinit var navHost: NavHostFragment
     override fun onResume() {
         super.onResume()
@@ -42,38 +38,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setUpBottomNavBar()
+
+    }
+
+    private fun setUpBottomNavBar() {
         navHost =
             (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
         WindowCompat.setDecorFitsSystemWindows(this@MainActivity.window, false)
-
-        binding.bottomNavView.addBottomMenuItems(
-            mutableListOf(
-                CustomBottomMenuItem(this, title = "Home")
-                    .setIcon(R.drawable.baseline_home_24)
-                    .build(),
-                CustomBottomMenuItem(this, title = "Favorites")
-                    .setBadgeTextSize(12f)
-                    .setBadgeMargin(8)
-                    .setBadgeTextColorRes(R.color.white)
-                    .setBadgeColorRes(R.color.lit_blue)
-                    .setBadgeAnimation(BadgeAnimation.FADE)
-                    .setBadgeDuration(450)
-                    .setIcon(R.drawable.baseline_favorite_24)
-                    .build()
-            )
-        )
-
-        binding.bottomNavView.apply {
-            setOnBottomMenuInitializedListener {
-                badgeForm(this@MainActivity) {
-                    setBadgeTextSize(9f)
-                    setBadgePaddingLeft(20)
-                    setBadgePaddingRight(6)
-                    setBadgeDuration(550)
-                    setBadgeStyle(R.font.ryogothic)
-                }
-            }
-        }
 
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.pokeDetailsFragment2) {
@@ -87,9 +59,15 @@ class MainActivity : AppCompatActivity() {
                     duration = 200
                 }.start()
         }
-        binding.bottomNavView.onMenuItemSelectedListener =
-            OnMenuItemSelectedListener { index, _, _ ->
-                when (index) {
+        binding.bottomNavView.setOnTabSelectListener(object :
+            AnimatedBottomBar.OnTabSelectListener {
+            override fun onTabSelected(
+                lastIndex: Int,
+                lastTab: AnimatedBottomBar.Tab?,
+                newIndex: Int,
+                newTab: AnimatedBottomBar.Tab,
+            ) {
+                when (newIndex) {
                     0 -> navHost.navController.navigate(
                         resId = R.id.homeFragment,
                         args = null,
@@ -105,5 +83,21 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
             }
+
+            // An optional method that will be fired whenever an already selected tab has been selected again.
+            override fun onTabReselected(index: Int, tab: AnimatedBottomBar.Tab) {
+                when (index) {
+                    0 -> {
+                        tabReselectedListener =
+                            navHost.childFragmentManager.fragments[0] as? HomeFragment
+                        tabReselectedListener?.onHomeButtonReSelected()
+                    }
+                }
+            }
+        })
+    }
+
+    interface OnHomeButtonReselected {
+        fun onHomeButtonReSelected()
     }
 }

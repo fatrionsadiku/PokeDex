@@ -27,6 +27,7 @@ import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import nl.joery.animatedbottombar.AnimatedBottomBar
 
 @AndroidEntryPoint
 class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedItemState {
@@ -46,7 +47,10 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
 
     private fun observeBottomNav() {
         viewModel.totalNumberOfFavs.observe(viewLifecycleOwner) {
-            requireMainActivity().binding.bottomNavView.showBadge(1, "$it")
+            requireMainActivity().binding.bottomNavView.setBadgeAtTabId(
+                R.id.favorites,
+                AnimatedBottomBar.Badge(it.toString())
+            )
         }
     }
 
@@ -166,7 +170,9 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
         args = null,
         navOptions = NavOptions.Builder().setEnterAnim(R.anim.slide_in_left)
             .setExitAnim(R.anim.slide_out_right).build()
-    )
+    ).also {
+        requireMainActivity().binding.bottomNavView.selectTabAt(0, true)
+    }
 
 }
 
