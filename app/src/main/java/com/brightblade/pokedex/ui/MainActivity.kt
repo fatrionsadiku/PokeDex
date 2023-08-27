@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private var tabReselectedListener: OnHomeButtonReselected? = null
     val binding get() = _binding!!
-    lateinit var navHost: NavHostFragment
+    private lateinit var navHost: NavHostFragment
     override fun onResume() {
         super.onResume()
         Log.d("ActivityState", navHost.navController.currentDestination?.label.toString())
@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             window,
             window.decorView.findViewById(android.R.id.content)
         ).let { controller ->
-            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.hide(WindowInsetsCompat.Type.navigationBars())
         }
 
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
