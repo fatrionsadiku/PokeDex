@@ -53,6 +53,8 @@ class MainActivity : AppCompatActivity() {
             window.decorView.findViewById(android.R.id.content)
         ).let { controller ->
             controller.hide(WindowInsetsCompat.Type.navigationBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
 
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
