@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.brightblade.pokedex.R
@@ -18,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private var tabReselectedListener: OnHomeButtonReselected? = null
     val binding get() = _binding!!
-    private lateinit var navHost: NavHostFragment
+    lateinit var navHost: NavHostFragment
     override fun onResume() {
         super.onResume()
         Log.d("ActivityState", navHost.navController.currentDestination?.label.toString())
@@ -46,6 +48,12 @@ class MainActivity : AppCompatActivity() {
         navHost =
             (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
         WindowCompat.setDecorFitsSystemWindows(this@MainActivity.window, false)
+        WindowInsetsControllerCompat(
+            window,
+            window.decorView.findViewById(android.R.id.content)
+        ).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+        }
 
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.pokeDetailsFragment2) {
