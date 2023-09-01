@@ -21,6 +21,7 @@ import com.brightblade.pokedex.databinding.FragmentFavoritePokemonsBinding
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.FavoritePokemonsAdapter
 import com.brightblade.pokedex.ui.homefragment.HomeViewModel
+import com.brightblade.pokedex.ui.pokemondetails.PokemonDatabaseViewModel
 import com.brightblade.utils.capitalize
 import com.brightblade.utils.requireMainActivity
 import com.yagmurerdogan.toasticlib.Toastic
@@ -34,6 +35,7 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
     private var favoriteStatusToast: Toast? = null
     private val binding by viewBinding(FragmentFavoritePokemonsBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
+    private val pokeDbViewModel: PokemonDatabaseViewModel by activityViewModels()
     private lateinit var adapter: FavoritePokemonsAdapter
     private lateinit var recyclerView: RecyclerView
     private var doubleBackToExitOnce = false
@@ -56,7 +58,7 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
 
     override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch {
-            doesItemExist(viewModel.doesPokemonExist(itemName))
+            doesItemExist(pokeDbViewModel.doesPokemonExist(itemName))
         }
     }
 
@@ -77,9 +79,9 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
     private fun favoritePokemon(position: Int) =
         viewLifecycleOwner.lifecycleScope.launch() {
             val currentPokemon = adapter.pokemons[position]
-            when (viewModel.doesPokemonExist(currentPokemon.pokeName)) {
+            when (pokeDbViewModel.doesPokemonExist(currentPokemon.pokeName)) {
                 true  -> {
-                    viewModel.unFavoritePokemon(
+                    pokeDbViewModel.unFavoritePokemon(
                         FavoritePokemon(
                             pokeName = currentPokemon.pokeName,
                             url = currentPokemon.url
@@ -102,7 +104,7 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
                     favoriteStatusToast!!.show()
                 }
 
-                false -> viewModel.favoritePokemon(
+                false -> pokeDbViewModel.favoritePokemon(
                     FavoritePokemon(
                         pokeName = currentPokemon.pokeName,
                         url = currentPokemon.url
@@ -111,12 +113,14 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
             }
         }
 
-    private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int?) {
+    private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int?, dominantColor: Int) {
 
         val action =
             FavoritePokemonsDirections.actionFavoritePokemonsToPokeDetailsFragment2(
                 pokeName,
-                pokeId ?: 0
+                pokeId ?: 0,
+                "a",
+                dominantColor
             )
         findNavController().navigate(action)
     }

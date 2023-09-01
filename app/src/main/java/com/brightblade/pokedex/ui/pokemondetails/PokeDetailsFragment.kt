@@ -16,19 +16,22 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import coil.load
 import com.brightblade.pokedex.R
-import com.brightblade.pokedex.data.persistent.HideDetails
+import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
 import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
@@ -36,11 +39,13 @@ import com.brightblade.utils.Resource
 import com.brightblade.utils.capitalize
 import com.brightblade.utils.requestPermission
 import com.google.android.material.tabs.TabLayoutMediator
+import com.skydoves.rainbow.Rainbow
+import com.skydoves.rainbow.RainbowOrientation
+import com.skydoves.rainbow.color
+import com.skydoves.rainbow.contextColor
 import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -62,25 +67,104 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     private val pokemonArgs by navArgs<PokeDetailsFragmentArgs>()
     private var currentPokemonName = ""
     var currentPokemonId: Int = 0
-    private var hideDetails = false
+    private var favoriteStatusToast: Toast? = null
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
+    private val pokeDbViewModel: PokemonDatabaseViewModel by activityViewModels()
     private var currentViewPagerFragment: String = ""
+    private var hasNavigatedWithButtons: Boolean = false
+    private var currentPokemonLink: String = ""
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         getPokemonDetails(pokemonArgs.pokemonId)
         setUpPokeDetailsViewPager()
-        setUpDetailsState()
         onBackButtonPresed()
         saveDetailsOnClickListener()
         shareDetailsOnClickListener()
         nextPokemonOnClickListener()
         previousPokemonOnClickListener()
+        favoritePokemonOnClickListener()
+        onPokemonPhotoLongPressListener()
+        observeFavoriteState()
+    }
+
+    private fun onPokemonPhotoLongPressListener() {
+        binding.pokemonPhoto.setOnLongClickListener {
+            val pokemonPhoto = getScreenShotFromView(it)
+            checkApiAndSavePhoto(pokemonPhoto, true)
+            true
+        }
+    }
+
+    private fun observeFavoriteState() {
+        pokeDbViewModel.isPokemonFavoritedState.observe(viewLifecycleOwner) { isPokemonFavorited ->
+            when (isPokemonFavorited) {
+                true  -> binding.favoritePokemon.isChecked = true
+                false -> binding.favoritePokemon.isChecked = false
+            }
+        }
+    }
+
+    private fun favoritePokemonOnClickListener() {
+        binding.favoritePokemon.setOnClickListener {
+            lifecycleScope.launch {
+                when (pokeDbViewModel.doesPokemonExist(currentPokemonName)) {
+                    true  -> {
+                        pokeDbViewModel.unFavoritePokemon(
+                            FavoritePokemon(
+                                pokeName = currentPokemonName,
+                                url = currentPokemonLink
+                            )
+                        )
+                        if (favoriteStatusToast != null) {
+                            favoriteStatusToast!!.cancel()
+                        }
+                        favoriteStatusToast = Toastic.toastic(
+                            context = requireContext(),
+                            message = "${currentPokemonName.capitalize()} removed from favorites",
+                            duration = Toastic.LENGTH_SHORT,
+                            type = Toastic.DEFAULT,
+                            isIconAnimated = true,
+                            customIcon = R.drawable.pokeball,
+                            font = R.font.ryogothic,
+                            textColor = Color.BLACK,
+                            customIconAnimation = R.anim.rotate_anim
+                        )
+                        favoriteStatusToast!!.show()
+                    }
+
+                    false -> {
+                        pokeDbViewModel.favoritePokemon(
+                            FavoritePokemon(
+                                pokeName = currentPokemonName,
+                                url = currentPokemonLink
+                            )
+                        )
+                        if (favoriteStatusToast != null) {
+                            favoriteStatusToast!!.cancel()
+                        }
+                        favoriteStatusToast = Toastic.toastic(
+                            context = requireContext(),
+                            message = "${currentPokemonName.capitalize()} saved to favorites",
+                            duration = Toastic.LENGTH_SHORT,
+                            type = Toastic.DEFAULT,
+                            isIconAnimated = true,
+                            customIcon = R.drawable.pokeball,
+                            font = R.font.ryogothic,
+                            textColor = Color.BLACK,
+                            customIconAnimation = R.anim.rotate_anim
+                        )
+                        favoriteStatusToast!!.show()
+                    }
+                }
+            }
+        }
     }
 
     private fun previousPokemonOnClickListener() {
         binding.previousPokemonButton.setOnClickListener {
             checkIfPokeAbilitiesIsNotNull()
             getPokemonDetails(pokeId = currentPokemonId - 1)
+            hasNavigatedWithButtons = true
         }
     }
 
@@ -88,6 +172,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         binding.nextPokemonButton.setOnClickListener {
             checkIfPokeAbilitiesIsNotNull()
             getPokemonDetails(pokeId = currentPokemonId + 1)
+            hasNavigatedWithButtons = true
 
         }
     }
@@ -112,17 +197,22 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     private fun saveDetailsOnClickListener() {
         binding.saveDetails.setOnClickListener {
             val currentDetailsScreen = getScreenShotFromView(binding.root)
-            if (currentDetailsScreen != null) {
-                if (SDK_INT >= Build.VERSION_CODES.Q) {
-                    saveMediaToStorage(currentDetailsScreen)
-                } else {
-                    if (!checkPermission(WRITE_EXTERNAL_STORAGE)) {
-                        readStoragePermissionResult.launch(WRITE_EXTERNAL_STORAGE)
-                    } else saveMediaToStorage(currentDetailsScreen)
-                }
+            checkApiAndSavePhoto(currentDetailsScreen, false)
+        }
+    }
+
+    private fun checkApiAndSavePhoto(currentScreen: Bitmap?, isPokemonPhoto: Boolean) {
+        if (currentScreen != null) {
+            if (SDK_INT >= Build.VERSION_CODES.Q) {
+                saveMediaToStorage(currentScreen, isPokemonPhoto)
+            } else {
+                if (!checkPermission(WRITE_EXTERNAL_STORAGE)) {
+                    readStoragePermissionResult.launch(WRITE_EXTERNAL_STORAGE)
+                } else saveMediaToStorage(currentScreen, isPokemonPhoto)
             }
         }
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         pokeViewModel.pokemonDescription.value = null
@@ -140,46 +230,22 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 is Resource.Success -> {
                     currentPokemonId = pokeId
                     currentPokemonName = response.data?.name ?: ""
+                    currentPokemonLink = "https://pokeapi.co/api/v2/pokemon/$pokeId/"
+                    lifecycleScope.launch {
+                        pokeDbViewModel.doesPokemonExist(
+                            currentPokemonName,
+                            true
+                        )
+                    }
                     hideProgressBar()
                     fillPokemonDataOnScreen(response.data?.name ?: "", pokeId)
-                }
-            }
-        }
-        pokeViewModel.pokemonDescription.observe(viewLifecycleOwner) { descriptionResponse ->
-            when (descriptionResponse) {
-                is Resource.Error   -> {
-                    binding.pokemonDescription.text =
-                        "Whoops, this pokemon's bio seems to be missing\n we apologize for the inconvenience"
-                }
-
-                is Resource.Loading -> {
-                    binding.pokemonDescription.text = ""
-                    if (hideDetails) {
-                        binding.pokeDescriptionLoadingAnimation.apply {
-                            visibility = View.VISIBLE
-                            playAnimation()
-                        }
-                    }
-                }
-
-                is Resource.Success -> {
-                    lifecycleScope.launch {
-                        delay(500)
-                        binding.pokeDescriptionLoadingAnimation.apply {
-                            visibility = View.INVISIBLE
-                            cancelAnimation()
-                        }
-                        val stringBuilder = StringBuilder()
-                        descriptionResponse.data?.forEach { pokeDescription ->
-                            stringBuilder.append(
-                                pokeDescription.replace("\n", " ").replace(".", ".\n")
-                            )
-                                .append("\n")
-                        }
-                        binding.pokemonDescription.text = stringBuilder.toString()
-                    }
-
-
+                    setFragmentResult(
+                        "pokemon_id",
+                        bundleOf(
+                            Pair("navigation_state", hasNavigatedWithButtons),
+                            Pair("pokemon_id", pokeId - 2)
+                        )
+                    )
                 }
             }
         }
@@ -187,12 +253,24 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
 
     private fun fillPokemonDataOnScreen(pokeName: String, pokeId: Int) {
         binding.apply {
-            pokemonPhoto.load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png") {
-                crossfade(500)
-                allowHardware(false)
+            pokemonPhoto.apply {
+                load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png") {
+                    crossfade(500)
+                    allowHardware(false)
+                }
+            }
+            Rainbow(root).palette {
+                +color(pokemonArgs.dominantColor)
+                +contextColor(R.color.white)
+            }.apply {
+                background(RainbowOrientation.TOP_BOTTOM, 14)
             }
             progressBar.isVisible = false
             pokemonName.text = pokeName.capitalize()
+            pokemonId.apply {
+                val formattedId = String.format("%04d", pokeId)
+                text = "#$formattedId"
+            }
             progressBar.isVisible = false
         }
     }
@@ -263,7 +341,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     }
 
     // this method saves the image to gallery
-    private fun saveMediaToStorage(bitmap: Bitmap) {
+    private fun saveMediaToStorage(bitmap: Bitmap, isPokemonPhoto: Boolean = false) {
         // Generating a file name
         val filename =
             "PokeDex_${currentPokemonName.capitalize()}_${currentViewPagerFragment}_${System.currentTimeMillis()}.jpg"
@@ -301,7 +379,8 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
             Toastic.toastic(
                 context = requireContext(),
-                message = "${currentPokemonName.capitalize()}'s $currentViewPagerFragment saved to Gallery",
+                message = if (isPokemonPhoto) "${currentPokemonName.capitalize()}'s photo saved to Gallery"
+                else "${currentPokemonName.capitalize()}'s $currentViewPagerFragment saved to Gallery",
                 duration = Toastic.LENGTH_SHORT,
                 type = Toastic.DEFAULT,
                 isIconAnimated = true,
@@ -375,76 +454,76 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         return result == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun setUpDetailsState() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            when (pokeViewModel.hideDetailsFlow.first().detailsState) {
-                HideDetails.SHOW_ONLY_POKEMON -> {
-                    binding.hideDetailsButton.progress = 1f
-                    binding.topPartPokeDetails.visibility = View.INVISIBLE
-                    binding.pokemonDescription.visibility = View.VISIBLE
-                    hideDetails = true
-                }
-
-                HideDetails.SHOW_ALL_DETAILS  -> {
-                    binding.hideDetailsButton.progress = 0f
-                    binding.topPartPokeDetails.visibility = View.VISIBLE
-                    binding.pokemonDescription.visibility = View.INVISIBLE
-                    hideDetails = false
-                }
-            }
-        }
-        binding.hideDetailsButton.setOnClickListener {
-            if (hideDetails) {
-                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ALL_DETAILS)
-                binding.hideDetailsButton.apply {
-                    speed = -1f
-                    playAnimation()
-                    progress = 1f
-                }
-                binding.pokemonDescription.apply {
-                    alpha = 1f
-                    animate().apply {
-                        visibility = View.INVISIBLE
-                        duration = 500
-                        alpha(0f)
-                    }.start()
-                }
-                binding.topPartPokeDetails.apply {
-                    alpha = 0f
-                    animate().apply {
-                        visibility = View.VISIBLE
-                        duration = 500
-                        alpha(1f)
-                    }.start()
-                    hideDetails = !hideDetails
-                }
-            } else {
-                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ONLY_POKEMON)
-                binding.hideDetailsButton.apply {
-                    speed = 1f
-                    playAnimation()
-                    progress = 0f
-                }
-                binding.pokemonDescription.apply {
-                    alpha = 0f
-                    animate().apply {
-                        visibility = View.VISIBLE
-                        duration = 500
-                        alpha(1f)
-                    }.start()
-                }
-                binding.topPartPokeDetails.apply {
-                    alpha = 1f
-                    animate().apply {
-                        visibility = View.INVISIBLE
-                        duration = 500
-                        alpha(0f)
-                    }.start()
-                    hideDetails = !hideDetails
-                }
-            }
-        }
-    }
+//    private fun setUpDetailsState() {
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            when (pokeViewModel.hideDetailsFlow.first().detailsState) {
+//                HideDetails.SHOW_ONLY_POKEMON -> {
+//                    binding.hideDetailsButton.progress = 1f
+//                    binding.topPartPokeDetails.visibility = View.INVISIBLE
+//                    binding.pokemonDescription.visibility = View.VISIBLE
+//                    hideDetails = true
+//                }
+//
+//                HideDetails.SHOW_ALL_DETAILS  -> {
+//                    binding.hideDetailsButton.progress = 0f
+//                    binding.topPartPokeDetails.visibility = View.VISIBLE
+//                    binding.pokemonDescription.visibility = View.INVISIBLE
+//                    hideDetails = false
+//                }
+//            }
+//        }
+//        binding.hideDetailsButton.setOnClickListener {
+//            if (hideDetails) {
+//                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ALL_DETAILS)
+//                binding.hideDetailsButton.apply {
+//                    speed = -1f
+//                    playAnimation()
+//                    progress = 1f
+//                }
+//                binding.pokemonDescription.apply {
+//                    alpha = 1f
+//                    animate().apply {
+//                        visibility = View.INVISIBLE
+//                        duration = 500
+//                        alpha(0f)
+//                    }.start()
+//                }
+//                binding.topPartPokeDetails.apply {
+//                    alpha = 0f
+//                    animate().apply {
+//                        visibility = View.VISIBLE
+//                        duration = 500
+//                        alpha(1f)
+//                    }.start()
+//                    hideDetails = !hideDetails
+//                }
+//            } else {
+//                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ONLY_POKEMON)
+//                binding.hideDetailsButton.apply {
+//                    speed = 1f
+//                    playAnimation()
+//                    progress = 0f
+//                }
+//                binding.pokemonDescription.apply {
+//                    alpha = 0f
+//                    animate().apply {
+//                        visibility = View.VISIBLE
+//                        duration = 500
+//                        alpha(1f)
+//                    }.start()
+//                }
+//                binding.topPartPokeDetails.apply {
+//                    alpha = 1f
+//                    animate().apply {
+//                        visibility = View.INVISIBLE
+//                        duration = 500
+//                        alpha(0f)
+//                    }.start()
+//                    hideDetails = !hideDetails
+//                }
+//            }
+//        }
+//    }
 
     private fun storagePermissionMessage(message: String) {
         Toastic.toastic(

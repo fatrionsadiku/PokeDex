@@ -3,69 +3,123 @@
     android:id="@+id/pokemonDetails"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/pokedetailsbg"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingTop="30dp"
+    android:paddingTop="20dp"
     android:tag="DetailsFragment">
 
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:alpha="0.1"
+        android:src="@drawable/pokeball_transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/hideDetailsButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="18dp"
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:alpha="0.1"
+        android:src="@drawable/pokeball_transparent"
+        app:layout_constraintBottom_toTopOf="@id/guideline"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:alpha="0.1"
+        android:src="@drawable/pokeball_transparent"
+        app:layout_constraintBottom_toTopOf="@id/guideline"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/favoritePokemon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="24dp"
         android:baselineAlignBottom="true"
+        app:useMaterialThemeColors="false"
+        android:button="@drawable/selector_favorite_pokemon"
+        app:layout_constraintBottom_toBottomOf="@id/backButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:lottie_rawRes="@raw/hide_details" />
+        app:layout_constraintTop_toTopOf="@id/backButton" />
 
     <ImageView
         android:id="@+id/saveDetails"
-        android:layout_width="40dp"
+        android:layout_width="30dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/baseline_save_24"
-        app:layout_constraintEnd_toEndOf="@id/hideDetailsButton"
-        app:layout_constraintStart_toStartOf="@id/hideDetailsButton"
-        app:layout_constraintTop_toBottomOf="@id/hideDetailsButton" />
+        android:src="@drawable/download_button"
+        app:layout_constraintEnd_toEndOf="@id/favoritePokemon"
+        app:layout_constraintStart_toStartOf="@id/favoritePokemon"
+        app:layout_constraintTop_toBottomOf="@id/favoritePokemon" />
 
     <ImageView
         android:id="@+id/shareDetails"
-        android:layout_width="40dp"
+        android:layout_width="30dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
-        android:src="@drawable/baseline_share_24"
+        android:src="@drawable/share_button"
         app:layout_constraintEnd_toEndOf="@id/saveDetails"
         app:layout_constraintStart_toStartOf="@id/saveDetails"
         app:layout_constraintTop_toBottomOf="@id/saveDetails" />
 
     <ImageView
         android:id="@+id/backButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_margin="18dp"
-        android:src="@drawable/baseline_keyboard_backspace_24"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="18sp"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
+        android:src="@drawable/back_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/pokemon_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/sailec_bold"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="@id/backButton"
+        app:layout_constraintTop_toBottomOf="@id/backButton" />
 
-    <ImageView
+    <TextView
+        android:id="@+id/pokemonId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/sailec_bold"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/pokemon_name"
+        app:layout_constraintTop_toBottomOf="@id/pokemon_name" />
+
+
+    <com.ortiz.touchview.TouchImageView
         android:id="@+id/pokemon_photo"
         android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="120dp"
-        android:layout_marginBottom="30dp"
-        android:scaleType="fitCenter"
+        android:layout_height="250dp"
+        android:scaleY="1.2"
+        android:scaleX="1.2"
+        android:src="@drawable/chari"
+        android:layout_marginBottom="-12dp"
+        android:elevation="2dp"
+        android:scaleType="fitEnd"
+        app:layout_constraintBottom_toTopOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/nextPokemonButton"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/baseline_arrow_right_24"
+        android:src="@drawable/next_button"
         app:layout_constraintBottom_toBottomOf="@id/pokemon_photo"
         app:layout_constraintStart_toEndOf="@id/pokemon_photo"
         app:layout_constraintTop_toTopOf="@id/pokemon_photo" />
@@ -74,7 +128,7 @@
         android:id="@+id/previousPokemonButton"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/baseline_arrow_left_24"
+        android:src="@drawable/previous_button"
         app:layout_constraintBottom_toBottomOf="@id/pokemon_photo"
         app:layout_constraintEnd_toStartOf="@id/pokemon_photo"
         app:layout_constraintTop_toTopOf="@id/pokemon_photo" />
@@ -94,15 +148,12 @@
         android:id="@+id/topPartPokeDetails"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="18dp"
         android:background="@drawable/top_poke_details"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pokemon_photo">
+        app:layout_constraintTop_toBottomOf="@id/guideline">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
@@ -111,12 +162,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center|top"
             android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
             android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
             android:elevation="0dp"
             app:tabIndicator="@drawable/tab_indicator"
             app:tabIndicatorAnimationMode="elastic"
             app:tabIndicatorGravity="stretch"
+            app:tabIndicatorHeight="1dp"
             app:tabMode="fixed"
             app:tabSelectedTextColor="@color/white"
             app:tabTextColor="@color/black" />
@@ -125,48 +178,13 @@
             android:id="@+id/pokeInfosViewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="8dp" />
+            android:layout_margin="8dp" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/pokemon_name"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/ryogothic"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/topPartPokeDetails"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pokemon_photo" />
-
-    <TextView
-        android:id="@+id/pokemonDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="18sp"
-        android:layout_marginTop="30dp"
-        android:fontFamily="@font/ryogothic"
-        android:gravity="center"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pokemon_name" />
-
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/pokeDescriptionLoadingAnimation"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_margin="18dp"
-        android:layout_marginTop="24dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pokemon_name"
-        app:lottie_rawRes="@raw/pokeball_loading" />
-
-
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

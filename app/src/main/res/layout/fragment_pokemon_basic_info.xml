@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,37 +8,34 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/pokeWeight"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="30dp"
         android:fontFamily="@font/ryogothic"
         android:gravity="center"
         android:textColor="#3F7C80"
         android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@id/view1"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline2"
         app:layout_constraintTop_toBottomOf="@id/linearLayout" />
 
     <View
         android:id="@+id/view1"
         android:layout_width="1dp"
         android:layout_height="30dp"
-        android:layout_marginStart="15dp"
         android:layout_marginTop="8dp"
         android:background="#B3B3B3"
+        app:layout_constraintBottom_toBottomOf="@id/pokeWeight"
+        app:layout_constraintEnd_toStartOf="@id/pokeBaseXP"
         app:layout_constraintStart_toEndOf="@+id/pokeWeight"
         app:layout_constraintTop_toBottomOf="@id/linearLayout" />
 
@@ -53,8 +50,8 @@
         android:gravity="center"
         android:textColor="#3F7C80"
         android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@id/view2"
-        app:layout_constraintStart_toEndOf="@+id/view1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/linearLayout" />
 
     <View
@@ -73,13 +70,11 @@
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="40dp"
         android:fontFamily="@font/ryogothic"
         android:gravity="center"
         android:textColor="#3F7C80"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/view2"
+        app:layout_constraintEnd_toStartOf="@id/guideline1"
         app:layout_constraintTop_toBottomOf="@id/linearLayout" />
 
     <TextView
@@ -126,56 +121,66 @@
         app:layout_constraintStart_toStartOf="@id/pokeHeight"
         app:layout_constraintTop_toBottomOf="@id/pokeHeight" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.90" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.10" />
+
     <TextView
         android:id="@+id/currentHP"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
         android:gravity="center"
         android:text="HP"
         android:textColor="#759EA1"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/progress_hp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/progress_hp" />
 
     <TextView
         android:id="@+id/currentAttack"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
         android:gravity="center"
         android:text="ATK"
         android:textColor="#759EA1"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/progress_attack"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/progress_attack" />
 
     <TextView
         android:id="@+id/currentDefense"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
         android:gravity="center"
         android:text="DEF"
         android:textColor="#759EA1"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/progress_def"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/progress_def" />
 
     <TextView
         android:id="@+id/currentSpeed"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
         android:gravity="center"
         android:text="SPD"
         android:textColor="#759EA1"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/progress_speed"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/guideline2"
         app:layout_constraintTop_toTopOf="@id/progress_speed" />
 
     <com.skydoves.progressview.ProgressView
@@ -183,9 +188,8 @@
         android:layout_width="0dp"
         android:layout_height="18dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="70dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="45dp"
+        app:layout_constraintEnd_toStartOf="@id/guideline1"
         app:layout_constraintStart_toEndOf="@id/currentHP"
         app:layout_constraintTop_toBottomOf="@id/pokeWeightTitle"
         app:progressView_autoAnimate="true"
@@ -204,8 +208,7 @@
         android:layout_height="18dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline1"
         app:layout_constraintStart_toEndOf="@id/currentAttack"
         app:layout_constraintTop_toBottomOf="@id/progress_hp"
         app:progressView_autoAnimate="true"
@@ -224,8 +227,7 @@
         android:layout_height="18dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline1"
         app:layout_constraintStart_toEndOf="@id/currentDefense"
         app:layout_constraintTop_toBottomOf="@id/progress_attack"
         app:progressView_autoAnimate="true"
@@ -244,8 +246,7 @@
         android:layout_height="18dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="12dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline1"
         app:layout_constraintStart_toEndOf="@id/currentSpeed"
         app:layout_constraintTop_toBottomOf="@id/progress_def"
         app:progressView_autoAnimate="true"
@@ -257,7 +258,6 @@
         app:progressView_labelText="ATK"
         app:progressView_max="200"
         app:progressView_radius="12dp" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

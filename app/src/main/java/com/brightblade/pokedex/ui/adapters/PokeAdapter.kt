@@ -30,7 +30,7 @@ import com.skydoves.rainbow.color
 import com.skydoves.rainbow.contextColor
 
 class PokeAdapter(
-    val itemClicker: (pokeName: String, pokeId: Int) -> Unit,
+    val itemClicker: (pokeName: String, pokeId: Int, formattedId: String, dominantColor: Int) -> Unit,
     val favoritePokemon: (position: Int) -> Unit,
     val stateCheckedItemState: CheckedItemState,
 ) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
@@ -44,6 +44,9 @@ class PokeAdapter(
 
     inner class ViewHolder(val binding: ItemPokemonBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        private var currentDominantColor = 0
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun bindData(pokemon: PokemonResult) {
             binding.pokeName.apply {
@@ -78,6 +81,7 @@ class PokeAdapter(
 
                     } else {
                         getDominantColor(result.drawable) { hexColor ->
+                            currentDominantColor = hexColor
                             Rainbow(binding.pokemonDojo).palette {
                                 +contextColor(R.color.white)
                                 +color(hexColor)
@@ -115,9 +119,15 @@ class PokeAdapter(
                     if (currentPosition != RecyclerView.NO_POSITION) {
                         val currentPoke = pokemons[currentPosition]
                         val currentPokeId = getPokemonID(currentPoke)
+                        val formattedId = String.format("%04d", currentPokeId)
                         val currentPokemonName = currentPoke.name
                         Log.d("RecyclerView", "$currentPokemonName,$currentPokeId")
-                        itemClicker.invoke(currentPokemonName, currentPokeId)
+                        itemClicker.invoke(
+                            currentPokemonName,
+                            currentPokeId,
+                            formattedId,
+                            currentDominantColor
+                        )
                     }
                 }
                 favoriteButton.setOnClickListener { lottieView ->
@@ -198,8 +208,4 @@ private fun getDominantColor(drawable: Drawable, onFinish: (Int) -> Unit) {
 
 interface CheckedItemState {
     fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit)
-}
-
-interface PokemonPhotoTypeState {
-    fun changePokemonPhotoType(pokemonPhotoTypes: PokemonPhotoTypes): PokemonPhotoTypes
 }

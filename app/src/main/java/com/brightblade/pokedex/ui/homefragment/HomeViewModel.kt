@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.data.models.PokemonResult
 import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
 import com.brightblade.pokedex.data.persistent.SortOrder
@@ -16,19 +15,17 @@ import com.brightblade.pokedex.repositories.NetworkRepository
 import com.brightblade.pokedex.ui.adapters.PokeAdapter
 import com.brightblade.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val networkRepository: NetworkRepository,
-    private val databaseRepository: DatabaseRepository,
-    private val preferences: UserPreferences
+    databaseRepository: DatabaseRepository,
+    private val preferences: UserPreferences,
 ) : ViewModel() {
     private val sortOrderFlow = preferences.sortOrderFlow
 
@@ -52,7 +49,7 @@ class HomeViewModel @Inject constructor(
 
     val pokemonSortOrderFlow = preferences.sortOrderFlow
 
-    val currentPokemoneQuery = MutableStateFlow("")
+    val currentPokemonQuery = MutableStateFlow("")
 
     var recyclerViewState: Parcelable? = null
 
@@ -70,7 +67,6 @@ class HomeViewModel @Inject constructor(
             _pokemonResponse.postValue(it)
         }
     }
-
     fun onSortOrderChanged(sortOrder: SortOrder) = viewModelScope.launch {
         preferences.updateSortOrder(sortOrder)
         getPokemonResponse(sortOrder)
@@ -78,17 +74,8 @@ class HomeViewModel @Inject constructor(
     fun onPokemonPhotoTypeSelected(pokemonPhotoTypes: PokemonPhotoTypes) = viewModelScope.launch {
         preferences.updatePokemonPhotoType(pokemonPhotoTypes)
     }
-    fun favoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
-        databaseRepository.favoritePokemon(pokemon)
-    }
-    fun unFavoritePokemon(pokemon: FavoritePokemon) = viewModelScope.launch {
-        databaseRepository.unFavoritePokemon(pokemon)
-    }
-    suspend fun doesPokemonExist(pokeName: String): Boolean = withContext(Dispatchers.IO) {
-        databaseRepository.doesPokemonExist(pokeName)
-    }
     fun filterPokemonByName(adapter: PokeAdapter) = viewModelScope.launch {
-        currentPokemoneQuery.collectLatest {currentPokeQuery ->
+        currentPokemonQuery.collectLatest { currentPokeQuery ->
             this@HomeViewModel._pokemonResponse.value?.let { pokemons ->
                 adapter.pokemons = (pokemons.data?.filter {
                     val charSequence: CharSequence = currentPokeQuery
@@ -97,6 +84,5 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
 }
 

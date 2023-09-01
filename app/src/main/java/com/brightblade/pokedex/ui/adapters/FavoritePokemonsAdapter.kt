@@ -23,9 +23,9 @@ import com.skydoves.rainbow.color
 import com.skydoves.rainbow.contextColor
 
 class FavoritePokemonsAdapter(
-    val itemClicker: (pokeName: String, pokeId: Int?) -> Unit,
+    val itemClicker: (pokeName: String, pokeId: Int?, dominantColor: Int) -> Unit,
     val favoritePokemon: (position: Int) -> Unit,
-    val stateCheckedItemState: CheckedItemState
+    val stateCheckedItemState: CheckedItemState,
 ) : RecyclerView.Adapter<FavoritePokemonsAdapter.ViewHolder>() {
     var pokemons: List<FavoritePokemon>
         get() = differ.currentList
@@ -34,7 +34,10 @@ class FavoritePokemonsAdapter(
         }
     private val differ = AsyncListDiffer(this, diffCallback)
 
-    inner class ViewHolder(val binding: ItemPokemonBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ItemPokemonBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private var currentDominantColor = 0
+
         @RequiresApi(Build.VERSION_CODES.O)
         fun bindData(pokemon: FavoritePokemon) {
             binding.pokeName.apply {
@@ -52,8 +55,9 @@ class FavoritePokemonsAdapter(
             }.animate().setDuration(500).alpha(1f)
             binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "official")) {
                 listener { _, result ->
-                    binding.pokemonPlaceHolder.load(result.drawable){crossfade(500)}
+                    binding.pokemonPlaceHolder.load(result.drawable) { crossfade(500) }
                     getDominantColor(result.drawable) { hexColor ->
+                        currentDominantColor = hexColor
                         Rainbow(binding.pokemonDojo).palette {
                             +contextColor(R.color.white)
                             +color(hexColor)
@@ -86,11 +90,11 @@ class FavoritePokemonsAdapter(
             val pokeId = getPokemonID(pokemon)
             return when (type) {
                 "dreamworld" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-                "home" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
-                "official" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
-                "gif" -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
-                "xyani" -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.pokeName}.gif"
-                else -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+                "home"       -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
+                "official"   -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png"
+                "gif"        -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
+                "xyani"      -> "https://img.pokemondb.net/sprites/black-white/anim/normal/${pokemon.pokeName}.gif"
+                else         -> "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png"
             }
         }
 
@@ -101,7 +105,11 @@ class FavoritePokemonsAdapter(
                     if (currentPosition != RecyclerView.NO_POSITION) {
                         val currentPoke = pokemons[currentPosition]
                         val currentPokeId = getPokemonID(currentPoke)
-                        itemClicker.invoke(currentPoke.pokeName, currentPokeId)
+                        itemClicker.invoke(
+                            currentPoke.pokeName,
+                            currentPokeId,
+                            currentDominantColor
+                        )
                     }
                 }
                 favoriteButton.setOnClickListener { lottieView ->

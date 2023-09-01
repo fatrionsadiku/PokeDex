@@ -15,6 +15,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +31,7 @@ import com.brightblade.pokedex.ui.MainActivity
 import com.brightblade.pokedex.ui.PokeSplashScreen
 import com.brightblade.pokedex.ui.adapters.CheckedItemState
 import com.brightblade.pokedex.ui.adapters.PokeAdapter
+import com.brightblade.pokedex.ui.pokemondetails.PokemonDatabaseViewModel
 import com.brightblade.utils.Resource
 import com.brightblade.utils.capitalize
 import com.brightblade.utils.requireMainActivity
@@ -47,6 +50,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     MainActivity.OnHomeButtonReselected {
     private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
+    private val pokeDbViewModel: PokemonDatabaseViewModel by viewModels()
     private val pokeAdapter: PokeAdapter =
         PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
     private var favoriteStatusToast: Toast? = null
@@ -93,6 +97,18 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
         setUpPokeSortOrder()
         setUpPokePhotoType()
         observeBottomNaw()
+        setFragmentResultListener()
+    }
+
+    private fun setFragmentResultListener() {
+        setFragmentResultListener("pokemon_id") { requestKey, bundle ->
+            val currentPokemonId = bundle.getInt("pokemon_id")
+            val hasNavigatedState = bundle.getBoolean("navigation_state")
+            when (hasNavigatedState) {
+                true  -> recyclerView.scrollToPosition(currentPokemonId)
+                false -> Unit
+            }
+        }
     }
 
     private fun setUpPokeRecyclerView() {
@@ -104,7 +120,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
             addOnScrollListener(this@HomeFragment.scrollListener)
         }
     }
-
 
     private fun fetchApiData() {
         viewModel.pokemonResponse.observe(viewLifecycleOwner) { response ->
@@ -127,7 +142,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     private fun setUpPokeFiltering() {
         binding.searchEditText.apply {
             this.addTextChangedListener { query ->
-                viewModel.currentPokemoneQuery.value = query.toString()
+                viewModel.currentPokemonQuery.value = query.toString()
                 viewModel.filterPokemonByName(pokeAdapter)
             }
             setOnEditorActionListener { _, actionId, _ ->
@@ -139,11 +154,18 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
         }
     }
 
-    private fun adapterOnItemClickedListener(pokeName: String, pokeId: Int) {
+    private fun adapterOnItemClickedListener(
+        pokeName: String,
+        pokeId: Int,
+        formattedId: String,
+        dominantColor: Int,
+    ) {
         val action =
             HomeFragmentDirections.actionHomeFragmentToPokeDetailsFragment2(
                 pokeName,
-                pokeId
+                pokeId,
+                formattedId,
+                dominantColor
             )
         findNavController().navigate(action)
     }
@@ -151,9 +173,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     private fun favoritePokemon(position: Int) =
         viewLifecycleOwner.lifecycleScope.launch {
             val currentPokemon = pokeAdapter.pokemons[position]
-            when (viewModel.doesPokemonExist(currentPokemon.name)) {
+            when (pokeDbViewModel.doesPokemonExist(currentPokemon.name)) {
                 true  -> {
-                    viewModel.unFavoritePokemon(
+                    pokeDbViewModel.unFavoritePokemon(
                         FavoritePokemon(
                             pokeName = currentPokemon.name,
                             url = currentPokemon.url
@@ -177,7 +199,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
                 }
 
                 false -> {
-                    viewModel.favoritePokemon(
+                    pokeDbViewModel.favoritePokemon(
                         FavoritePokemon(
                             pokeName = currentPokemon.name,
                             url = currentPokemon.url
@@ -441,7 +463,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
 
     override fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit) {
         viewLifecycleOwner.lifecycleScope.launch {
-            doesItemExist(viewModel.doesPokemonExist(itemName))
+            doesItemExist(pokeDbViewModel.doesPokemonExist(itemName))
         }
     }
 

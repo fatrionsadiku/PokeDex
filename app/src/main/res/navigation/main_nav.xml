@@ -44,29 +44,19 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
-            />
+            app:popExitAnim="@anim/slide_out_right" />
         <argument
             android:name="pokemonName"
             app:argType="string" />
         <argument
             android:name="pokemonId"
             app:argType="integer" />
-    </fragment>
-    <fragment
-        android:id="@+id/pokeEvoTree"
-        android:name="com.brightblade.pokedex.ui.pokemondetails.pokeevotree.PokeEvoTree"
-        android:label="PokeEvoTree"
-        tools:layout="@layout/fragment_pokemon_evolution_tree"
-        >
-        <action
-            android:id="@+id/action_pokeEvoTree_to_pokeDetailsFragment2"
-            app:destination="@id/pokeDetailsFragment2"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
-            />
+        <argument
+            android:name="formattedID"
+            app:argType="string" />
+        <argument
+            android:name="dominantColor"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/favoritePokemons"
