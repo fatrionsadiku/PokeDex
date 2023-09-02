@@ -1,10 +1,10 @@
 package com.brightblade.pokedex.di
 
-import com.brightblade.pokedex.repositories.DatabaseRepository
 import com.brightblade.pokedex.data.database.PokemonDatabase.FavoriteDao.FavoritePokemonDao
 import com.brightblade.pokedex.data.database.PokemonDatabase.PokemonDao.CachedPokemonsDao
 import com.brightblade.pokedex.data.database.PokemonDatabase.PokemonDatabase
 import com.brightblade.pokedex.data.network.PokeApiService
+import com.brightblade.pokedex.repositories.DatabaseRepository
 import com.brightblade.pokedex.repositories.NetworkRepository
 import dagger.Module
 import dagger.Provides
@@ -19,13 +19,13 @@ object RepositoryModule {
     @Provides
     fun provideDatabaseRepository(
         favoritePokemonDao: FavoritePokemonDao,
-        cachedPokemonsDao: CachedPokemonsDao,
-    ) = DatabaseRepository(favoritePokemonDao,cachedPokemonsDao)
+    ) = DatabaseRepository(favoritePokemonDao)
+
     @Singleton
     @Provides
     fun provideNetworkRepository(
-        pokeApi : PokeApiService,
+        pokeApi: PokeApiService,
         cachedPokemonsDao: CachedPokemonsDao,
-        pokemonDatabase: PokemonDatabase
+        pokemonDatabase: PokemonDatabase,
     ) = NetworkRepository(pokeApi, cachedPokemonsDao, pokemonDatabase)
 }
