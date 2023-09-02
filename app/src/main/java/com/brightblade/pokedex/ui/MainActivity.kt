@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import com.brightblade.pokedex.R
@@ -47,30 +48,28 @@ class MainActivity : AppCompatActivity() {
     private fun setUpBottomNavBar() {
         navHost =
             (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
-        WindowInsetsControllerCompat(
-            window,
-            window.decorView.findViewById(android.R.id.content)
-        ).let { controller ->
-            controller.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller.addOnControllableInsetsChangedListener { controller, typeMask ->
-                if (typeMask and WindowInsetsCompat.Type.navigationBars()
-                    == WindowInsetsCompat.Type.systemGestures()
-                ) {
-                    WindowCompat.setDecorFitsSystemWindows(this@MainActivity.window, false)
-                }
-            }
-
-            navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
-                if (destination.id == R.id.pokeDetailsFragment2) {
-                    binding.bottomNavView.animate().translationY(200f).setDuration(200)
-                        .withEndAction {
-                            binding.bottomNavView.visibility = View.GONE
-                        }.start()
-                } else
-                    binding.bottomNavView.animate().apply {
-                        binding.bottomNavView.visibility = View.VISIBLE
-                        translationY(0f)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view. Here the system is setting
+            // only the bottom, left, and right dimensions, but apply whichever insets are
+            // appropriate to your layout. You can also update the view padding
+            // if that's more appropriate.
+            view.updatePadding(insets.left, insets.top, insets.right, insets.bottom)
+            // Return CONSUMED if you don't want want the window insets to keep being
+            // passed down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
+        navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.pokeDetailsFragment2) {
+                binding.bottomNavView.animate().translationY(200f).setDuration(200)
+                    .withEndAction {
+                        binding.bottomNavView.visibility = View.GONE
+                    }.start()
+            } else
+                binding.bottomNavView.animate().apply {
+                    binding.bottomNavView.visibility = View.VISIBLE
+                    translationY(0f)
                         duration = 200
                     }.start()
             }
@@ -110,8 +109,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             })
-
-        }
     }
 
     interface OnHomeButtonReselected {
