@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             (supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as NavHostFragment)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
             // Apply the insets as a margin to the view. Here the system is setting
             // only the bottom, left, and right dimensions, but apply whichever insets are
             // appropriate to your layout. You can also update the view padding

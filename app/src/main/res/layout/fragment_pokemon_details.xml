@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingTop="20dp"
     android:tag="DetailsFragment">
 
     <ImageView
@@ -14,7 +13,7 @@
         android:alpha="0.1"
         android:src="@drawable/pokeball_transparent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/guideline2" />
 
     <ImageView
         android:layout_width="80dp"
@@ -38,11 +37,11 @@
         android:layout_height="30dp"
         android:layout_marginEnd="24dp"
         android:baselineAlignBottom="true"
-        app:useMaterialThemeColors="false"
         android:button="@drawable/selector_favorite_pokemon"
         app:layout_constraintBottom_toBottomOf="@id/backButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/backButton" />
+        app:layout_constraintTop_toTopOf="@id/backButton"
+        app:useMaterialThemeColors="false" />
 
     <ImageView
         android:id="@+id/saveDetails"
@@ -74,7 +73,8 @@
         android:scaleY="1.2"
         android:src="@drawable/back_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/guideline2" />
+
 
     <TextView
         android:id="@+id/pokemon_name"
@@ -105,12 +105,11 @@
         android:id="@+id/pokemon_photo"
         android:layout_width="200dp"
         android:layout_height="250dp"
-        android:scaleY="1.2"
-        android:scaleX="1.2"
-        android:src="@drawable/chari"
         android:layout_marginBottom="-12dp"
         android:elevation="2dp"
         android:scaleType="fitEnd"
+        android:scaleX="1.2"
+        android:scaleY="1.2"
         app:layout_constraintBottom_toTopOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -187,4 +186,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.5" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.03" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
