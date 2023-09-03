@@ -22,6 +22,5 @@ data class PokemonResult(
     @SerializedName("url")
     @ColumnInfo("url")
     val url: String,
-)  {
-}
+)
 

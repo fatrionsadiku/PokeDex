@@ -73,14 +73,14 @@ class FavoritePokemons : Fragment(R.layout.fragment_favorite_pokemons), CheckedI
             recyclerView.adapter = adapter
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
         } catch (e: Exception) {
-            Log.e("Error fetching poke", "setUpPokeRecyclerView: ${e.toString()}")
+            Log.e("Error fetching poke", "setUpPokeRecyclerView: $e")
         }
 
     private fun favoritePokemon(position: Int) =
-        viewLifecycleOwner.lifecycleScope.launch() {
+        viewLifecycleOwner.lifecycleScope.launch {
             val currentPokemon = adapter.pokemons[position]
             when (pokeDbViewModel.doesPokemonExist(currentPokemon.pokeName)) {
-                true  -> {
+                true -> {
                     pokeDbViewModel.unFavoritePokemon(
                         FavoritePokemon(
                             pokeName = currentPokemon.pokeName,

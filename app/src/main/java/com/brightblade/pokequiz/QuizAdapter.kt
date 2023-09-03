@@ -9,13 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.decode.SvgDecoder
 import coil.load
 import com.brightblade.pokedex.R
-import com.brightblade.pokequiz.quizmodels.Quiz
 import com.brightblade.pokedex.databinding.ItemQuizTypeBinding
+import com.brightblade.pokequiz.quizmodels.Quiz
 import com.brightblade.utils.Utility.listOfColors
 import com.brightblade.utils.Utility.listOfIcons
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
+import java.util.Locale
 
 class QuizAdapter(val itemClicker : (quizType : String) -> Unit) : RecyclerView.Adapter<QuizAdapter.ViewHolder>() {
 
@@ -48,7 +49,7 @@ class QuizAdapter(val itemClicker : (quizType : String) -> Unit) : RecyclerView.
                 val currentPosition = adapterPosition
                 if (currentPosition != RecyclerView.NO_POSITION) {
                     val selectedQuizName = quizzes[currentPosition].title
-                    itemClicker(selectedQuizName.toLowerCase())
+                    itemClicker(selectedQuizName.lowercase(Locale.getDefault()))
                 }
             }
         }

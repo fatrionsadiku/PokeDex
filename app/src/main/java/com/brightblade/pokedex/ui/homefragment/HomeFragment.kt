@@ -105,7 +105,10 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
             val currentPokemonId = bundle.getInt("pokemon_id")
             val hasNavigatedState = bundle.getBoolean("navigation_state")
             when (hasNavigatedState) {
-                true  -> recyclerView.scrollToPosition(currentPokemonId)
+                true  -> recyclerView.scrollToPosition(
+                    if (currentPokemonId >= 10000) currentPokemonId / 10 else currentPokemonId
+                )
+
                 false -> Unit
             }
         }

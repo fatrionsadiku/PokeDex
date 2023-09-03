@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,7 +23,7 @@ class QuizHomeFragment : Fragment(R.layout.fragment_quiz_home) {
     }
 
     private fun setUpRecyclerView() {
-        val quizAdapter = QuizAdapter() { quizType ->
+        val quizAdapter = QuizAdapter { quizType ->
             val action = QuizHomeFragmentDirections.actionHomeFragmentToQuizFragment(quizType)
             findNavController().navigate(action)
         }

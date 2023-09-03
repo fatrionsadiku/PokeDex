@@ -36,6 +36,7 @@ import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
 import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.brightblade.utils.Resource
+import com.brightblade.utils.Utility.HIGHEST_POKEMON_ID
 import com.brightblade.utils.capitalize
 import com.brightblade.utils.requestPermission
 import com.google.android.material.tabs.TabLayoutMediator
@@ -163,7 +164,9 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     private fun previousPokemonOnClickListener() {
         binding.previousPokemonButton.setOnClickListener {
             checkIfPokeAbilitiesIsNotNull()
-            getPokemonDetails(pokeId = currentPokemonId - 1)
+            if (currentPokemonId > 1) getPokemonDetails(pokeId = currentPokemonId - 1) else getPokemonDetails(
+                pokeId = HIGHEST_POKEMON_ID
+            )
             hasNavigatedWithButtons = true
         }
     }
@@ -171,7 +174,9 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     private fun nextPokemonOnClickListener() {
         binding.nextPokemonButton.setOnClickListener {
             checkIfPokeAbilitiesIsNotNull()
-            getPokemonDetails(pokeId = currentPokemonId + 1)
+            if (currentPokemonId == HIGHEST_POKEMON_ID) getPokemonDetails(pokeId = 1) else getPokemonDetails(
+                pokeId = currentPokemonId + 1
+            )
             hasNavigatedWithButtons = true
 
         }

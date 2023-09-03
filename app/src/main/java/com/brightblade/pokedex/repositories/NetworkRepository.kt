@@ -11,6 +11,7 @@ import com.brightblade.pokedex.data.models.PokemonSpecies
 import com.brightblade.pokedex.data.network.PokeApiService
 import com.brightblade.pokedex.data.persistent.SortOrder
 import com.brightblade.pokedex.di.ApplicationScope
+import com.brightblade.utils.Utility.MAX_POKEMON_SIZE
 import com.brightblade.utils.networkBoundResource
 import kotlinx.coroutines.delay
 import retrofit2.Call
@@ -29,7 +30,7 @@ class NetworkRepository @Inject constructor(
         },
         fetch = {
             delay(1000)
-            pokeApi.getPaginatedPokemons(1273, 0)
+            pokeApi.getPaginatedPokemons(MAX_POKEMON_SIZE, 0)
         },
         saveFetchResult = { pokeResponse ->
             pokemonDatabase.withTransaction {

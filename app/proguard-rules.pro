@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keepclasseswithmembers class com.brightblade.pokedex.data.models.** {
+    public ** component1();
+    <fields>;
+}
