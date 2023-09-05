@@ -30,6 +30,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
 import coil.load
+import coil.size.Precision
+import coil.size.Scale
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
@@ -86,6 +88,11 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         favoritePokemonOnClickListener()
         onPokemonPhotoLongPressListener()
         observeFavoriteState()
+    }
+
+    override fun onDestroy() {
+        childFragmentManager.fragments
+        super.onDestroy()
     }
 
     private fun onPokemonPhotoLongPressListener() {
@@ -217,12 +224,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             }
         }
     }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        pokeViewModel.pokemonDescription.value = null
-    }
-
     fun getPokemonDetails(pokeId: Int) {
         pokeViewModel.getSinglePokemonByName(pokeId)
         pokeViewModel.singlePokemonResponse.observe(viewLifecycleOwner) { response ->
@@ -260,6 +261,8 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         binding.apply {
             pokemonPhoto.apply {
                 load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png") {
+                    scale(Scale.FIT)
+                    precision(Precision.EXACT)
                     crossfade(500)
                     allowHardware(false)
                 }

@@ -4,8 +4,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.brightblade.pokedex.ui.pokemondetails.pokebasicinfo.PokeBasicInfo
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
+import com.brightblade.pokedex.ui.pokemondetails.pokebasicinfo.PokeBasicInfo
 import com.brightblade.pokedex.ui.pokemondetails.pokeevotree.PokeEvoTree
 
 class FragmentAdapter(fragmentManager: FragmentManager,lifeCycle : Lifecycle) : FragmentStateAdapter(fragmentManager,lifeCycle) {
@@ -14,4 +14,24 @@ class FragmentAdapter(fragmentManager: FragmentManager,lifeCycle : Lifecycle) : 
     override fun getItemCount(): Int = pokemonInfos.size
 
     override fun createFragment(position: Int): Fragment = pokemonInfos[position]
+
+
+    override fun getItemId(position: Int): Long =
+        when (position) {
+            0    -> {
+                100
+            }
+
+            1    -> {
+                101
+            }
+
+            2    -> {
+                102
+            }
+
+            else -> {
+                999
+            }
+        }
 }

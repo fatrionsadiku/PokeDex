@@ -51,8 +51,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     private val binding by viewBinding(FragmentHomeBinding::bind)
     private val viewModel: HomeViewModel by activityViewModels()
     private val pokeDbViewModel: PokemonDatabaseViewModel by viewModels()
-    private val pokeAdapter: PokeAdapter =
-        PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
+    private lateinit var pokeAdapter: PokeAdapter
     private var favoriteStatusToast: Toast? = null
     private var listOfPokemons: List<PokemonResult>? = null
     private lateinit var recyclerView: RecyclerView
@@ -86,10 +85,9 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpPokeRecyclerView()
-        fetchApiData()
         observePokemonSortOrder()
         observePokemonPhotoType()
+        fetchApiData()
         setUpPokemonPhotoPowerMenu()
         setUpPokemonNameOrderPowerMenu()
         setUpPokeFiltering()
@@ -105,19 +103,16 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
             val currentPokemonId = bundle.getInt("pokemon_id")
             val hasNavigatedState = bundle.getBoolean("navigation_state")
             when (hasNavigatedState) {
-                true  -> recyclerView.scrollToPosition(
-                    if (currentPokemonId >= 10000) currentPokemonId / 10 else currentPokemonId
-                )
-
+                true  -> recyclerView.scrollToPosition(currentPokemonId)
                 false -> Unit
             }
         }
     }
 
-    private fun setUpPokeRecyclerView() {
+    private fun setUpPokeRecyclerView(pokeAdapter: PokeAdapter) {
         recyclerView = binding.recyclerView
         recyclerView.apply {
-            adapter = this@HomeFragment.pokeAdapter
+            adapter = pokeAdapter
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(requireContext())
             addOnScrollListener(this@HomeFragment.scrollListener)
@@ -131,17 +126,22 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
                 is Resource.Loading -> {
                     showProgressBar()
                 }
-
                 is Resource.Success -> {
-                    hideProgressBar()
-                    viewModel.doesAdapterHaveItems.value = true
-                    pokeAdapter.pokemons = response.data!!
-                    listOfPokemons = response.data
+                    viewModel.currentSelectedPokemonPhoto.observe(viewLifecycleOwner) { pokemonPhotoType ->
+                        pokeAdapter = PokeAdapter(
+                            ::adapterOnItemClickedListener,
+                            ::favoritePokemon,
+                            this,
+                            pokemonPhotoType
+                        )
+                        pokeAdapter.pokemons = response.data!!
+                        setUpPokeRecyclerView(pokeAdapter)
+                        hideProgressBar()
+                    }
                 }
             }
         }
     }
-
     private fun setUpPokeFiltering() {
         binding.searchEditText.apply {
             this.addTextChangedListener { query ->
@@ -247,26 +247,30 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
             viewModel.pokemonPhotoTypeFlow.first { photoType ->
                 when (photoType.photoType) {
                     PokemonPhotoTypes.HOME       -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.HOME)
                         pokemonPhotoType = PokemonPhotoTypes.HOME.name.lowercase()
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.HOME.name.lowercase()
                         true
                     }
 
                     PokemonPhotoTypes.OFFICIAL   -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
                         pokemonPhotoType = PokemonPhotoTypes.OFFICIAL.name.lowercase()
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.OFFICIAL.name.lowercase()
                         true
                     }
 
                     PokemonPhotoTypes.DREAMWORLD -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.DREAMWORLD)
                         pokemonPhotoType = PokemonPhotoTypes.DREAMWORLD.name.lowercase()
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.DREAMWORLD.name.lowercase()
                         true
                     }
 
                     PokemonPhotoTypes.XYANI      -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.XYANI)
                         pokemonPhotoType = PokemonPhotoTypes.XYANI.name.lowercase()
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.XYANI.name.lowercase()
                         true
                     }
 
@@ -316,31 +320,35 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
                 pokePhotoPowerMenu.selectedPosition = position
                 when (item.title) {
                     "Official"   -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.OFFICIAL)
+                        pokemonPhotoType = "official"
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.OFFICIAL)
-                        val myAdapter = recyclerView.adapter
-                        recyclerView.swapAdapter(myAdapter, true)
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.OFFICIAL.name.lowercase()
+                        recyclerView.swapAdapter(pokeAdapter, true)
                     }
 
                     "Dreamworld" -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.DREAMWORLD)
+                        pokemonPhotoType = "dreamworld"
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.DREAMWORLD)
-                        val myAdapter = recyclerView.adapter
-                        recyclerView.adapter = myAdapter
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.DREAMWORLD.name.lowercase()
+                        recyclerView.swapAdapter(pokeAdapter, true)
                     }
 
                     "Xyani"      -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.XYANI)
+                        pokemonPhotoType = "xyani"
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.XYANI)
-                        val myAdapter = recyclerView.adapter
-                        recyclerView.swapAdapter(myAdapter, true)
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.XYANI.name.lowercase()
+                        recyclerView.swapAdapter(pokeAdapter, true)
                     }
 
                     "Home"       -> {
-                        pokeAdapter.changePokemonPhoto(PokemonPhotoTypes.HOME)
+                        pokemonPhotoType = "home"
                         viewModel.onPokemonPhotoTypeSelected(PokemonPhotoTypes.HOME)
-                        val myAdapter = recyclerView.adapter
-                        recyclerView.adapter = myAdapter
+                        viewModel.currentSelectedPokemonPhoto.value =
+                            PokemonPhotoTypes.HOME.name.lowercase()
+                        recyclerView.swapAdapter(pokeAdapter, true)
                     }
                 }
                 pokePhotoPowerMenu.dismiss()
@@ -353,59 +361,39 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
             .addGenericItems()
             .addPowerMenuItems(
                 PowerMenuItem(
-                    "nAsc",
+                    "Name A-Z",
                     sortOrderType == SortOrder.BY_NAME_ASCENDING.name.lowercase()
                 ),
                 PowerMenuItem(
-                    "nDsc",
+                    "Name Z-A",
                     sortOrderType == SortOrder.BY_NAME_DESCENDING.name.lowercase()
                 ),
                 PowerMenuItem(
-                    "iAsc",
+                    "ID Asc",
                     sortOrderType == SortOrder.BY_ID_ASCENDING.name.lowercase()
                 ),
                 PowerMenuItem(
-                    "iDsc",
+                    "ID Desc",
                     sortOrderType == SortOrder.BY_ID_DESCENDING.name.lowercase()
                 )
             )
             .setOnMenuItemClickListener { position, item ->
                 pokeSortyByNamePowerMenu.selectedPosition = position
                 when (item.title) {
-                    "nAsc" -> {
+                    "Name A-Z" -> {
                         viewModel.onSortOrderChanged(SortOrder.BY_NAME_ASCENDING)
-                        val myAdapter =
-                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
-                        myAdapter.pokemons =
-                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        recyclerView.swapAdapter(myAdapter, true)
                     }
 
-                    "nDsc" -> {
+                    "Name Z-A" -> {
                         viewModel.onSortOrderChanged(SortOrder.BY_NAME_DESCENDING)
-                        val myAdapter =
-                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
-                        myAdapter.pokemons =
-                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        recyclerView.adapter = myAdapter
                     }
 
-                    "iAsc" -> {
+                    "ID Asc"   -> {
                         viewModel.onSortOrderChanged(SortOrder.BY_ID_ASCENDING)
-                        val myAdapter =
-                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
-                        myAdapter.pokemons =
-                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        recyclerView.adapter = myAdapter
                     }
 
-                    "iDsc" -> {
+                    "ID Desc"  -> {
                         viewModel.onSortOrderChanged(SortOrder.BY_ID_DESCENDING)
-                        val myAdapter =
-                            PokeAdapter(::adapterOnItemClickedListener, ::favoritePokemon, this)
-                        myAdapter.pokemons =
-                            if (listOfPokemons != null) listOfPokemons!! else emptyList()
-                        recyclerView.adapter = myAdapter
                     }
                 }
                 pokeSortyByNamePowerMenu.dismiss()

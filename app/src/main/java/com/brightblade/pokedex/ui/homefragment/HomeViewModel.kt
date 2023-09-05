@@ -51,9 +51,9 @@ class HomeViewModel @Inject constructor(
 
     val currentPokemonQuery = MutableStateFlow("")
 
-    var recyclerViewState: Parcelable? = null
+    val currentSelectedPokemonPhoto = MutableLiveData("")
 
-    val doesAdapterHaveItems = MutableLiveData(false)
+    var recyclerViewState: Parcelable? = null
 
     init {
         viewModelScope.launch { Log.d("ViewModelSort", sortOrderFlow.first().sortOrder.name) }
@@ -63,7 +63,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getPokemonResponse(sortOrder: SortOrder) = viewModelScope.launch {
-        networkRepository.getCachedPokemons(sortOrder).collectLatest {
+        networkRepository.getCachedPokemons(sortOrder).collect {
             _pokemonResponse.postValue(it)
         }
     }

@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.decode.GifDecoder
 import coil.decode.SvgDecoder
 import coil.load
+import coil.size.Precision
+import coil.size.Scale
 import com.airbnb.lottie.LottieAnimationView
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.PokemonResult
@@ -33,6 +35,7 @@ class PokeAdapter(
     val itemClicker: (pokeName: String, pokeId: Int, formattedId: String, dominantColor: Int) -> Unit,
     val favoritePokemon: (position: Int) -> Unit,
     val stateCheckedItemState: CheckedItemState,
+    currentPhotoType: String? = null,
 ) : RecyclerView.Adapter<PokeAdapter.ViewHolder>() {
     var pokemons: List<PokemonResult>
         get() = differ.currentList
@@ -40,7 +43,7 @@ class PokeAdapter(
             differ.submitList(value)
         }
     private val differ = AsyncListDiffer(this, diffCallback)
-    private var _pokeImageUrl: String? = null
+    private var _pokeImageUrl: String? = currentPhotoType
 
     inner class ViewHolder(val binding: ItemPokemonBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -69,8 +72,13 @@ class PokeAdapter(
                 ) else getPokemonPicture(pokemon, "official")
             ) {
                 placeholder(listOfSilhouettes.random())
+                size(192)
+                scale(Scale.FIT)
+                precision(Precision.EXACT)
                 listener { _, result ->
-                    binding.pokemonPlaceHolder.load(result.drawable) { crossfade(500) }
+                    binding.pokemonPlaceHolder.load(result.drawable) {
+                        crossfade(500)
+                    }
                     if (_pokeImageUrl == "xyani") {
                         Rainbow(binding.pokemonDojo).palette {
                             +color(Color.parseColor(listOfColors.random()))
@@ -81,6 +89,7 @@ class PokeAdapter(
 
                     } else {
                         getDominantColor(result.drawable) { hexColor ->
+                            Log.d("PokeAdapter", hexColor.toString())
                             currentDominantColor = hexColor
                             Rainbow(binding.pokemonDojo).palette {
                                 +contextColor(R.color.white)

@@ -43,14 +43,14 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
-    private val binding by viewBinding(FragmentPokemonEvolutionTreeBinding::bind)
+    val binding by viewBinding(FragmentPokemonEvolutionTreeBinding::bind)
     private val viewModel: PokeDetailsSharedViewModel by activityViewModels()
     private lateinit var toggleButton: LottieAnimationView
     private var isSwitchOn = false
 
     override fun onDestroyView() {
-        super.onDestroyView()
         binding.linearLayout.removeAllViews()
+        super.onDestroyView()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -68,13 +68,21 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
 
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
+                        evoChainResponse.data
                         hideProgressBar()
-                        evoChainResponse.data?.let {
-                            getPokemonEvoTree(it)
+                        evoChainResponse.data?.let { evoChain ->
+                            if (evoChain.chain.evoDetails.isNullOrEmpty()) {
+                                binding.noOtherForms.visibility = View.VISIBLE
+                                binding.linearLayout.visibility = View.GONE
+                            } else {
+                                getPokemonEvoTree(evoChain)
+                                binding.noOtherForms.visibility = View.GONE
+                                binding.linearLayout.visibility = View.VISIBLE
+                            }
+
                         }
                     }
                 }
-
             }
             toggleButton.setOnClickListener {
                 it as LottieAnimationView
@@ -89,7 +97,8 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
         binding.linearLayout.removeAllViews()
         val pokeDetailsFragment =
             this.parentFragment as PokeDetailsFragment
-        val pokeAbilitiesFragment = parentFragmentManager.findFragmentByTag("f1") as? PokeAbilities
+        val pokeAbilitiesFragment =
+            parentFragmentManager.findFragmentByTag("f101") as? PokeAbilities
         val neonPointingGif = createNeonPointingGif()
         val firstPokemonId = getPokemonID(pokeSpecies.chain.species.url)
         val firstPokeName = createPokemonNameTextView(pokeSpecies.chain.species.name.capitalize())
@@ -305,12 +314,14 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
     private fun hideProgressBar() {
         binding.loadingAnimation.visibility = View.INVISIBLE
         binding.linearLayout.visibility = View.VISIBLE
+        binding.noOtherForms.visibility = View.VISIBLE
         binding.loadingAnimation.cancelAnimation()
     }
 
     private fun showProgressBar() {
         binding.loadingAnimation.visibility = View.VISIBLE
         binding.linearLayout.visibility = View.INVISIBLE
+        binding.noOtherForms.visibility = View.GONE
         binding.loadingAnimation.playAnimation()
     }
 }

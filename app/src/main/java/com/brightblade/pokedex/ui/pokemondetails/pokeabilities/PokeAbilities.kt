@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import coil.load
 import com.brightblade.pokedex.R
+import com.brightblade.pokedex.data.models.PokeAbilities
 import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.databinding.DialogHeldItemBinding
 import com.brightblade.pokedex.databinding.FragmentPokemonAbilitiesBinding
@@ -49,38 +50,19 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
     }
 
     private fun observePokemonAbilities() {
-        binding.apply {
-            pokeDetailsHolder.removeAllViews()
-            viewModel.abilitiesResponse.observe(viewLifecycleOwner) { pokeAbilityResponse ->
-                when (pokeAbilityResponse) {
-                    is Resource.Error   -> {
-                        hideProgressBar()
-                        Log.e(TAG, "An error occurred while fetching abilities")
-                    }
+        binding.pokeDetailsHolder.removeAllViews()
+        viewModel.abilitiesResponse.observe(viewLifecycleOwner) { pokeAbilityResponse ->
+            when (pokeAbilityResponse) {
+                is Resource.Error   -> {
+                    hideProgressBar()
+                    Log.e(TAG, "An error occurred while fetching abilities")
+                }
 
-                    is Resource.Loading -> showProgressBar()
-                    is Resource.Success -> {
-                        lifecycleScope.launch {
-                            delay(500)
-                            hideProgressBar()
-                            if (pokeAbilityResponse.data?.isNotEmpty() == true) pokeAbilityResponse.data.forEach {
-                                val pokeAbilityTitle = it?.name?.capitalize() ?: "Missing Data"
-                                val pokeAbilityDescription =
-                                    if (it?.effectEntries?.getOrNull(1) != null) it.effectEntries[1]?.effect else it?.effectEntries?.get(
-                                        0
-                                    )?.effect
-                                val pokemonAbility = PokeAbilitiesLayout(
-                                    requireContext(),
-                                    pokeAbilityTitle,
-                                    pokeAbilityDescription
-                                )
-                                pokeDetailsHolder.addView(pokemonAbility)
-                            }
-                        }
-                    }
+                is Resource.Loading -> showProgressBar()
+                is Resource.Success -> {
+                    addPokemonAbilities(pokeAbilityResponse, pokeAbilityResponse.data!!)
                 }
             }
-
         }
     }
 
@@ -90,31 +72,66 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
                 is Resource.Error   -> Log.e("PokeAbilities", "${response.message}")
                 is Resource.Loading -> {}
                 is Resource.Success -> {
-                    lifecycleScope.launch {
-                        delay(500)
-                        binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()
-                        response.data.forEach { heldItem ->
-                            val currentHeldItem = ImageView(requireContext()).apply {
-                                this.layoutParams = LayoutParams(
-                                    resources.getDimensionPixelSize(R.dimen.image_width),
-                                    resources.getDimensionPixelSize(R.dimen.image_height)
-                                )
-                                load(
-                                    heldItem?.sprites?.default
-                                ) {
-                                    allowHardware(false)
-                                    crossfade(500)
-                                }
-                                setOnClickListener {
-                                    showBalloonDialog(heldItem, requireContext(), this)
-                                }
-                            }
-                            binding.pokeItemsHolder.addView(currentHeldItem)
-                        }
-                    }
+                    addHeldItems(response, response.data!!)
                 }
             }
 
+        }
+    }
+
+    private fun addHeldItems(
+        response: Resource<List<PokeHeldItems?>>,
+        data: List<PokeHeldItems?>,
+    ) {
+        binding.pokeItemsHolder.removeAllViews()
+        lifecycleScope.launch {
+            delay(500)
+            binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()
+            data.forEach { heldItem ->
+                val currentHeldItem = ImageView(requireContext()).apply {
+                    this.layoutParams = LayoutParams(
+                        resources.getDimensionPixelSize(R.dimen.image_width),
+                        resources.getDimensionPixelSize(R.dimen.image_height)
+                    )
+                    load(
+                        heldItem?.sprites?.default
+                    ) {
+                        allowHardware(false)
+                        crossfade(500)
+                    }
+                    setOnClickListener {
+                        showBalloonDialog(heldItem, requireContext(), this)
+                    }
+                }
+                binding.pokeItemsHolder.addView(currentHeldItem)
+            }
+        }
+    }
+
+    private fun addPokemonAbilities(
+        pokeAbilityResponse: Resource<List<PokeAbilities?>>,
+        data: List<PokeAbilities?>,
+    ) {
+        binding.pokeDetailsHolder.removeAllViews()
+        lifecycleScope.launch {
+            delay(500)
+            hideProgressBar()
+            if (pokeAbilityResponse.data?.isNotEmpty() == true) data.forEach {
+                val pokeAbilityTitle = it?.name?.capitalize() ?: "Missing Data!"
+                val pokeAbilityDescription =
+                    if (it?.effectEntries?.getOrNull(1) != null) {
+                        it.effectEntries[1]?.effect
+                    } else if (it?.effectEntries?.getOrNull(0) != null) {
+                        it.effectEntries[0]?.effect
+                    } else "Missing Data!"
+
+                val pokemonAbility = PokeAbilitiesLayout(
+                    requireContext(),
+                    pokeAbilityTitle,
+                    pokeAbilityDescription
+                )
+                binding.pokeDetailsHolder.addView(pokemonAbility)
+            }
         }
     }
 

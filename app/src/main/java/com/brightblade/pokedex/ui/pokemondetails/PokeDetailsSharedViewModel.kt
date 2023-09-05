@@ -43,8 +43,6 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     val preferencesFlow = userPreferences.preferencesFlow
 
-    val hideDetailsFlow = userPreferences.hideDetailsFlow
-
     var pokemonDescription = MutableLiveData<Resource<List<String>>>()
 
     fun getSinglePokemonByName(pokemonId: Int) = viewModelScope.launch {
@@ -87,11 +85,13 @@ class PokeDetailsSharedViewModel @Inject constructor(
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
             val pokeDescription = listOf(
-                pokeSpecies.body()?.textEntries?.first()?.pokemonDescription ?: "",
+                pokeSpecies.body()?.textEntries?.firstOrNull()?.pokemonDescription ?: "",
                 pokeSpecies.body()?.textEntries?.third()?.pokemonDescription ?: ""
             )
             pokemonDescription.postValue(Resource.Success(pokeDescription))
             val currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)
+            Log.d("ViewModelDebug", "currentPokeEvoId: $currentPokeEvoId")
+            Log.d("ViewModelDebug", "chainUrl: ${pokeSpecies.body()?.evoChain?.url!!}")
             getPokemonSpecies(currentPokeEvoId)
         }
     }

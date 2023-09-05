@@ -61,13 +61,20 @@ inline var View.isViewVisible: Boolean
     }
 
 /**
+ * Returns the first member of a list, in other words
+ * it returns the [0] element
+ */
+
+fun <T> List<T>.first(): T? {
+    return getOrNull(0)
+}
+
+/**
  * Returns the second member of a list, in other words
  * it returns the [1] element
  */
-fun <T> List<T>.second(): T {
-    if (isEmpty())
-        throw NoSuchElementException("List is empty.")
-    return this[1]
+fun <T> List<T>.second(): T? {
+    return getOrNull(1)
 }
 
 /**
@@ -75,7 +82,6 @@ fun <T> List<T>.second(): T {
  * it returns the [2] element
  */
 fun <T> List<T>.third(): T? {
-    require(size >= 3) { "List has less than 3 elements." }
     return getOrNull(2)
 }
 
