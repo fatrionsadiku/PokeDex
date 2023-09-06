@@ -89,12 +89,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         onPokemonPhotoLongPressListener()
         observeFavoriteState()
     }
-
-    override fun onDestroy() {
-        childFragmentManager.fragments
-        super.onDestroy()
-    }
-
     private fun onPokemonPhotoLongPressListener() {
         binding.pokemonPhoto.setOnLongClickListener {
             val pokemonPhoto = getScreenShotFromView(it)
@@ -433,27 +427,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     }
 
     /**
-    Checks and verifies the storage permissions required by the application.
-    Iterates through a list of permissions and prompts the user to grant any missing permissions.
-    Permissions required for storage access are declared in the PERMISSIONS_STORAGE array.
-    The function checks if each permission is granted using ActivityCompat.checkSelfPermission().
-    If any permission is not granted, it requests the permissions using ActivityCompat.requestPermissions().
-     */
-//    private fun verifyStoragePermissions(): Boolean {
-//        val writeExternalPermission = WRITE_EXTERNAL_STORAGE
-//        val currentPermission = ActivityCompat.checkSelfPermission(
-//            requireActivity(),
-//            writeExternalPermission
-//        )
-//        if (currentPermission != PackageManager.PERMISSION_GRANTED) {
-//            // We don't have permission so prompt the user
-//            ActivityCompat.requestPermissions(requireActivity(), arrayOf(WRITE_EXTERNAL_STORAGE),1)
-//        }
-//
-//        return currentPermission == PackageManager.PERMISSION_GRANTED
-//    }
-
-    /**
      * Used to check storage permissions on devices running on Android SDK 29 and lower
      * @return Storage Permission State
      */
@@ -461,78 +434,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         val result = ContextCompat.checkSelfPermission(requireContext(), permissionName)
         return result == PackageManager.PERMISSION_GRANTED
     }
-
-//    private fun setUpDetailsState() {
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            when (pokeViewModel.hideDetailsFlow.first().detailsState) {
-//                HideDetails.SHOW_ONLY_POKEMON -> {
-//                    binding.hideDetailsButton.progress = 1f
-//                    binding.topPartPokeDetails.visibility = View.INVISIBLE
-//                    binding.pokemonDescription.visibility = View.VISIBLE
-//                    hideDetails = true
-//                }
-//
-//                HideDetails.SHOW_ALL_DETAILS  -> {
-//                    binding.hideDetailsButton.progress = 0f
-//                    binding.topPartPokeDetails.visibility = View.VISIBLE
-//                    binding.pokemonDescription.visibility = View.INVISIBLE
-//                    hideDetails = false
-//                }
-//            }
-//        }
-//        binding.hideDetailsButton.setOnClickListener {
-//            if (hideDetails) {
-//                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ALL_DETAILS)
-//                binding.hideDetailsButton.apply {
-//                    speed = -1f
-//                    playAnimation()
-//                    progress = 1f
-//                }
-//                binding.pokemonDescription.apply {
-//                    alpha = 1f
-//                    animate().apply {
-//                        visibility = View.INVISIBLE
-//                        duration = 500
-//                        alpha(0f)
-//                    }.start()
-//                }
-//                binding.topPartPokeDetails.apply {
-//                    alpha = 0f
-//                    animate().apply {
-//                        visibility = View.VISIBLE
-//                        duration = 500
-//                        alpha(1f)
-//                    }.start()
-//                    hideDetails = !hideDetails
-//                }
-//            } else {
-//                pokeViewModel.onHideDetailsStateSelected(HideDetails.SHOW_ONLY_POKEMON)
-//                binding.hideDetailsButton.apply {
-//                    speed = 1f
-//                    playAnimation()
-//                    progress = 0f
-//                }
-//                binding.pokemonDescription.apply {
-//                    alpha = 0f
-//                    animate().apply {
-//                        visibility = View.VISIBLE
-//                        duration = 500
-//                        alpha(1f)
-//                    }.start()
-//                }
-//                binding.topPartPokeDetails.apply {
-//                    alpha = 1f
-//                    animate().apply {
-//                        visibility = View.INVISIBLE
-//                        duration = 500
-//                        alpha(0f)
-//                    }.start()
-//                    hideDetails = !hideDetails
-//                }
-//            }
-//        }
-//    }
-
     private fun storagePermissionMessage(message: String) {
         Toastic.toastic(
             context = requireContext(),

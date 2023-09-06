@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -60,6 +59,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     private var doubleBackToExitOnce = false
     private var pokemonPhotoType: String = ""
     private var sortOrderType: String = ""
+    private var fragmentResultState = Pair<Boolean, Int?>(false, null)
 
     override fun onPause() {
         super.onPause()
@@ -85,9 +85,10 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setFragmentResultListener()
+        recyclerView = binding.recyclerView
         observePokemonSortOrder()
         observePokemonPhotoType()
-        fetchApiData()
         setUpPokemonPhotoPowerMenu()
         setUpPokemonNameOrderPowerMenu()
         setUpPokeFiltering()
@@ -95,27 +96,38 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
         setUpPokeSortOrder()
         setUpPokePhotoType()
         observeBottomNaw()
-        setFragmentResultListener()
+        fetchApiData()
     }
 
     private fun setFragmentResultListener() {
-        setFragmentResultListener("pokemon_id") { requestKey, bundle ->
+        parentFragmentManager.setFragmentResultListener(
+            "pokemon_id",
+            viewLifecycleOwner
+        ) { requestKey, bundle ->
             val currentPokemonId = bundle.getInt("pokemon_id")
             val hasNavigatedState = bundle.getBoolean("navigation_state")
             when (hasNavigatedState) {
-                true  -> recyclerView.scrollToPosition(currentPokemonId)
-                false -> Unit
+                true  -> lifecycleScope.launch {
+                    fragmentResultState = Pair(true, currentPokemonId)
+                }
+
+                false -> {
+                    fragmentResultState = Pair(false, null)
+                }
             }
         }
     }
 
     private fun setUpPokeRecyclerView(pokeAdapter: PokeAdapter) {
-        recyclerView = binding.recyclerView
         recyclerView.apply {
             adapter = pokeAdapter
-            setHasFixedSize(true)
             layoutManager = LinearLayoutManager(requireContext())
             addOnScrollListener(this@HomeFragment.scrollListener)
+        }.also {
+            when (fragmentResultState.first) {
+                true  -> it.scrollToPosition(fragmentResultState.second!!)
+                false -> Unit
+            }
         }
     }
 
@@ -126,6 +138,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
                 is Resource.Loading -> {
                     showProgressBar()
                 }
+
                 is Resource.Success -> {
                     viewModel.currentSelectedPokemonPhoto.observe(viewLifecycleOwner) { pokemonPhotoType ->
                         pokeAdapter = PokeAdapter(
@@ -142,6 +155,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
             }
         }
     }
+
     private fun setUpPokeFiltering() {
         binding.searchEditText.apply {
             this.addTextChangedListener { query ->
@@ -230,14 +244,12 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     private fun hideProgressBar() {
         binding.paginationProgressBar.visibility = View.INVISIBLE
         binding.paginationProgressBar.cancelAnimation()
-        recyclerView.setPadding(0, 0, 0, 0)
         isLoading = false
     }
 
     private fun showProgressBar() {
         binding.paginationProgressBar.visibility = View.VISIBLE
         binding.paginationProgressBar.playAnimation()
-        recyclerView.setPadding(0, 0, 0, 130)
         isLoading = true
     }
 
@@ -506,7 +518,5 @@ class HomeFragment : Fragment(R.layout.fragment_home), CheckedItemState,
     override fun onHomeButtonReSelected() {
         binding.recyclerView.smoothScrollToPosition(0)
     }
-
-
 }
 
