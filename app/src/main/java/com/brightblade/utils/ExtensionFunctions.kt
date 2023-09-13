@@ -1,12 +1,21 @@
 package com.brightblade.utils
 
+import android.content.Context
 import android.content.res.Resources
+import android.graphics.Color
+import android.graphics.Typeface
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.brightblade.pokedex.R
 import com.brightblade.pokedex.ui.MainActivity
+import com.skydoves.powermenu.MenuAnimation
+import com.skydoves.powermenu.PowerMenu
+import com.skydoves.powermenu.PowerMenuItem
 import kotlin.properties.ReadOnlyProperty
 
 /**
@@ -103,6 +112,27 @@ inline fun <reified R : ActivityResultLauncher<String>> Fragment.requestPermissi
     noinline explained: (permission: String) -> Unit = {},
 ): ReadOnlyProperty<Fragment, R> =
     PermissionResultDelegate(this, permission, granted, denied, explained)
+
+fun PowerMenu.Builder.addGenericItems(ctx: Context): PowerMenu.Builder {
+    this.setAnimation(MenuAnimation.FADE)
+        .setMenuRadius(10f) // sets the corner radius.
+        .setMenuShadow(10f) // sets the shadow.
+        .setTextGravity(Gravity.CENTER)
+        .setTextTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD))
+        .setSelectedTextColor(Color.WHITE)
+        .setMenuColor(Color.WHITE)
+        .setSelectedMenuColor(ContextCompat.getColor(ctx, R.color.purple_500))
+    return this
+}
+
+fun PowerMenu.Builder.addPowerMenuItems(vararg items: PowerMenuItem): PowerMenu.Builder {
+    items.forEach {
+        this.addItem(
+            it
+        )
+    }
+    return this
+}
 
 
 

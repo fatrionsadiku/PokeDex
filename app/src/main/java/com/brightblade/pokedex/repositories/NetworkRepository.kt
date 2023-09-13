@@ -29,7 +29,7 @@ class NetworkRepository @Inject constructor(
             cachedPokemonsDao.getPokemons(sortOrder)
         },
         fetch = {
-            delay(1000)
+            delay(500)
             pokeApi.getPaginatedPokemons(MAX_POKEMON_SIZE, 0)
         },
         saveFetchResult = { pokeResponse ->

@@ -89,6 +89,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         onPokemonPhotoLongPressListener()
         observeFavoriteState()
     }
+
     private fun onPokemonPhotoLongPressListener() {
         binding.pokemonPhoto.setOnLongClickListener {
             val pokemonPhoto = getScreenShotFromView(it)
@@ -218,6 +219,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             }
         }
     }
+
     fun getPokemonDetails(pokeId: Int) {
         pokeViewModel.getSinglePokemonByName(pokeId)
         pokeViewModel.singlePokemonResponse.observe(viewLifecycleOwner) { response ->
@@ -434,6 +436,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         val result = ContextCompat.checkSelfPermission(requireContext(), permissionName)
         return result == PackageManager.PERMISSION_GRANTED
     }
+
     private fun storagePermissionMessage(message: String) {
         Toastic.toastic(
             context = requireContext(),

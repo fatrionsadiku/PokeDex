@@ -21,7 +21,6 @@ import coil.size.Scale
 import com.airbnb.lottie.LottieAnimationView
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.PokemonResult
-import com.brightblade.pokedex.data.persistent.PokemonPhotoTypes
 import com.brightblade.pokedex.databinding.ItemPokemonBinding
 import com.brightblade.utils.Utility.listOfColors
 import com.brightblade.utils.Utility.listOfSilhouettes
@@ -107,16 +106,8 @@ class PokeAdapter(
                 }
             }
             binding.favoriteButton.apply {
-                stateCheckedItemState.doesSelectedItemExist(pokemon.name) {
-                    when (it) {
-                        true  -> {
-                            binding.favoriteButton.progress = 1f
-                        }
-
-                        false -> {
-                            binding.favoriteButton.progress = 0f
-                        }
-                    }
+                stateCheckedItemState.doesSelectedItemExist(pokemon.name) { exists ->
+                    progress = if (exists) 1f else 0f
                 }
             }
         }
@@ -166,15 +157,6 @@ class PokeAdapter(
     }
 
     override fun getItemCount(): Int = pokemons.size
-    fun changePokemonPhoto(type: PokemonPhotoTypes) {
-        _pokeImageUrl = when (type) {
-            PokemonPhotoTypes.HOME       -> "home"
-            PokemonPhotoTypes.OFFICIAL   -> "official"
-            PokemonPhotoTypes.DREAMWORLD -> "dreamworld"
-            PokemonPhotoTypes.XYANI      -> "xyani"
-        }
-    }
-
 }
 
 private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
@@ -185,7 +167,6 @@ private val diffCallback = object : DiffUtil.ItemCallback<PokemonResult>() {
     override fun areContentsTheSame(oldItem: PokemonResult, newItem: PokemonResult): Boolean {
         return oldItem.name == newItem.name
     }
-
 }
 
 private fun getPokemonPicture(pokemon: PokemonResult, type: String): String {

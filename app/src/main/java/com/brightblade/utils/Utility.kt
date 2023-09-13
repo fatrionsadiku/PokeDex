@@ -72,7 +72,7 @@ object Utility {
     val listOfSilhouettes = listOf(
         R.drawable.pika_silhouette,
         R.drawable.squirtle_silhouette,
-        R.drawable.bulbasaur_silhouette
+        R.drawable.bulbasaur_silhouette,
     )
     val pokeNameParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.WRAP_CONTENT,

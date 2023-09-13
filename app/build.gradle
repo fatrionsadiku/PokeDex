@@ -139,8 +139,8 @@ dependencies {
 
 //    Custom Toast and Tooltips
     implementation 'com.github.yagmurerdogan:Toastic:1.0.1'
-    implementation 'com.github.akndmr:UglyTooltip:v1.0.6-beta'
 
 //    Custom ImageView
     implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
+
 }
