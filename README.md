@@ -6,10 +6,14 @@ Pokedex application built with Hilt, Coroutines,Jetpack(ViewModel), and Material
 </br>
 
 <p align="center">
-<img src="/mockups/pokedex_mockup.jpg"/>
+<img src="/mockups/pokedex_mockup.png"/>
 </p>
 
-<img src="/mockups/pokeapp_showcase.gif" align="right" width="320"/>
+
+
+https://github.com/fatrionsadiku/PokeDex/assets/119130035/8b459a74-a662-412c-a0a5-850344475a9c
+
+
 
 ## Tech stack & Open-source libraries
 - Minimum SDK level 21
