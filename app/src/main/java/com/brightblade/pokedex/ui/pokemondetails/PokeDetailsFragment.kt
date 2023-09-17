@@ -50,7 +50,6 @@ import com.skydoves.rainbow.contextColor
 import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -90,10 +89,6 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         favoritePokemonOnClickListener()
         onPokemonPhotoLongPressListener()
         observeFavoriteState()
-        lifecycleScope.launch {
-            delay(5000)
-            childFragmentManager.fragments
-        }
     }
 
     private fun onPokemonPhotoLongPressListener() {
