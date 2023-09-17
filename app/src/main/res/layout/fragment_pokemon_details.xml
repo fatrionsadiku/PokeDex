@@ -165,12 +165,13 @@
             android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
             android:elevation="0dp"
+            android:paddingBottom="6dp"
             app:tabIndicator="@drawable/tab_indicator"
             app:tabIndicatorAnimationMode="elastic"
-            app:tabIndicatorGravity="stretch"
-            app:tabIndicatorHeight="1dp"
-            app:tabMode="fixed"
-            app:tabSelectedTextColor="@color/white"
+            app:tabIndicatorColor="#1572d9"
+            app:tabIndicatorHeight="3dp"
+            app:tabMaxWidth="0dp"
+            app:tabSelectedTextColor="#809BCE"
             app:tabTextColor="@color/black" />
 
         <androidx.viewpager2.widget.ViewPager2

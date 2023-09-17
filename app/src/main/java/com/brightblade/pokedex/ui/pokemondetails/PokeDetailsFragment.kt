@@ -40,6 +40,7 @@ import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
 import com.brightblade.utils.Resource
 import com.brightblade.utils.Utility.HIGHEST_POKEMON_ID
 import com.brightblade.utils.capitalize
+import com.brightblade.utils.getDominantColor
 import com.brightblade.utils.requestPermission
 import com.google.android.material.tabs.TabLayoutMediator
 import com.skydoves.rainbow.Rainbow
@@ -49,6 +50,7 @@ import com.skydoves.rainbow.contextColor
 import com.yagmurerdogan.toasticlib.Toastic
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -88,6 +90,10 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         favoritePokemonOnClickListener()
         onPokemonPhotoLongPressListener()
         observeFavoriteState()
+        lifecycleScope.launch {
+            delay(5000)
+            childFragmentManager.fragments
+        }
     }
 
     private fun onPokemonPhotoLongPressListener() {
@@ -185,8 +191,8 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     }
 
     private fun checkIfPokeAbilitiesIsNotNull() {
-        if ((childFragmentManager.findFragmentByTag("f1") as PokeAbilities?) != null) {
-            (childFragmentManager.findFragmentByTag("f1") as PokeAbilities).apply {
+        if ((childFragmentManager.findFragmentByTag("f2") as PokeAbilities?) != null) {
+            (childFragmentManager.findFragmentByTag("f2") as PokeAbilities).apply {
                 binding.apply {
                     pokeItemsHolder.removeAllViews()
                     pokeDetailsHolder.removeAllViews()
@@ -261,13 +267,17 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                     precision(Precision.EXACT)
                     crossfade(500)
                     allowHardware(false)
+                    listener { _, result ->
+                        result.drawable.getDominantColor { dominantColor ->
+                            Rainbow(binding.root).palette {
+                                +contextColor(R.color.white)
+                                +color(dominantColor)
+                            }.apply {
+                                background(RainbowOrientation.BOTTOM_TOP)
+                            }
+                        }
+                    }
                 }
-            }
-            Rainbow(root).palette {
-                +color(pokemonArgs.dominantColor)
-                +contextColor(R.color.white)
-            }.apply {
-                background(RainbowOrientation.TOP_BOTTOM, 14)
             }
             progressBar.isVisible = false
             pokemonName.text = pokeName.capitalize()
@@ -286,17 +296,13 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             TabLayoutMediator(tabLayout, pokeInfosViewPager) { tab, position ->
                 tab.apply {
                     when (position) {
-                        0 -> {
-                            text = "Details"
-                        }
+                        0 -> text = "About"
 
-                        1 -> {
-                            text = "Abilities/Items"
-                        }
+                        1 -> text = "Base Stats"
 
-                        2 -> {
-                            text = "Evolution Tree"
-                        }
+                        2 -> text = "Abilities/Items"
+
+                        3 -> text = "Evolution Tree"
                     }
                 }
             }.attach()
@@ -305,17 +311,13 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
                     when (position) {
-                        0 -> {
-                            currentViewPagerFragment = "Details"
-                        }
+                        0 -> currentViewPagerFragment = "About"
 
-                        1 -> {
-                            currentViewPagerFragment = "Abilities/Items"
-                        }
+                        1 -> currentViewPagerFragment = "Base Stats"
 
-                        2 -> {
-                            currentViewPagerFragment = "Evolution Tree"
-                        }
+                        2 -> currentViewPagerFragment = "Abilities/Items"
+
+                        3 -> currentViewPagerFragment = "Evolution Tree"
                     }
                 }
             })
@@ -417,7 +419,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
             newFile
         )
         val shareMessage = when (currentViewPagerFragment) {
-            "Details"         -> "Hey, check out this awesome pokemon, it has some crazy stats!!!. Can you believe how strong it is?"
+            "Base Stats"      -> "Hey, check out this awesome pokemon, it has some crazy stats!!!. Can you believe how strong it is?"
             "Abilities/Items" -> "Hey, check out this awesome pokemon, it's abilities are INSANE!!!. Can you believe how skilled it is?"
             "Evolution Tree"  -> "Hey, check out this awesome pokemon's evolution tree, such an amazing evolution."
             else              -> "Hey, check out this awesome pokemon"

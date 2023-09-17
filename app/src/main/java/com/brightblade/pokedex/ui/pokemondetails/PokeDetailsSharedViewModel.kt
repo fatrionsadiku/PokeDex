@@ -101,7 +101,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
         val pokeSpecies = repository.getPokemonSpecies(id)
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
-            delay(500)
+            delay(300)
             pokemonSpeciesResponse.postValue(Resource.Success(pokeSpecies.body()))
         } else pokemonSpeciesResponse.postValue(Resource.Error(message = "Error while trying to fetch pokemon data"))
     }

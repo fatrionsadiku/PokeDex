@@ -2,8 +2,11 @@ package com.brightblade.utils
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -11,6 +14,7 @@ import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.palette.graphics.Palette
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.ui.MainActivity
 import com.skydoves.powermenu.MenuAnimation
@@ -132,6 +136,16 @@ fun PowerMenu.Builder.addPowerMenuItems(vararg items: PowerMenuItem): PowerMenu.
         )
     }
     return this
+}
+
+fun Drawable.getDominantColor(onFinish: (Int) -> Unit) {
+    val bitMap = (this as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
+    Palette.from(bitMap).generate { palette ->
+        palette?.dominantSwatch?.let { dominantColor ->
+            val color = dominantColor.rgb
+            onFinish(color)
+        }
+    }
 }
 
 

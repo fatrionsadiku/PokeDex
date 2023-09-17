@@ -57,7 +57,6 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         toggleBackToDetails()
-
         binding.apply {
             viewModel.pokemonSpeciesResponse.observe(viewLifecycleOwner) { evoChainResponse ->
                 when (evoChainResponse) {
@@ -95,10 +94,9 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPokemonEvoTree(pokeSpecies: PokemonEvolutionChain) {
         binding.linearLayout.removeAllViews()
-        val pokeDetailsFragment =
-            this.parentFragment as PokeDetailsFragment
+        val pokeDetailsFragment = parentFragment as PokeDetailsFragment
         val pokeAbilitiesFragment =
-            parentFragmentManager.findFragmentByTag("f101") as? PokeAbilities
+            parentFragmentManager.findFragmentByTag("f2") as? PokeAbilities
         val neonPointingGif = createNeonPointingGif()
         val firstPokemonId = getPokemonID(pokeSpecies.chain.species.url)
         val firstPokeName = createPokemonNameTextView(pokeSpecies.chain.species.name.capitalize())

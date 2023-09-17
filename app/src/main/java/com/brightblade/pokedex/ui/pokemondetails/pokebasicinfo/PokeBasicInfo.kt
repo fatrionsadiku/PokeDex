@@ -33,25 +33,26 @@ class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.apply {
-            viewModel.singlePokemonResponse.apply {
-                observe(viewLifecycleOwner) { apiResponse ->
-                  when(apiResponse){
-                      is Resource.Error   -> Log.e("Error fetching data", apiResponse.message.toString())
-                      is Resource.Loading -> Log.d("Loading...","Loading...")
-                      is Resource.Success -> {
-                          val pokemon = apiResponse.data
-                          pokemon?.let {
-                              Log.d("POKE DEBUG YAY", "onViewCreated: $it")
-                              pokeBaseXP.text = it.baseEXP.toString()
-                              pokeWeight.text = "${it.weight}kg"
-                              pokeHeight.text = "${it.height}m"
-                              showPokemonTypes(pokemon)
-                              showPokemonStats(pokemon)
-                          }
-                      }
-                  }
+            viewModel.singlePokemonResponse.observe(viewLifecycleOwner) { apiResponse ->
+                when (apiResponse) {
+                    is Resource.Error   -> Log.e(
+                        "Error fetching data",
+                        apiResponse.message.toString()
+                    )
+
+                    is Resource.Loading -> Log.d("Loading...", "Loading...")
+                    is Resource.Success -> {
+                        val pokemon = apiResponse.data
+                        pokemon?.let {
+                            Log.d("POKE DEBUG YAY", "onViewCreated: $it")
+                            pokeBaseXP.text = it.baseEXP.toString()
+                            pokeWeight.text = "${it.weight}kg"
+                            pokeHeight.text = "${it.height}m"
+                            showPokemonTypes(pokemon)
+                            showPokemonStats(pokemon)
+                        }
+                    }
                 }
-                this.value = null
             }
         }
     }
@@ -84,8 +85,6 @@ class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
             }
         }
     }
-
-
     private fun showPokemonTypes(pokemon: Pokemon) {
         binding.linearLayout.removeAllViews()
         val layoutParams = LinearLayout.LayoutParams(

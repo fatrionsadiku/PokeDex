@@ -1,15 +1,11 @@
 package com.brightblade.pokedex.ui.adapters
 
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +21,7 @@ import com.brightblade.pokedex.databinding.ItemPokemonBinding
 import com.brightblade.utils.Utility.listOfColors
 import com.brightblade.utils.Utility.listOfSilhouettes
 import com.brightblade.utils.capitalize
+import com.brightblade.utils.getDominantColor
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
@@ -87,7 +84,7 @@ class PokeAdapter(
                         }
 
                     } else {
-                        getDominantColor(result.drawable) { hexColor ->
+                        result.drawable.getDominantColor { hexColor ->
                             Log.d("PokeAdapter", hexColor.toString())
                             currentDominantColor = hexColor
                             Rainbow(binding.pokemonDojo).palette {
@@ -184,17 +181,6 @@ private fun getPokemonPicture(pokemon: PokemonResult, type: String): String {
 private fun getPokemonID(pokemon: PokemonResult) = pokemon.url.replace(
     "https://pokeapi.co/api/v2/pokemon/", ""
 ).replace("/", "").toInt()
-
-@RequiresApi(Build.VERSION_CODES.O)
-private fun getDominantColor(drawable: Drawable, onFinish: (Int) -> Unit) {
-    val bitMap = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
-    Palette.from(bitMap).generate { palette ->
-        palette?.dominantSwatch?.let { dominantColor ->
-            val color = dominantColor.rgb
-            onFinish(color)
-        }
-    }
-}
 
 interface CheckedItemState {
     fun doesSelectedItemExist(itemName: String, doesItemExist: (result: Boolean) -> Unit)

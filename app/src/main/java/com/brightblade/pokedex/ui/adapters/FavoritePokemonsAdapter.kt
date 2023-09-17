@@ -1,13 +1,9 @@
 package com.brightblade.pokedex.ui.adapters
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +13,7 @@ import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.databinding.ItemPokemonBinding
 import com.brightblade.utils.capitalize
+import com.brightblade.utils.getDominantColor
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
@@ -56,7 +53,7 @@ class FavoritePokemonsAdapter(
             binding.pokemonPlaceHolder.load(getPokemonPicture(pokemon, "official")) {
                 listener { _, result ->
                     binding.pokemonPlaceHolder.load(result.drawable) { crossfade(500) }
-                    getDominantColor(result.drawable) { hexColor ->
+                    result.drawable.getDominantColor { hexColor ->
                         currentDominantColor = hexColor
                         Rainbow(binding.pokemonDojo).palette {
                             +contextColor(R.color.white)
@@ -138,17 +135,6 @@ class FavoritePokemonsAdapter(
     }
 
     override fun getItemCount(): Int = pokemons.size
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-private fun getDominantColor(drawable: Drawable, onFinish: (Int) -> Unit) {
-    val bitMap = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
-    Palette.from(bitMap).generate { palette ->
-        palette?.dominantSwatch?.let { dominantColor ->
-            val color = dominantColor.rgb
-            onFinish(color)
-        }
-    }
 }
 
 private val diffCallback = object : DiffUtil.ItemCallback<FavoritePokemon>() {
