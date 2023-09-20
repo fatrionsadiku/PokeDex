@@ -23,6 +23,7 @@ import com.skydoves.rainbow.RainbowOrientation
 import com.skydoves.rainbow.color
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
@@ -35,10 +36,8 @@ class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
         binding.apply {
             viewModel.singlePokemonResponse.observe(viewLifecycleOwner) { apiResponse ->
                 when (apiResponse) {
-                    is Resource.Error   -> Log.e(
-                        "Error fetching data",
-                        apiResponse.message.toString()
-                    )
+                    is Resource.Error   -> Timber.tag("Basic Info")
+                        .e(apiResponse.message.toString())
 
                     is Resource.Loading -> Log.d("Loading...", "Loading...")
                     is Resource.Success -> {
@@ -61,25 +60,41 @@ class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
             val pokeStatName = it.stat.name
             binding.apply {
                 when (pokeStatName) {
-                    "hp" -> {
+                    "hp"              -> {
                         val currentHp = it.baseStat
                         progressHp.progress = currentHp.toFloat()
                         progressHp.labelText = "${currentHp}/${progressHp.max.toInt()}"
                     }
-                    "attack" -> {
+                    "attack"          -> {
                         val currentAttack = it.baseStat
                         progressAttack.progress = currentAttack.toFloat()
                         progressAttack.labelText = "${currentAttack}/${progressAttack.max.toInt()}"
                     }
-                    "defense" -> {
+
+                    "defense"         -> {
                         val currentDefense = it.baseStat
                         progressDef.progress = currentDefense.toFloat()
                         progressDef.labelText = "${currentDefense}/${progressAttack.max.toInt()}"
                     }
-                    "speed" -> {
+
+                    "speed"           -> {
                         val currentSpeed = it.baseStat
                         progressSpeed.progress = currentSpeed.toFloat()
                         progressSpeed.labelText = "${currentSpeed}/${progressAttack.max.toInt()}"
+                    }
+
+                    "special-attack"  -> {
+                        val currentSpecialAttack = it.baseStat
+                        progressSpecialAttack.progress = currentSpecialAttack.toFloat()
+                        progressSpecialAttack.labelText =
+                            "${currentSpecialAttack}/${progressAttack.max.toInt()}"
+                    }
+
+                    "special-defense" -> {
+                        val currentSpecialDefense = it.baseStat
+                        progressSpecialDefense.progress = currentSpecialDefense.toFloat()
+                        progressSpecialDefense.labelText =
+                            "${currentSpecialDefense}/${progressAttack.max.toInt()}"
                     }
                 }
             }

@@ -6,22 +6,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.brightblade.pokedex.data.models.PokeAbilities
+import com.brightblade.pokedex.data.models.PokeCharacteristics
 import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.data.models.Pokemon
+import com.brightblade.pokedex.data.models.PokemonEncounters
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
-import com.brightblade.pokedex.data.persistent.HideDetails
 import com.brightblade.pokedex.data.persistent.RedirectState
 import com.brightblade.pokedex.data.persistent.UserPreferences
 import com.brightblade.pokedex.repositories.NetworkRepository
 import com.brightblade.utils.Resource
 import com.brightblade.utils.Utility
-import com.brightblade.utils.third
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import retrofit2.awaitResponse
+import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
@@ -41,13 +42,17 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
 
+    val pokeCharacteristicsLiveData = MutableLiveData<PokeCharacteristics>()
+
+    val pokeEncountersLiveData = MutableLiveData<List<PokemonEncounters>>()
+
     val preferencesFlow = userPreferences.preferencesFlow
 
-    var pokemonDescription = MutableLiveData<Resource<List<String>>>()
+    var pokemonDescription = MutableLiveData<List<String>>()
+
+    var pokemonName = MutableLiveData("")
 
     fun getSinglePokemonByName(pokemonId: Int) = viewModelScope.launch {
-//        val time = measureTimeMillis {
-        pokemonDescription.postValue(Resource.Loading())
         singlePokemonResponse.postValue(Resource.Loading())
         try {
             val response = repository.getSinglePokemonByName(pokemonId)
@@ -58,7 +63,9 @@ class PokeDetailsSharedViewModel @Inject constructor(
             pokemonHeldItems.postValue(Resource.Loading())
             val heldItems = getPokemonHeldItems(response.body())
             pokemonHeldItems.postValue(Resource.Success(heldItems))
+            getPokemonCharacteristics(pokemonId)
             getPokemonSpeciesId(pokemonId)
+            getPokemonEncounters(pokemonId)
         } catch (t: Throwable) {
             when (t) {
                 is IOException           -> singlePokemonResponse.postValue(
@@ -76,19 +83,19 @@ class PokeDetailsSharedViewModel @Inject constructor(
                 )
             }
         }
-//        }
-//        Log.println(Log.VERBOSE, "SharedViewModel", "\"The execution time was ${time}ms: \"")
     }
 
     private fun getPokemonSpeciesId(id: Int) = viewModelScope.launch {
         val pokeSpecies = repository.getPokemonSpeciesId(id)
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
-            val pokeDescription = listOf(
-                pokeSpecies.body()?.textEntries?.firstOrNull()?.pokemonDescription ?: "",
-                pokeSpecies.body()?.textEntries?.third()?.pokemonDescription ?: ""
+            val filteredPokeDescriptions =
+                pokeSpecies.body()?.textEntries?.filter { it.language.name == "en" }
+            Timber.tag("PokeDescriptions").d(filteredPokeDescriptions.toString())
+            val pokeDescriptions = listOf(
+                filteredPokeDescriptions?.first()?.pokemonDescription ?: ""
             )
-            pokemonDescription.postValue(Resource.Success(pokeDescription))
+            pokemonDescription.postValue(pokeDescriptions)
             val currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)
             Log.d("ViewModelDebug", "currentPokeEvoId: $currentPokeEvoId")
             Log.d("ViewModelDebug", "chainUrl: ${pokeSpecies.body()?.evoChain?.url!!}")
@@ -104,6 +111,21 @@ class PokeDetailsSharedViewModel @Inject constructor(
             delay(300)
             pokemonSpeciesResponse.postValue(Resource.Success(pokeSpecies.body()))
         } else pokemonSpeciesResponse.postValue(Resource.Error(message = "Error while trying to fetch pokemon data"))
+    }
+
+    private fun getPokemonCharacteristics(id: Int) = viewModelScope.launch {
+        val pokeCharacteristics = repository.getPokemonCharacteristics(id)
+        if (pokeCharacteristics.isSuccessful) {
+            pokeCharacteristicsLiveData.postValue(pokeCharacteristics.body())
+        } else Timber.tag("PokeCharacteristics").e(pokeCharacteristics.message())
+    }
+
+    private fun getPokemonEncounters(id: Int) = viewModelScope.launch {
+        val pokemonEncountersResponse = repository.getPokemonEncounters(id)
+        if (pokemonEncountersResponse.isSuccessful) {
+            pokeEncountersLiveData.postValue(pokemonEncountersResponse.body())
+            Timber.tag("PokeEncounters").d(pokemonEncountersResponse.body().toString())
+        } else Timber.tag("PokeCharacteristics").e(pokemonEncountersResponse.message())
     }
 
     private suspend fun getPokemonHeldItems(pokemon: Pokemon?): List<PokeHeldItems?> {
@@ -146,9 +168,5 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     fun onRedirectStateSelected(redirectState: RedirectState) = viewModelScope.launch {
         userPreferences.updateRedirectState(redirectState)
-    }
-
-    fun onHideDetailsStateSelected(detailsState: HideDetails) = viewModelScope.launch {
-        userPreferences.updateDetailsState(detailsState)
     }
 }

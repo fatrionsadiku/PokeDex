@@ -4,8 +4,10 @@ import androidx.room.withTransaction
 import com.brightblade.pokedex.data.database.PokemonDatabase.PokemonDao.CachedPokemonsDao
 import com.brightblade.pokedex.data.database.PokemonDatabase.PokemonDatabase
 import com.brightblade.pokedex.data.models.PokeAbilities
+import com.brightblade.pokedex.data.models.PokeCharacteristics
 import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.data.models.Pokemon
+import com.brightblade.pokedex.data.models.PokemonEncounters
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
 import com.brightblade.pokedex.data.models.PokemonSpecies
 import com.brightblade.pokedex.data.network.PokeApiService
@@ -73,6 +75,24 @@ class NetworkRepository @Inject constructor(
     suspend fun getPokemonSpeciesId(id: Int): Response<PokemonSpecies> {
         val response = try {
             pokeApi.getPokemonSpeciesId(id)
+        } catch (e: Exception) {
+            throw Exception(e.toString())
+        }
+        return response
+    }
+
+    suspend fun getPokemonCharacteristics(id: Int): Response<PokeCharacteristics> {
+        val response = try {
+            pokeApi.getPokemonCharacteristics(id)
+        } catch (e: Exception) {
+            throw Exception(e.toString())
+        }
+        return response
+    }
+
+    suspend fun getPokemonEncounters(id: Int): Response<List<PokemonEncounters>> {
+        val response = try {
+            pokeApi.getPokemonEncounters(id)
         } catch (e: Exception) {
             throw Exception(e.toString())
         }

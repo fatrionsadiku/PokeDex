@@ -1,8 +1,10 @@
 package com.brightblade.pokedex.data.network
 
 import com.brightblade.pokedex.data.models.PokeAbilities
+import com.brightblade.pokedex.data.models.PokeCharacteristics
 import com.brightblade.pokedex.data.models.PokeHeldItems
 import com.brightblade.pokedex.data.models.Pokemon
+import com.brightblade.pokedex.data.models.PokemonEncounters
 import com.brightblade.pokedex.data.models.PokemonEvolutionChain
 import com.brightblade.pokedex.data.models.PokemonSpecies
 import com.brightblade.pokedex.data.models.PokemonsApiResult
@@ -39,13 +41,23 @@ interface PokeApiService {
 
     @GET("pokemon-species/{id}")
     suspend fun getPokemonSpeciesId(
-        @Path("id") id : Int,
+        @Path("id") id: Int,
     ): Response<PokemonSpecies>
 
     @GET("ability/{name}")
     suspend fun getPokemonAbilities(
         @Path("name") pokemonName: String?,
     ): Response<PokeAbilities>
+
+    @GET("characteristic/{id}")
+    suspend fun getPokemonCharacteristics(
+        @Path("id") pokemonId: Int?,
+    ): Response<PokeCharacteristics>
+
+    @GET("pokemon/{id}/encounters")
+    suspend fun getPokemonEncounters(
+        @Path("id") pokemonId: Int?,
+    ): Response<List<PokemonEncounters>>
 
 
 }

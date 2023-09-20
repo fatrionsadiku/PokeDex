@@ -234,6 +234,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                     currentPokemonId = pokeId
                     currentPokemonName = response.data?.name ?: ""
                     currentPokemonLink = "https://pokeapi.co/api/v2/pokemon/$pokeId/"
+                    pokeViewModel.pokemonName.postValue(currentPokemonName)
                     lifecycleScope.launch {
                         pokeDbViewModel.doesPokemonExist(
                             currentPokemonName,

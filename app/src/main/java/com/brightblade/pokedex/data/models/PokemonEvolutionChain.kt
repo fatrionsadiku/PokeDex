@@ -40,5 +40,6 @@ data class EvolutionChain(
 )
 data class FlavorTextEntries(
     @SerializedName("flavor_text")
-    val pokemonDescription : String?
+    val pokemonDescription: String?,
+    val language: Language,
 )
