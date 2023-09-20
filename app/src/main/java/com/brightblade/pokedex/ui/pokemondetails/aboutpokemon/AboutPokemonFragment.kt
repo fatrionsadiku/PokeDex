@@ -13,6 +13,7 @@ import com.brightblade.pokedex.data.models.PokeCharacteristics
 import com.brightblade.pokedex.data.models.PokemonEncounters
 import com.brightblade.pokedex.databinding.FragmentAboutPokemonBinding
 import com.brightblade.pokedex.ui.pokemondetails.PokeDetailsSharedViewModel
+import com.brightblade.utils.Resource
 import com.brightblade.utils.Utility
 import com.brightblade.utils.capitalize
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
@@ -34,9 +35,16 @@ class AboutPokemonFragment : Fragment(R.layout.fragment_about_pokemon) {
             pokeViewModel.pokeCharacteristicsLiveData,
             pokeViewModel.pokeEncountersLiveData
         ).observe(viewLifecycleOwner) { (pokeDescriptions, pokemonName, pokeCharacteristics, pokeEncounters) ->
-            handlePokemonTitle(pokemonName, pokeCharacteristics)
-            handlePokemonDesciptions(pokeDescriptions ?: emptyList())
-            handlePokemonEncounters(pokeEncounters ?: emptyList())
+            when (pokeEncounters) {
+                is Resource.Error   -> Timber.tag("PokemonEncounters").e(pokeEncounters.message)
+                is Resource.Loading -> showProgressBar()
+                is Resource.Success -> {
+                    hideProgressBar()
+                    handlePokemonEncounters(pokeEncounters.data!!)
+                    handlePokemonTitle(pokemonName, pokeCharacteristics)
+                    handlePokemonDescriptions(pokeDescriptions ?: emptyList())
+                }
+            }
         }
 
 
@@ -61,10 +69,14 @@ class AboutPokemonFragment : Fragment(R.layout.fragment_about_pokemon) {
             it.language.name == "en"
         }
         binding.titleText.text =
-            "${pokeName?.capitalize()}, the one who's ${englishPokeCharacteristic?.description?.lowercase()}"
+            if (englishPokeCharacteristic != null)
+                "${pokeName?.capitalize()}, the one who's ${englishPokeCharacteristic?.description?.lowercase()}"
+            else
+                "${pokeName?.capitalize()}, the awesome one"
+
     }
 
-    private fun handlePokemonDesciptions(pokeDescriptions: List<String>) {
+    private fun handlePokemonDescriptions(pokeDescriptions: List<String>) {
         val stringBuilder = StringBuilder()
         pokeDescriptions.forEach { pokeDescription ->
             stringBuilder.append(
@@ -99,5 +111,20 @@ class AboutPokemonFragment : Fragment(R.layout.fragment_about_pokemon) {
     private fun showNoLocationsImageView() {
         binding.locationsLinearLayout.visibility = View.GONE
         binding.hasNoLocations.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar() {
+        binding.loadingAnimation.visibility = View.INVISIBLE
+        binding.locationsLinearLayout.visibility = View.VISIBLE
+        binding.loadingAnimation.cancelAnimation()
+    }
+
+    private fun showProgressBar() {
+        binding.loadingAnimation.visibility = View.VISIBLE
+        binding.locationsLinearLayout.visibility = View.INVISIBLE
+        binding.hasNoLocations.visibility = View.GONE
+        binding.titleText.text = "..."
+        binding.pokemonBio.text = "..."
+        binding.loadingAnimation.playAnimation()
     }
 }

@@ -44,7 +44,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     val pokeCharacteristicsLiveData = MutableLiveData<PokeCharacteristics>()
 
-    val pokeEncountersLiveData = MutableLiveData<List<PokemonEncounters>>()
+    val pokeEncountersLiveData = MutableLiveData<Resource<List<PokemonEncounters>>>()
 
     val preferencesFlow = userPreferences.preferencesFlow
 
@@ -54,6 +54,7 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     fun getSinglePokemonByName(pokemonId: Int) = viewModelScope.launch {
         singlePokemonResponse.postValue(Resource.Loading())
+        pokeEncountersLiveData.postValue(Resource.Loading())
         try {
             val response = repository.getSinglePokemonByName(pokemonId)
             singlePokemonResponse.postValue(handleApiResponse(response))
@@ -123,9 +124,12 @@ class PokeDetailsSharedViewModel @Inject constructor(
     private fun getPokemonEncounters(id: Int) = viewModelScope.launch {
         val pokemonEncountersResponse = repository.getPokemonEncounters(id)
         if (pokemonEncountersResponse.isSuccessful) {
-            pokeEncountersLiveData.postValue(pokemonEncountersResponse.body())
+            delay(300)
+            pokeEncountersLiveData.postValue(Resource.Success(pokemonEncountersResponse.body()))
             Timber.tag("PokeEncounters").d(pokemonEncountersResponse.body().toString())
-        } else Timber.tag("PokeCharacteristics").e(pokemonEncountersResponse.message())
+        } else Timber.tag("PokeCharacteristics").e(pokemonEncountersResponse.message()).also {
+            pokeEncountersLiveData.postValue(Resource.Error(message = pokemonEncountersResponse.message()))
+        }
     }
 
     private suspend fun getPokemonHeldItems(pokemon: Pokemon?): List<PokeHeldItems?> {
