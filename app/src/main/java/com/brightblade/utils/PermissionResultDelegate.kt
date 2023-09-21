@@ -26,7 +26,6 @@ class PermissionResultDelegate<R : ActivityResultLauncher<String>>(
                     permissionResult = registerForActivityResult(
                         ActivityResultContracts.RequestPermission()
                     ) { isGranted: Boolean ->
-
                         when {
                             isGranted                                        -> granted(permission)
                             shouldShowRequestPermissionRationale(permission) -> denied(permission)

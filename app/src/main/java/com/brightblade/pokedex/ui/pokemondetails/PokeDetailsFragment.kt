@@ -32,6 +32,7 @@ import androidx.viewpager2.widget.ViewPager2
 import coil.load
 import coil.size.Precision
 import coil.size.Scale
+import com.airbnb.lottie.LottieAnimationView
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
@@ -71,6 +72,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
     private val pokemonArgs by navArgs<PokeDetailsFragmentArgs>()
     private var currentPokemonName = ""
     var currentPokemonId: Int = 0
+    private var currentPhotoIndex = 0
     private var favoriteStatusToast: Toast? = null
     private val pokeViewModel: PokeDetailsSharedViewModel by activityViewModels()
     private val pokeDbViewModel: PokemonDatabaseViewModel by activityViewModels()
@@ -88,6 +90,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         previousPokemonOnClickListener()
         favoritePokemonOnClickListener()
         onPokemonPhotoLongPressListener()
+        changePictureOnClickListener()
         observeFavoriteState()
     }
 
@@ -164,6 +167,15 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         }
     }
 
+    private fun changePictureOnClickListener() {
+        binding.changePicture.setOnClickListener {
+            (it as LottieAnimationView).cancelAnimation()
+            it.playAnimation()
+            currentPhotoIndex = (currentPhotoIndex + 1) % 3
+            setPokemonPicture(currentPhotoIndex, currentPokemonId)
+        }
+    }
+
     private fun previousPokemonOnClickListener() {
         binding.previousPokemonButton.setOnClickListener {
             checkIfPokeAbilitiesIsNotNull()
@@ -171,6 +183,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 pokeId = HIGHEST_POKEMON_ID
             )
             hasNavigatedWithButtons = true
+            currentPhotoIndex = 0
         }
     }
 
@@ -181,7 +194,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 pokeId = currentPokemonId + 1
             )
             hasNavigatedWithButtons = true
-
+            currentPhotoIndex = 0
         }
     }
 
@@ -257,24 +270,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
 
     private fun fillPokemonDataOnScreen(pokeName: String, pokeId: Int) {
         binding.apply {
-            pokemonPhoto.apply {
-                load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png") {
-                    scale(Scale.FIT)
-                    precision(Precision.EXACT)
-                    crossfade(500)
-                    allowHardware(false)
-                    listener { _, result ->
-                        result.drawable.getDominantColor { dominantColor ->
-                            Rainbow(binding.root).palette {
-                                +contextColor(R.color.white)
-                                +color(dominantColor)
-                            }.apply {
-                                background(RainbowOrientation.BOTTOM_TOP)
-                            }
-                        }
-                    }
-                }
-            }
+            setPokemonPicture(pokeId = pokeId)
             progressBar.isVisible = false
             pokemonName.text = pokeName.capitalize()
             pokemonId.apply {
@@ -282,6 +278,32 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
                 text = "#$formattedId"
             }
             progressBar.isVisible = false
+        }
+    }
+
+    private fun setPokemonPicture(index: Int = 0, pokeId: Int) {
+        val imageUrls = listOf(
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png",
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png",
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokeId.png"
+        )
+        binding.pokemonPhoto.apply {
+            load(imageUrls[index]) {
+                scale(Scale.FIT)
+                precision(Precision.EXACT)
+                crossfade(500)
+                allowHardware(false)
+                listener { _, result ->
+                    result.drawable.getDominantColor { dominantColor ->
+                        Rainbow(binding.root).palette {
+                            +contextColor(R.color.white)
+                            +color(dominantColor)
+                        }.apply {
+                            background(RainbowOrientation.BOTTOM_TOP)
+                        }
+                    }
+                }
+            }
         }
     }
 

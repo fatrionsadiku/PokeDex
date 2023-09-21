@@ -88,7 +88,6 @@ object Utility {
     ).also {
         it.gravity = Gravity.CENTER
     }
-
     fun getPokemonID(url: String) = url.replace(
         "https://pokeapi.co/api/v2/pokemon-species/",
         ""
