@@ -102,12 +102,12 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/changePicture"
-        android:layout_width="wrap_content"
+        android:layout_width="28dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/pokemon_name"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/shareDetails"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="@id/shareDetails"
+        app:layout_constraintStart_toStartOf="@id/shareDetails"
         app:lottie_rawRes="@raw/change_picture_type" />
 
 
