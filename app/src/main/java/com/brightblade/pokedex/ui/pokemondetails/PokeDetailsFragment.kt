@@ -29,6 +29,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.decode.SvgDecoder
 import coil.load
 import coil.size.Precision
 import coil.size.Scale
@@ -38,7 +41,9 @@ import com.brightblade.pokedex.data.models.FavoritePokemon
 import com.brightblade.pokedex.databinding.FragmentPokemonDetailsBinding
 import com.brightblade.pokedex.ui.adapters.FragmentAdapter
 import com.brightblade.pokedex.ui.pokemondetails.pokeabilities.PokeAbilities
+import com.brightblade.utils.ImageType
 import com.brightblade.utils.Resource
+import com.brightblade.utils.Utility
 import com.brightblade.utils.Utility.HIGHEST_POKEMON_ID
 import com.brightblade.utils.capitalize
 import com.brightblade.utils.getDominantColor
@@ -171,7 +176,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         binding.changePicture.setOnClickListener {
             (it as LottieAnimationView).cancelAnimation()
             it.playAnimation()
-            currentPhotoIndex = (currentPhotoIndex + 1) % 3
+            currentPhotoIndex = (currentPhotoIndex + 1) % 5
             setPokemonPicture(currentPhotoIndex, currentPokemonId)
         }
     }
@@ -285,22 +290,45 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         val imageUrls = listOf(
             "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$pokeId.png",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$pokeId.png",
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokeId.png"
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/$pokeId.svg",
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/$pokeId.png",
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/$pokeId.gif"
         )
+        val currentImage = imageUrls[index]
+//        Gets the Image type from the given Url, it'll either return a .png,.svg or a .gif'
+        val currentImageFormat =
+            ImageType.valueOf(
+                currentImage.substring(currentImage.length - 3, currentImage.length).uppercase()
+            )
         binding.pokemonPhoto.apply {
-            load(imageUrls[index]) {
+            load(currentImage) {
                 scale(Scale.FIT)
-                precision(Precision.EXACT)
+                precision(Precision.AUTOMATIC)
                 crossfade(500)
                 allowHardware(false)
-                listener { _, result ->
-                    result.drawable.getDominantColor { dominantColor ->
-                        Rainbow(binding.root).palette {
-                            +contextColor(R.color.white)
-                            +color(dominantColor)
-                        }.apply {
-                            background(RainbowOrientation.BOTTOM_TOP)
+                listener(
+                    onStart = {},
+                    onCancel = {},
+                    onError = { _, _ ->
+                        load(Utility.listOfSilhouettes.random())
+                    },
+                    onSuccess = { _, successResult ->
+                        if (currentImageFormat != ImageType.GIF) {
+                            successResult.drawable.getDominantColor { dominantColor ->
+                                Rainbow(binding.root).palette {
+                                    +contextColor(R.color.white)
+                                    +color(dominantColor)
+                                }.apply {
+                                    background(RainbowOrientation.BOTTOM_TOP)
+                                }
+                            }
                         }
+                    })
+                decoderFactory { result, options, _ ->
+                    when (currentImageFormat) {
+                        ImageType.PNG -> ImageDecoderDecoder(result.source, options)
+                        ImageType.SVG -> SvgDecoder(result.source, options)
+                        ImageType.GIF -> GifDecoder(result.source, options)
                     }
                 }
             }

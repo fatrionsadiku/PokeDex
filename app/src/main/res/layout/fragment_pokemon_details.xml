@@ -100,16 +100,17 @@
         app:layout_constraintStart_toStartOf="@id/pokemon_name"
         app:layout_constraintTop_toBottomOf="@id/pokemon_name" />
 
+
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/changePicture"
         android:layout_width="28dp"
+        android:layout_marginStart="1.5dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/shareDetails"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toEndOf="@id/shareDetails"
-        app:layout_constraintStart_toStartOf="@id/shareDetails"
+        app:layout_constraintEnd_toEndOf="@id/favoritePokemon"
+        app:layout_constraintStart_toStartOf="@id/favoritePokemon"
+        app:layout_constraintTop_toBottomOf="@id/shareDetails"
         app:lottie_rawRes="@raw/change_picture_type" />
-
 
     <com.ortiz.touchview.TouchImageView
         android:id="@+id/pokemon_photo"

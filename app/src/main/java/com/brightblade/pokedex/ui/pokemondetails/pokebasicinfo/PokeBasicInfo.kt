@@ -45,8 +45,8 @@ class PokeBasicInfo : Fragment(R.layout.fragment_pokemon_basic_info) {
                         pokemon?.let {
                             Log.d("POKE DEBUG YAY", "onViewCreated: $it")
                             pokeBaseXP.text = it.baseEXP.toString()
-                            pokeWeight.text = "${it.weight}kg"
-                            pokeHeight.text = "${it.height}m"
+                            pokeWeight.text = "${it.weight.toDouble() / 10}kg"
+                            pokeHeight.text = "${it.height.toDouble() / 10}m"
                             showPokemonTypes(pokemon)
                             showPokemonStats(pokemon)
                         }
