@@ -38,11 +38,11 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     val abilitiesResponse = MutableLiveData<Resource<List<PokeAbilities?>>>()
 
-    val pokemonSpeciesResponse = MutableLiveData<Resource<PokemonEvolutionChain?>>()
+    val pokemonSpeciesResponse = MutableLiveData<Resource<PokemonEvolutionChain?>?>()
 
     val pokemonHeldItems = MutableLiveData<Resource<List<PokeHeldItems?>>>()
 
-    val pokeCharacteristicsLiveData = MutableLiveData<PokeCharacteristics>()
+    val pokeCharacteristicsLiveData = MutableLiveData<PokeCharacteristics?>()
 
     val pokeEncountersLiveData = MutableLiveData<Resource<List<PokemonEncounters>>>()
 
@@ -88,37 +88,44 @@ class PokeDetailsSharedViewModel @Inject constructor(
 
     private fun getPokemonSpeciesId(id: Int) = viewModelScope.launch {
         val pokeSpecies = repository.getPokemonSpeciesId(id)
+        var currentPokeEvoId = 0
         if (pokeSpecies.isSuccessful) {
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
             val filteredPokeDescriptions =
                 pokeSpecies.body()?.textEntries?.filter { it.language.name == "en" }
             Timber.tag("PokeDescriptions").d(filteredPokeDescriptions.toString())
             val pokeDescriptions = listOf(
-                filteredPokeDescriptions?.first()?.pokemonDescription ?: ""
+                filteredPokeDescriptions?.getOrNull(1)?.pokemonDescription
+                    ?: "A very awesome pokemon, don't you agree?\nI mean, just look at it!!!"
             )
             pokemonDescription.postValue(pokeDescriptions)
-            val currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)
+            currentPokeEvoId = Utility.getPokemonSpeciesId(pokeSpecies.body()?.evoChain?.url!!)
             Log.d("ViewModelDebug", "currentPokeEvoId: $currentPokeEvoId")
             Log.d("ViewModelDebug", "chainUrl: ${pokeSpecies.body()?.evoChain?.url!!}")
             getPokemonSpecies(currentPokeEvoId)
-        }
+        } else pokemonDescription.postValue(listOf("A very awesome pokemon, don't you agree?\nI mean, just look at it!!!"))
+            .also {
+                pokemonSpeciesResponse.postValue(Resource.Error(message = "Evolution ID Endopint is NULL"))
+            }
     }
 
     private fun getPokemonSpecies(id: Int) = viewModelScope.launch {
         pokemonSpeciesResponse.postValue(Resource.Loading())
-        val pokeSpecies = repository.getPokemonSpecies(id)
-        if (pokeSpecies.isSuccessful) {
+        try {
+            val pokeSpecies = repository.getPokemonSpecies(id)
             Log.d("ViewModelDebug", "getPokemonSpecies: ${pokeSpecies.body()}")
             delay(300)
             pokemonSpeciesResponse.postValue(Resource.Success(pokeSpecies.body()))
-        } else pokemonSpeciesResponse.postValue(Resource.Error(message = "Error while trying to fetch pokemon data"))
+        } catch (e: Exception) {
+            pokemonSpeciesResponse.postValue(Resource.Error(message = "Error while trying to fetch pokemon data"))
+        }
     }
 
     private fun getPokemonCharacteristics(id: Int) = viewModelScope.launch {
         val pokeCharacteristics = repository.getPokemonCharacteristics(id)
         if (pokeCharacteristics.isSuccessful) {
             pokeCharacteristicsLiveData.postValue(pokeCharacteristics.body())
-        } else Timber.tag("PokeCharacteristics").e(pokeCharacteristics.message())
+        } else pokeCharacteristicsLiveData.postValue(null)
     }
 
     private fun getPokemonEncounters(id: Int) = viewModelScope.launch {

@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
@@ -146,6 +147,12 @@ fun Drawable.getDominantColor(onFinish: (Int) -> Unit) {
             onFinish(color)
         }
     }
+}
+
+fun View.setMarginExtensionFunction(left: Int, top: Int, right: Int, bottom: Int) {
+    val params = layoutParams as ViewGroup.MarginLayoutParams
+    params.setMargins(left, top, right, bottom)
+    layoutParams = params
 }
 
 

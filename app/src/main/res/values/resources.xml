@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="image_width">70dp</dimen>
-    <dimen name="image_height">70dp</dimen>
+    <dimen name="image_width">55dp</dimen>
+    <dimen name="image_height">55dp</dimen>
+    <dimen name="pokeform_image_width">75dp</dimen>
+    <dimen name="pokeform_image_height">75dp</dimen>
     <dimen name="pointing_up_width">90dp</dimen>
     <dimen name="pointing_up_height">70dp</dimen>
     <dimen name="textview_size">24sp</dimen>

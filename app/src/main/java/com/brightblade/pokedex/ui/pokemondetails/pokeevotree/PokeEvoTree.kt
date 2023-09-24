@@ -63,11 +63,13 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
                     is Resource.Error   -> {
                         hideProgressBar()
                         Log.e("EvoTree", evoChainResponse.message.toString())
+                        binding.linearLayout.removeAllViews()
+                        binding.noOtherForms.visibility = View.VISIBLE
+                        binding.linearLayout.visibility = View.GONE
                     }
 
                     is Resource.Loading -> showProgressBar()
                     is Resource.Success -> {
-                        evoChainResponse.data
                         hideProgressBar()
                         evoChainResponse.data?.let { evoChain ->
                             if (evoChain.chain.evoDetails.isNullOrEmpty()) {
@@ -196,8 +198,8 @@ class PokeEvoTree : Fragment(R.layout.fragment_pokemon_evolution_tree) {
         pokeAbilitiesFragment: PokeAbilities,
     ): ImageView {
         val pokeImageParams = LinearLayout.LayoutParams(
-            resources.getDimensionPixelSize(R.dimen.image_width),
-            resources.getDimensionPixelSize(R.dimen.image_height),
+            resources.getDimensionPixelSize(R.dimen.pokeform_image_width),
+            resources.getDimensionPixelSize(R.dimen.pokeform_image_height),
             0.5f
         ).also {
             it.gravity = Gravity.CENTER_HORIZONTAL

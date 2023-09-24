@@ -3,15 +3,18 @@ package com.brightblade.pokedex.ui.pokemondetails.pokeabilities
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup.LayoutParams
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewbinding.ViewBinding
 import coil.load
+import coil.request.ErrorResult
+import coil.request.ImageRequest
 import com.brightblade.pokedex.R
 import com.brightblade.pokedex.data.models.PokeAbilities
 import com.brightblade.pokedex.data.models.PokeHeldItems
@@ -89,15 +92,22 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
             binding.hasNoHeldItems.isViewVisible = response.data!!.isEmpty()
             data.forEach { heldItem ->
                 val currentHeldItem = ImageView(requireContext()).apply {
-                    this.layoutParams = LayoutParams(
+                    this.layoutParams = LinearLayout.LayoutParams(
                         resources.getDimensionPixelSize(R.dimen.image_width),
-                        resources.getDimensionPixelSize(R.dimen.image_height)
-                    )
+                        resources.getDimensionPixelSize(R.dimen.image_height),
+                        0.5f
+                    ).also {
+                        it.gravity = Gravity.CENTER_HORIZONTAL
+                    }
                     load(
-                        heldItem?.sprites?.default
+                        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/dream-world/${heldItem?.name}.png"
                     ) {
                         allowHardware(false)
                         crossfade(500)
+                        listener(
+                            onError = { _: ImageRequest, _: ErrorResult ->
+                                load(heldItem?.sprites?.default)
+                            })
                     }
                     setOnClickListener {
                         showBalloonDialog(heldItem, requireContext(), this)
@@ -117,13 +127,14 @@ class PokeAbilities : Fragment(R.layout.fragment_pokemon_abilities) {
             delay(500)
             hideProgressBar()
             if (pokeAbilityResponse.data?.isNotEmpty() == true) data.forEach {
-                val pokeAbilityTitle = it?.name?.capitalize() ?: "Missing Data!"
+                val pokeAbilityTitle = it?.name?.capitalize()
+                    ?: "This ability was so powerful that we couldn't show it!\nOnly google is brave enough to hold this kind of information!"
                 val pokeAbilityDescription =
                     if (it?.effectEntries?.getOrNull(1) != null) {
                         it.effectEntries[1]?.effect
                     } else if (it?.effectEntries?.getOrNull(0) != null) {
                         it.effectEntries[0]?.effect
-                    } else "Missing Data!"
+                    } else "This ability was so powerful that we couldn't show it!\nOnly google is brave enough to hold this kind of information!"
 
                 val pokemonAbility = PokeAbilitiesLayout(
                     requireContext(),

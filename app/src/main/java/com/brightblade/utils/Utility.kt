@@ -8,8 +8,8 @@ import kotlin.system.measureNanoTime
 
 object Utility {
 
-    const val MAX_POKEMON_SIZE: Int = 1010
-    const val HIGHEST_POKEMON_ID: Int = 1010
+    const val MAX_POKEMON_SIZE: Int = 1280
+    const val HIGHEST_POKEMON_ID: Int = 10263
     const val BASE_URL = "https://pokeapi.co/api/v2/"
     val listOfColors =
         listOf(
