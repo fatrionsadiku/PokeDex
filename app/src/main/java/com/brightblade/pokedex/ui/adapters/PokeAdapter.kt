@@ -21,6 +21,7 @@ import com.brightblade.pokedex.databinding.ItemPokemonBinding
 import com.brightblade.utils.Utility.listOfColors
 import com.brightblade.utils.Utility.listOfSilhouettes
 import com.brightblade.utils.capitalize
+import com.brightblade.utils.fadeIn
 import com.brightblade.utils.getDominantColor
 import com.skydoves.rainbow.Rainbow
 import com.skydoves.rainbow.RainbowOrientation
@@ -51,16 +52,16 @@ class PokeAdapter(
             binding.pokeName.apply {
                 text = pokemon.name.capitalize()
                 alpha = 0f
-            }.animate().setDuration(500).alpha(1f)
+            }.fadeIn()
             binding.pokeId.apply {
                 val currentId = getPokemonID(pokemon)
                 val formattedId = String.format("%04d", currentId)
                 text = "Nᵒ $formattedId"
                 alpha = 0f
-            }.animate().setDuration(500).alpha(1f)
+            }.fadeIn()
             binding.pokemonDojo.apply {
                 alpha = 0.5f
-            }.animate().setDuration(500).alpha(1f)
+            }.fadeIn()
             binding.pokemonPlaceHolder.load(
                 if (_pokeImageUrl != null) getPokemonPicture(
                     pokemon,

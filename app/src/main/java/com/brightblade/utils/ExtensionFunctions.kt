@@ -11,6 +11,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
@@ -153,6 +154,18 @@ fun View.setMarginExtensionFunction(left: Int, top: Int, right: Int, bottom: Int
     val params = layoutParams as ViewGroup.MarginLayoutParams
     params.setMargins(left, top, right, bottom)
     layoutParams = params
+}
+
+fun View.fadeIn(duration: Long = 500L, alpha: Float = 1f): ViewPropertyAnimator {
+    return animate()
+        .setDuration(duration)
+        .alpha(alpha)
+}
+
+fun View.fadeOut(duration: Long = 300L): ViewPropertyAnimator {
+    return animate()
+        .setDuration(duration)
+        .alpha(0f)
 }
 
 
