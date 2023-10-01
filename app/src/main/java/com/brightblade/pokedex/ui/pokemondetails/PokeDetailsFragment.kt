@@ -46,6 +46,7 @@ import com.brightblade.utils.ImageType
 import com.brightblade.utils.Resource
 import com.brightblade.utils.Utility
 import com.brightblade.utils.Utility.HIGHEST_POKEMON_ID
+import com.brightblade.utils.Utility.listOfPokemonBackgrounds
 import com.brightblade.utils.capitalize
 import com.brightblade.utils.getDominantColor
 import com.brightblade.utils.requestPermission
@@ -374,7 +375,8 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
 
     private fun getScreenShotFromView(v: View, isPokemonPhoto: Boolean = false): Bitmap? {
         var screenshot: Bitmap? = null
-        val backgroundImage = BitmapFactory.decodeResource(resources, R.drawable.pokemon_photo_bg)
+        val backgroundImage =
+            BitmapFactory.decodeResource(resources, listOfPokemonBackgrounds.random())
         var canvas: Canvas? = null
         try {
             if (isPokemonPhoto) {

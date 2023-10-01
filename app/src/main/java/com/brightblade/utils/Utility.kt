@@ -58,6 +58,12 @@ object Utility {
             "#82C8E8",
             "#82C7D0"
         )
+    val listOfPokemonBackgrounds = listOf(
+        R.drawable.pokemon_photo_bg,
+        R.drawable.pokemon_photo_bg_cave,
+        R.drawable.pokemon_photo_bg_city,
+        R.drawable.pokemon_photo_bg_glacier,
+    )
     val listOfIcons = listOf(
         R.drawable.quiz_icon_1,
         R.drawable.quiz_icon_2,
