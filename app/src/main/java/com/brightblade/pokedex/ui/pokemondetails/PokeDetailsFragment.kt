@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -101,7 +102,7 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
 
     private fun onPokemonPhotoLongPressListener() {
         binding.pokemonPhoto.setOnLongClickListener {
-            val pokemonPhoto = getScreenShotFromView(it)
+            val pokemonPhoto = getScreenShotFromView(it, true)
             checkApiAndSavePhoto(pokemonPhoto, true)
             true
         }
@@ -371,26 +372,61 @@ class PokeDetailsFragment : Fragment(R.layout.fragment_pokemon_details) {
         }
     }
 
-    private fun getScreenShotFromView(v: View): Bitmap? {
-        // create a bitmap object
+    private fun getScreenShotFromView(v: View, isPokemonPhoto: Boolean = false): Bitmap? {
         var screenshot: Bitmap? = null
+        val backgroundImage = BitmapFactory.decodeResource(resources, R.drawable.pokemon_photo_bg)
+        var canvas: Canvas? = null
         try {
-            // inflate screenshot object
-            // with Bitmap.createBitmap it
-            // requires three parameters
-            // width and height of the view and
-            // the background color
-            screenshot =
-                Bitmap.createBitmap(v.measuredWidth, v.measuredHeight, Bitmap.Config.ARGB_8888)
-            // Now draw this bitmap on a canvas
-            val canvas = Canvas(screenshot)
-            v.draw(canvas)
+            if (isPokemonPhoto) {
+                // Capture the original view dimensions
+                val originalWidth = v.measuredWidth
+                val originalHeight = v.measuredHeight
+
+                // Create a screenshot bitmap based on the background image dimensions
+                screenshot = Bitmap.createBitmap(
+                    backgroundImage.width,
+                    backgroundImage.height,
+                    Bitmap.Config.ARGB_8888
+                )
+                canvas = Canvas(screenshot)
+
+                // Calculate the scaling factor (3x)
+                val scaleFactor = 3f
+
+                // Create the Pokemon photo with the doubled dimensions
+                val pokemonPhoto = Bitmap.createBitmap(
+                    (originalWidth * scaleFactor).toInt(),
+                    (originalHeight * scaleFactor).toInt(),
+                    Bitmap.Config.ARGB_8888
+                )
+                val pokemonCanvas = Canvas(pokemonPhoto)
+
+                // Scale and draw the contents of the provided view (v) onto the pokemonCanvas
+                pokemonCanvas.scale(scaleFactor, scaleFactor)
+                v.draw(pokemonCanvas)
+
+                // Calculate the center position on the screenshot for the Pokemon photo
+                val centerX = (screenshot.width - pokemonPhoto.width) / 2f
+                val centerY = (screenshot.height - pokemonPhoto.height) / 2f
+
+                // Draw the background image on the screenshot
+                canvas.drawBitmap(backgroundImage, 0f, 0f, null)
+
+                // Draw the Pokemon photo at the calculated center position
+                canvas.drawBitmap(pokemonPhoto, centerX, centerY, null)
+            } else {
+                // If not capturing the Pokemon photo, just draw the view onto the screenshot
+                screenshot =
+                    Bitmap.createBitmap(v.measuredWidth, v.measuredHeight, Bitmap.Config.ARGB_8888)
+                canvas = Canvas(screenshot)
+                v.draw(canvas)
+            }
         } catch (e: Exception) {
             Log.e("GFG", "Failed to capture screenshot because:" + e.message)
         }
-        // return the bitmap
         return screenshot
     }
+
 
     // this method saves the image to gallery
     private fun saveMediaToStorage(bitmap: Bitmap, isPokemonPhoto: Boolean = false) {
